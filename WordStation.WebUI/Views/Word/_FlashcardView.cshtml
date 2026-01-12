@@ -1,0 +1,431 @@
+@model WordStation.WebUI.Models.HomeViewModel
+
+<style>
+    
+    /* Main Stage Container */
+    .main-stage {
+        display: flex;
+        flex-direction: row;
+        background: linear-gradient(135deg, rgba(15, 15, 35, 0.6) 0%, rgba(30, 20, 50, 0.4) 100%);
+        border: 1.5px solid var(--glass-border);
+        border-radius: 24px;
+        min-height: 500px;
+        overflow: hidden;
+        position: relative;
+        backdrop-filter: blur(16px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Example Section (Left Panel) */
+    .stage-left {
+        flex: 0 0 40%;
+        max-width: 40%;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        background: linear-gradient(135deg, rgba(25, 20, 50, 0.4) 0%, rgba(40, 25, 60, 0.3) 100%);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .example-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.9);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        flex: 1;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .example-text::-webkit-scrollbar { width: 5px; }
+    .example-text::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+
+    /* Flashcard Section (Right Panel) */
+    .stage-right {
+        flex: 1;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        background: linear-gradient(135deg, rgba(15, 15, 35, 0.2) 0%, rgba(20, 15, 40, 0.15) 100%);
+    }
+
+    .stage-right .dropdown { position: absolute; top: 16px; right: 16px; z-index: 10; }
+    .stage-right .dropdown-toggle::after { display: none; }
+
+    /* Flashcard */
+    .flashcard-container {
+        perspective: 1200px;
+        width: 100%;
+        max-width: 420px;
+        height: 220px;
+        margin-bottom: 24px;
+    }
+
+    .flashcard {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        transform-style: preserve-3d;
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .flashcard-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+    }
+
+    .flashcard-front { background: var(--primary-gradient); }
+    .flashcard-back { background: var(--success-gradient); transform: rotateY(180deg); }
+
+    .flashcard-word {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        text-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: #fff;
+    }
+
+    /* Controls */
+    .stage-controls {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .index-label, #flashcardProgress {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 6px 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 16px;
+        display: inline-block;
+    }
+
+    .interactive-slider {
+        position: relative;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        cursor: pointer;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .slider-track {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--success-gradient);
+        border-radius: 20px;
+        pointer-events: none;
+    }
+
+    .slider-handle {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .stage-controls .btn-outline-light {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+    }
+
+    .stage-controls .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.4);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .stage-controls .btn-success {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: var(--success-gradient);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px rgba(13, 148, 136, 0.35);
+        transition: all 0.25s ease;
+    }
+
+    .stage-controls .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4);
+    }
+
+    .stage-controls .btn-success i { font-size: 1.75rem; color: #fff; }
+    .stage-controls .btn-outline-light i { font-size: 1.5rem; }
+
+    /* Empty State */
+    .border-dashed { border-style: dashed !important; }
+
+    /* =============================================
+       BOOTSTRAP RESPONSIVE BREAKPOINTS
+       ============================================= */
+
+    /* Large devices (desktops, 992px and up) - Default styles above */
+
+    /* Medium devices (tablets, 768px to 991px) */
+    @@media (max-width: 991.98px) {
+        .main-stage {
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        .stage-left {
+            flex: 0 0 auto;
+            max-width: 100%;
+            width: 100%;
+            height: 220px;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .stage-right {
+            padding: 24px 20px;
+        }
+
+        .flashcard-container {
+            max-width: 380px;
+            height: 180px;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-word { font-size: 2rem; }
+
+        .stage-controls { max-width: 360px; }
+        .interactive-slider { height: 36px; }
+        .slider-handle { width: 28px; height: 28px; }
+
+        .stage-controls .btn-outline-light,
+        .stage-controls .btn-success {
+            width: 52px;
+            height: 52px;
+        }
+
+        .stage-controls .btn-success i { font-size: 1.5rem; }
+        .stage-controls .btn-outline-light i { font-size: 1.25rem; }
+    }
+
+    /* Small devices (landscape phones, 576px to 767px) */
+    @@media (max-width: 767.98px) {
+        .main-stage {
+            border-radius: 18px;
+        }
+
+        .stage-left {
+            height: 250px;
+            padding: 16px;
+        }
+
+        .example-text { font-size: 1rem; line-height: 1.6; }
+
+        .stage-right { padding: 20px 16px; }
+
+        .flashcard-container {
+            max-width: 360px;
+            height: 180px;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-face { padding: 20px; border-radius: 16px; }
+        .flashcard-word { font-size: 1.75rem; }
+
+        .stage-controls { max-width: 340px; }
+        .index-label, #flashcardProgress { font-size: 0.85rem; padding: 6px 16px; margin-bottom: 12px; }
+        .interactive-slider { height: 36px; margin-bottom: 20px; }
+        .slider-handle { width: 28px; height: 28px; }
+
+        .stage-controls .btn-outline-light,
+        .stage-controls .btn-success {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+        }
+
+        .stage-controls .d-flex.gap-4 { gap: 20px !important; }
+        .stage-controls .btn-success i { font-size: 1.5rem; }
+        .stage-controls .btn-outline-light i { font-size: 1.25rem; }
+    }
+
+    /* Extra small devices (portrait phones, less than 576px) */
+    @@media (max-width: 575.98px) {
+        .main-stage {
+            border-radius: 14px;
+        }
+
+        .stage-left {
+            height: 220px;
+            padding: 14px;
+        }
+
+        .example-text { font-size: 1rem; line-height: 1.5; }
+
+        .stage-right { padding: 16px 14px; }
+
+        .flashcard-container {
+            max-width: 100%;
+            height: 180px;
+            margin-bottom: 16px;
+        }
+
+        .flashcard-face { padding: 16px; border-radius: 14px; }
+        .flashcard-word { font-size: 1.75rem; }
+
+        .stage-controls { max-width: 100%; }
+        .index-label, #flashcardProgress { font-size: 0.8rem; padding: 5px 14px; margin-bottom: 10px; }
+        .interactive-slider { height: 32px; margin-bottom: 16px; }
+        .slider-handle { width: 26px; height: 26px; }
+
+        .stage-controls .btn-outline-light,
+        .stage-controls .btn-success {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+        }
+
+        .stage-controls .d-flex.gap-4 { gap: 16px !important; }
+        .stage-controls .btn-success i { font-size: 1.4rem; }
+        .stage-controls .btn-outline-light i { font-size: 1.15rem; }
+        
+        .stage-right .dropdown { top: 10px; right: 10px; }
+    }
+</style>
+
+<div id="flashcardView">
+    @if (Model.Words != null && Model.Words.Any())
+    {
+        <div class="main-stage">
+            @* Example Section *@
+            <div class="stage-left">
+                <div id="flashcardExampleText" class="example-text">
+                    Loading...
+                </div>
+            </div>
+
+            @* Flashcard Section *@
+            <div class="stage-right">
+                @* Action Menu *@
+                <div class="dropdown">
+                    <button type="button"
+                            class="btn btn-link text-white-50 text-decoration-none p-2"
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical fs-5"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button type="button"
+                                    class="dropdown-item"
+                                    id="flashcardUpdateBtn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#updateWordModal">
+                                <i class="bi bi-pencil-fill me-2"></i>Update
+                            </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button type="button"
+                                    class="dropdown-item text-danger"
+                                    id="flashcardDeleteBtn">
+                                <i class="bi bi-trash-fill me-2"></i>Delete
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                @* Flashcard *@
+                <div class="flashcard-container" id="flashcardContainer">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-face flashcard-front">
+                            <h1 class="flashcard-word" id="flashcardWord">Word</h1>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <h2 class="flashcard-word" id="flashcardTranslation">Translation</h2>
+                        </div>
+                    </div>
+                </div>
+
+                @* Controls *@
+                <div class="stage-controls">
+                    <div class="text-center mb-3">
+                        <span id="flashcardProgress" class="index-label">1/0</span>
+                    </div>
+
+                    <div class="interactive-slider mb-3" id="interactiveSlider">
+                        <div class="slider-track" id="sliderTrack"></div>
+                        <div class="slider-handle" id="sliderHandle"></div>
+                    </div>
+
+                    <div class="d-flex gap-4 justify-content-center align-items-center">
+                        <button class="btn btn-outline-light"
+                                id="flashcardPrev"
+                                title="Previous (Left Arrow)">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+
+                        <button class="btn btn-success"
+                                id="flashcardRandom"
+                                title="Random (Down Arrow)">
+                            <i class="bi bi-shuffle"></i>
+                        </button>
+
+                        <button class="btn btn-outline-light"
+                                id="flashcardNext"
+                                title="Next (Right Arrow)">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card text-center p-5 bg-transparent border-secondary border-dashed">
+            <i class="bi bi-inbox" style="font-size: 4rem; opacity: 0.5;"></i>
+            <p class="mt-3 mb-0 text-white-50">No words in this list yet.</p>
+        </div>
+    }
+</div>

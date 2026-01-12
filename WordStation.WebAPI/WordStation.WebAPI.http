@@ -1,0 +1,6 @@
+@WordStation.WebAPI_HostAddress = http://localhost:5004
+
+GET {{WordStation.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

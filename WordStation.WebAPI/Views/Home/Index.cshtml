@@ -1,0 +1,50 @@
+﻿@model WordStation.WebAPI.Models.HomeViewModel
+@{
+    ViewData["Title"] = "WordStation";
+}
+
+<h1>WordStation</h1>
+
+<form method="get">
+    <select name="selectedList">
+        <option value="">Liste Seçin</option>
+        @foreach (var list in Model.ListNames)
+        {
+            <option value="@list" @(list == Model.SelectedList ? "selected" : "")>@list</option>
+        }
+    </select>
+
+    <input type="text" name="search" value="@Model.Search" placeholder="Kelime ara..." />
+    <button type="submit">Ara</button>
+</form>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>English</th>
+            <th>Turkish</th>
+            <th>Example</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Words != null && Model.Words.Count > 0)
+        {
+            for (int i = 0; i < Model.Words.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model.Words[i].En</td>
+                    <td>@Model.Words[i].Tr</td>
+                    <td>@Model.Words[i].Example?.Replace("\n", "<br/>")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" style="text-align:center">Kelime bulunamadı</td>
+            </tr>
+        }
+    </tbody>
+</table>

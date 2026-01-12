@@ -1,0 +1,345 @@
+﻿@model LoginModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<style>
+    /* Temel renkler - Dark Theme */
+    :root {
+        --primary-color: #7b5fcf; /* Mor ana renk */
+        --primary-hover: #8d6fd8;
+        --text-color: #e0e0e0;
+        --bg-dark: #1e1e2e;
+        --bg-darker: #151521;
+        --input-bg: #2a2a3e;
+        --input-border: #3a3a4e;
+        --input-focus: #7b5fcf;
+        --tab-bg: #252535;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        padding: 12px 24px;
+        border-radius: 6px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+    .login-container {
+        background: var(--bg-dark);
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+        overflow: hidden;
+        max-width: 500px;
+        margin: 50px auto;
+    }
+
+    .tab-container {
+        display: flex;
+        border-bottom: 2px solid var(--input-border);
+    }
+
+    .tab {
+        flex: 1;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        background: var(--tab-bg);
+        border: none;
+        font-weight: 500;
+        color: #888;
+        transition: all 0.3s ease;
+    }
+
+        .tab.active {
+            background: var(--bg-dark);
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+    .form-container {
+        padding: 30px;
+    }
+
+    .form-control {
+        padding: 12px 16px;
+        border: 1px solid var(--input-border);
+        border-radius: 6px;
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: var(--text-color) !important;
+        background-color: var(--input-bg) !important;
+    }
+
+        .form-control:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 0.2rem rgba(123, 95, 207, 0.25);
+            outline: none;
+            background-color: var(--input-bg) !important;
+        }
+
+        .form-control::placeholder {
+            color: #666;
+        }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: #888;
+        z-index: 10;
+    }
+
+        .password-toggle-btn:hover {
+            color: var(--primary-color);
+        }
+
+    .social-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 1px solid var(--input-border);
+        background: var(--input-bg);
+        margin: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #888;
+        transition: all 0.3s ease;
+    }
+
+        .social-btn i {
+            font-size: 24px;
+        }
+
+        .social-btn:hover {
+            background: var(--tab-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+    .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .social-login {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+        .social-login p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+    .forgot-password {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .forgot-password:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+    .phone-login {
+        background: var(--input-bg);
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 12px 24px;
+        border-radius: 6px;
+        width: 100%;
+        margin-top: 15px;
+        font-weight: 500;
+    }
+
+        .phone-login:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+    .privacy-text {
+        font-size: 12px;
+        color: #888;
+        line-height: 1.4;
+        margin-top: 15px;
+    }
+
+        .privacy-text a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+            .privacy-text a:hover {
+                text-decoration: underline;
+            }
+
+    .header-logo {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+</style>
+
+<div class="container">
+
+    <div class="login-container">
+        <div class="tab-container">
+            <button class="tab active" id="loginTab" onclick="showTab('login')">Giriş yap</button>
+            <button class="tab" id="registerTab" onclick="showTab('register')">Üye ol</button>
+        </div>
+
+        <div id="loginForm" class="form-container">
+            <div class="text-danger" asp-validation-summary="All"></div>
+
+            <form method="post" asp-action="Login">
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">E-posta adresi</label>
+                    <input asp-for="Email" class="form-control" placeholder="E-posta adresinizi girin" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Şifre</label>
+                    <div class="password-wrapper">
+                        <input type="password" asp-for="Password" class="form-control" placeholder="Şifrenizi girin" id="loginPassword" />
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-3 text-end">
+                    <a href="#" class="forgot-password">Şifremi unuttum</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>
+                    Giriş yap
+                </button>
+            </form>
+
+            <div class="social-login">
+                <p>Google ile giriş yap</p>
+                <button class="social-btn">
+                    <i class="fab fa-google"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="registerForm" class="form-container" style="display: none;">
+            <form method="post" asp-action="Register" autocomplete="off">
+                <div class="mb-3">
+                    <label class="form-label">E-posta adresi</label>
+                    <input name="Email" class="form-control" type="email" placeholder="E-posta adresinizi girin" required autocomplete="new-email" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Şifre</label>
+                    <div class="password-wrapper">
+                        <input name="Password" class="form-control" type="password" id="registerPassword" placeholder="Şifrenizi oluşturun" required autocomplete="new-password" />
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Şifre Tekrarı</label>
+                    <div class="password-wrapper">
+                        <input name="ConfirmPassword" class="form-control" type="password" id="confirmPassword" placeholder="Şifrenizi tekrar girin" required autocomplete="new-password" />
+                        <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Devam et
+                </button>
+            </form>
+
+            <div class="social-login">
+                <p>Google ile giriş yap</p>
+                <button class="social-btn">
+                    <i class="fab fa-google"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tab) {
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        if (tab === 'login') {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+        } else {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.style.display = 'block';
+            loginForm.style.display = 'none';
+
+            // Register formundaki tüm inputları temizle
+            registerForm.querySelectorAll('input').forEach(input => {
+                if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+        }
+    }
+
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const button = input.nextElementSibling;
+        const icon = button.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    }
+</script>

@@ -1,0 +1,31 @@
+﻿
+@* _LoginMenu.cshtml *@
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white" href="#" id="accountDropdown" role="button"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            Hesabım
+        </a>
+        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+            <div class="dropdown-item-text text-muted small">@User.Identity.Name</div>
+            <div><hr class="dropdown-divider"></div>
+            
+            <a class="dropdown-item" asp-controller="CookieDemo" asp-action="Index">
+                <i class="fas fa-cookie-bite me-2"></i> Cookie X-Ray
+            </a>
+            
+            <div><hr class="dropdown-divider"></div>
+
+            <a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="nav-item">
+        <a class="nav-link text-white" aria-current="page"
+           asp-controller="Account" asp-action="Login">Login</a>
+    </div>
+}

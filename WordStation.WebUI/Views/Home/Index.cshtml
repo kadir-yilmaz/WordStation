@@ -1,0 +1,211 @@
+﻿@model List<string>
+
+@{
+    ViewData["Title"] = User.Identity.IsAuthenticated ? "Dashboard" : "Welcome";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+
+@* Toast Container - Navbar altında, sağ üst köşe *@
+<div class="toast-container position-fixed end-0 p-3" style="top: 60px; z-index: 9999; pointer-events: none;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+            <i class="bi bi-exclamation-circle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="container py-4">
+
+        <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">Word Lists</h1>
+                <p class="page-subtitle">Manage your vocabulary collections</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="add-list-btn" data-bs-toggle="modal" data-bs-target="#createListModal" title="Create New List">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        @* Lists Grid *@
+        <div class="row g-4">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var listName in Model)
+                {
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="dashboard-card">
+
+                            @* Top Right Menu *@
+                            <div class="dropdown card-menu">
+                                <button class="btn btn-sm btn-link text-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end border-secondary">
+                                    <li>
+                                        <button class="dropdown-item" type="button"
+                                                data-bs-toggle="modal" data-bs-target="#renameListModal"
+                                                data-list-name="@listName">
+                                            <i class="bi bi-pencil me-2"></i>Rename
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <form asp-controller="Home" asp-action="DeleteList" method="post"
+                                              onsubmit="return confirm('Are you sure you want to delete the list \'@listName\'? This action cannot be undone.');">
+                                            <input type="hidden" name="listName" value="@listName" />
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            @* Clickable Area *@
+                            <a asp-controller="Word" asp-action="Index" asp-route-listName="@listName" class="text-decoration-none w-100 d-flex flex-column align-items-center">
+                                <i class="bi bi-folder2-open card-icon"></i>
+                                <h3 class="card-title">@listName</h3>
+                            </a>
+
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="empty-state-box">
+                        <i class="bi bi-inbox empty-state-icon"></i>
+                        <h3 class="text-white mb-2">No lists yet</h3>
+                        <p class="text-secondary mb-4">Create a new list to start learning vocabulary.</p>
+                        <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#createListModal">
+                            <i class="bi bi-plus-lg me-2"></i>Create Your First List
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* --- MODALS --- *@
+
+    @* Create List Modal *@
+    <div class="modal fade" id="createListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-controller="Home" asp-action="CreateList" method="post" autocomplete="off">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-white">Create New List</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <label class="form-label text-secondary small fw-bold">LIST NAME</label>
+                            <input type="text" name="word.ListName" class="form-control" placeholder="e.g. Verbs, B1 Level..." required />
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary">
+                            <span class="text-white small fw-bold">ADD FIRST WORD</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">ENGLISH</label>
+                                <input type="text" name="word.En" class="form-control" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">TURKISH</label>
+                                <input type="text" name="word.Tr" class="form-control" required />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">EXAMPLE SENTENCE (OPTIONAL)</label>
+                                <textarea name="word.Example" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary px-4">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* Rename List Modal *@
+    <div class="modal fade" id="renameListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-controller="Home" asp-action="RenameList" method="post" autocomplete="off">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-white">Rename List</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="renameOldListName" name="oldListName" />
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold">NEW LIST NAME</label>
+                            <input type="text" id="renameNewListName" name="newListName" class="form-control" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary px-4">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @* NOT LOGGED IN USER SCREEN *@
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+        <div class="welcome-hero">
+            <div class="brand-hero">Word<span>Station</span></div>
+            <p class="lead text-secondary mb-5">
+                Please sign in to continue.
+            </p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Rename Modal Logic
+        const renameListModal = document.getElementById('renameListModal');
+        renameListModal?.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const listName = button.getAttribute('data-list-name');
+
+            const modalInput = this.querySelector('#renameOldListName');
+            const visibleInput = this.querySelector('#renameNewListName');
+
+            if(modalInput) modalInput.value = listName;
+            if(visibleInput) {
+                visibleInput.value = listName;
+                setTimeout(() => {
+                    visibleInput.focus();
+                    visibleInput.select();
+                }, 500);
+            }
+        });
+    </script>
+}
