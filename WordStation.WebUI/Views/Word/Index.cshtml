@@ -1,0 +1,356 @@
+﻿@model WordStation.WebUI.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = $"{Model.SelectedList} List";
+}
+
+@section Styles {
+    <style>
+        /* ===== CSS VARIABLES (Shared) ===== */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --banner-bg: rgba(255, 255, 255, 0.045);
+            --banner-border-hover: rgba(0, 220, 255, 0.40);
+        }
+
+        /* ===== TOP BAR ===== */
+        .top-bar-fixed { position: relative; z-index: 1050; }
+        .top-bar-fixed .dropdown-menu { z-index: 1051; }
+        .container { padding-top: 12px !important; max-width: 1200px; }
+
+        /* ===== BANNER ===== */
+        .banner-shell {
+            position: relative;
+            border-radius: 14px;
+            padding: 1px;
+            background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 12px !important;
+            transition: transform 0.2s ease;
+        }
+
+        .banner-card {
+            background: var(--banner-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid transparent;
+            border-radius: 13px;
+            padding: 8px 16px;
+        }
+
+        .banner-shell:hover .banner-card { border-color: var(--banner-border-hover); }
+        .banner-top-row { flex-wrap: nowrap; }
+        .banner-dropdown { flex-shrink: 0; }
+        .banner-buttons { flex-shrink: 0; }
+        .banner-search-row { display: none; }
+
+        .modern-input {
+            height: 36px;
+            background: var(--glass-bg);
+            border: 1.5px solid var(--glass-border);
+            color: #fff;
+            border-radius: 10px !important;
+            padding: 0 14px;
+            font-size: 0.9rem;
+        }
+
+        .modern-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 220, 255, 0.6);
+            box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+            color: #fff;
+            outline: none;
+        }
+
+        .banner-btn {
+            height: 36px;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px !important;
+            padding: 0 12px;
+            border: 1.5px solid var(--glass-border);
+            transition: all 0.2s ease;
+        }
+
+        .banner-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .banner-btn.btn-success {
+            background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        .banner-btn.btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* ===== DESKTOP - 769px+ ===== */
+        @@media (min-width: 769px) {
+            .banner-top-row { margin-bottom: 0 !important; }
+            .banner-search-row { display: flex; margin-top: 8px; }
+        }
+
+        /* ===== TABLET - 768px and below ===== */
+        @@media (max-width: 768px) {
+            .banner-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px !important; }
+            .banner-dropdown { flex: 1; max-width: 50%; }
+            .banner-dropdown .banner-btn { width: 100%; justify-content: flex-start; }
+            .banner-buttons { flex: 0 0 auto; }
+            .banner-search-row { display: flex; width: 100%; }
+        }
+
+        /* ===== SMALL PHONE - 480px and below ===== */
+        @@media (max-width: 480px) {
+            .container { padding-left: 8px !important; padding-right: 8px !important; }
+            .banner-card { padding: 6px 10px; }
+            .banner-btn { height: 32px; min-width: 32px; padding: 0 8px; font-size: 0.8rem; }
+            .modern-input { height: 32px; font-size: 0.85rem; }
+            .dropdown-item { padding: 10px 14px; }
+        }
+
+        /* ===== MODAL STYLES ===== */
+        .modal-content {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+
+        .modal-header { padding: 20px 24px 10px; }
+        .modal-body { padding: 10px 24px 20px; }
+        .modal-footer { padding: 10px 24px 20px; }
+
+        .modal .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        .modal .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 220, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal .form-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
+}
+
+@* Toast Container - Navbar altında, sağ üst köşe *@
+<div class="toast-container position-fixed end-0 p-3" style="top: 60px; z-index: 9999; pointer-events: none;">
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+            <strong><i class="bi bi-exclamation-triangle-fill"></i> Error!</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+            <strong><i class="bi bi-check-circle-fill"></i> Success!</strong> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+<div class="top-bar-fixed">
+    <div class="container">
+
+        @* ===== BANNER ===== *@
+        <div class="banner-shell">
+            <div class="banner-card">
+                @* Top Row: Dropdown and Buttons *@
+                <div class="banner-top-row d-flex align-items-center justify-content-between gap-2 mb-2">
+                    @* List Selection *@
+                    <div class="dropdown banner-dropdown">
+                        <button class="btn btn-outline-light banner-btn dropdown-toggle d-flex align-items-center gap-2"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="Select List">
+                            <i class="bi bi-journal-text"></i>
+                            <span>@Model.SelectedList</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            @if (ViewBag.AllLists != null)
+                            {
+                                @foreach (var list in ViewBag.AllLists)
+                                {
+                                    <li>
+                                        <a class="dropdown-item @(list == Model.SelectedList ? "active" : "")"
+                                           asp-controller="Word"
+                                           asp-action="Index"
+                                           asp-route-listName="@list">
+                                            @list
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li><a class="dropdown-item disabled" href="#">No lists available</a></li>
+                            }
+                        </ul>
+                    </div>
+
+                    @* Right Buttons *@
+                    <div class="d-flex align-items-center gap-2 banner-buttons">
+                        <button type="button"
+                                class="btn btn-success banner-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#createWordModal"
+                                title="Add Word">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-outline-light banner-btn"
+                                id="toggleViewBtn"
+                                title="Switch View">
+                            <i class="bi bi-table" id="toggleViewIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                @* Bottom Row: Search Form *@
+                <form method="get" asp-controller="Word" asp-action="Index" class="banner-search-row d-flex gap-2">
+                    <input type="hidden" name="listName" value="@Model.SelectedList" />
+                    <div class="flex-grow-1">
+                        <input type="text"
+                               name="SearchTerm"
+                               id="searchInput"
+                               class="form-control modern-input w-100"
+                               value="@Model.SearchTerm"
+                               placeholder="Search words..."
+                               autocomplete="off" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-area">
+    <div class="container">
+        @* ===== TABLE VIEW ===== *@
+        @await Html.PartialAsync("_TableView", Model)
+
+        @* ===== FLASHCARD VIEW ===== *@
+        @await Html.PartialAsync("_FlashcardView", Model)
+    </div>
+</div>
+
+@* Scroll To Top Button *@
+<button id="scrollTopBtn"
+        class="btn position-fixed bottom-0 end-0 m-4 shadow-lg"
+        style="width: 50px; height: 50px; z-index: 1000; display: none; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white;">
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+@* Create Word Modal *@
+<div class="modal fade" id="createWordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Word" asp-action="CreateWord" method="post" autocomplete="off">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Add New Word</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="ListName" value="@Model.SelectedList" />
+                    <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                    <div class="mb-3">
+                        <label class="form-label">English</label>
+                        <input type="text" name="En" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Turkish</label>
+                        <input type="text" name="Tr" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Example (Optional)</label>
+                        <textarea name="Example" class="form-control" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Update Word Modal *@
+<div class="modal fade" id="updateWordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Word" asp-action="UpdateWord" method="post" autocomplete="off">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Update Word</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="updateId" name="Id" />
+                    <input type="hidden" id="updateListNameHidden" name="ListName" />
+                    <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                    <div class="mb-3">
+                        <label class="form-label">English</label>
+                        <input type="text" id="updateEn" name="En" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Turkish</label>
+                        <input type="text" id="updateTr" name="Tr" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Example (Optional)</label>
+                        <textarea id="updateExample" name="Example" class="form-control" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.wordsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
+        window.searchTermValue = '@Model.SearchTerm';
+        window.selectedList = '@Model.SelectedList';
+    </script>
+    <script src="~/js/word.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert.auto-close');
+            alerts.forEach(function (alertEl) {
+                setTimeout(function () {
+                    try {
+                        bootstrap.Alert.getOrCreateInstance(alertEl).close();
+                    } catch (e) {
+                        alertEl.classList.remove('show');
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+}

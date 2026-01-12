@@ -1,0 +1,377 @@
+﻿/* ============================
+   GENEL AYARLAR VE RESET
+   ============================ */
+
+/* Kök font boyutları (Responsive) */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Sayfanın minimum yüksekliğini ayarla (Sticky Footer için) */
+html {
+    position: relative;
+    /* Gerekli değil ama bazen lazım olabilir */
+    min-height: 100%;
+}
+
+/* ============================
+   KOYU TEMA AYARLARI
+   ============================ */
+
+/* 1. Renk Değişkenleri */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+    --dark-bg: #0d0d14;
+    --card-bg: #16213e;
+    --navbar-bg: #0f1419;
+    --text-primary: #ffffff;
+    --text-secondary: #a8b2d1;
+    --text-secondary-light: rgba(255, 255, 255, 0.6);
+    --link-color: #8c9eff;
+    --link-hover-color: #a6b4ff;
+    --bs-border-color-translucent: rgba(255, 255, 255, 0.1);
+    /* Bootstrap border rengi uyarlaması */
+    --bs-body-color: var(--text-primary);
+    --bs-body-bg: var(--dark-bg);
+    --bs-secondary-color: var(--text-secondary-light);
+}
+
+/* 2. Body Ayarları */
+body {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    /* DİKKAT: Sticky footer için margin-bottom kaldırıldı! */
+    /* margin-bottom: 60px; */
+}
+
+/* 3. Genel Bootstrap Uyarlamaları */
+.text-muted {
+    color: var(--text-secondary-light) !important;
+}
+
+.border-top,
+.border-bottom {
+    border-color: var(--bs-border-color-translucent) !important;
+}
+
+/* Focus Stili (Kullanıcıdan gelen) */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    /* box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb; */
+    /* Eski Mavi Gölge */
+    box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.5), 0 0 0 0.25rem rgba(102, 126, 234, 0.5);
+    /* Temaya uygun mor/beyaz gölge */
+}
+
+
+/* 4. Link Renkleri */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+    /* Hover durumunda alt çizgi eklendi */
+}
+
+/* ============================
+   BİLEŞEN STİLLERİ
+   ============================ */
+
+/* Navbar (Eğer _Layout'ta bg-dark kullanılıyorsa, bu sadece rengi özelleştirir) */
+.navbar.bg-dark {
+    /* Veya .navbar-modern sınıfınız varsa onu kullanın */
+    background-color: var(--navbar-bg) !important;
+    border-bottom-color: var(--bs-border-color-translucent) !important;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-radius: 8px;
+    /* Köşeleri yuvarlat */
+    padding: 0.5rem 1rem;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+    color: var(--text-primary);
+    background-color: rgba(102, 126, 234, 0.15);
+    /* Hafif hover efekti */
+}
+
+/* Dropdown Menü (Navbar ve Liste Kartları için) */
+.dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--bs-border-color-translucent);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    margin-top: 0.5rem !important;
+    /* Navbar'dan biraz aşağıda başlasın */
+    padding: 0.5rem 0;
+    /* İç boşluk */
+}
+
+/* Navbar dropdown'ın banner üzerinde görünmesi için */
+.navbar .dropdown-menu {
+    z-index: 1100;
+}
+
+.dropdown-item {
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    /* Daha ferah */
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(102, 126, 234, 0.2);
+    color: var(--text-primary);
+}
+
+/* Sil butonu gibi özel durumlar için */
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #ff6b6b;
+}
+
+.dropdown-divider {
+    border-color: var(--bs-border-color-translucent);
+    margin: 0.5rem 0;
+    /* Boşluk */
+}
+
+/* Kartlar (Liste Kartları, Flashcard vb.) */
+.modern-card,
+.list-card,
+.filter-section,
+.view-toggle,
+.interactive-slider {
+    background-color: var(--card-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: 15px;
+    /* Standart köşe yuvarlaklığı */
+}
+
+/* Liste Kartı Özel Stilleri */
+.list-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.list-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.list-card-link {
+    display: block;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.list-card-link h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.list-card-icon {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.list-card-dropdown {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+    /* Kart linkinin üzerinde kalması için */
+}
+
+.list-card-dropdown .dropdown-toggle {
+    color: var(--text-secondary);
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+    /* Tıklama alanını biraz büyüt */
+}
+
+.list-card-dropdown .dropdown-toggle::after {
+    display: none;
+}
+
+/* Form Elemanları */
+.modern-input,
+.form-control,
+.form-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bs-border-color-translucent);
+    color: var(--text-primary);
+    border-radius: 10px;
+    height: calc(2.25rem + 2px);
+    /* Sabit yükseklik */
+    padding: 0.5rem 1rem;
+}
+
+.modern-input:focus,
+.form-control:focus,
+.form-select:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: #667eea;
+    /* box-shadow yukarıda tanımlandı */
+    color: var(--text-primary);
+}
+
+.modern-input::placeholder,
+.form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Select oku rengi */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a8b2d1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Textarea yüksekliği (otomatik değilse) */
+textarea.form-control {
+    min-height: calc(1.5em + 1rem + 2px);
+    /* Varsayılan yükseklik */
+    height: auto;
+    /* İçeriğe göre uzamasını sağlar */
+}
+
+/* Modallar */
+.modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--bs-border-color-translucent);
+    border-radius: 15px;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--bs-border-color-translucent);
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Butonlar */
+.control-btn {
+    /* Özel buton sınıfı (opsiyonel) */
+    background: var(--card-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    color: white;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    height: calc(2.25rem + 2px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.control-btn:hover:not(:disabled) {
+    background: var(--primary-gradient);
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.control-btn.btn-random {
+    background: var(--success-gradient);
+    border: none;
+}
+
+.control-btn.btn-random:hover {
+    box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Footer (_Layout'ta bg-dark kullanılıyorsa, bu sadece rengi özelleştirir) */
+.footer.bg-dark {
+    /* Veya .footer sınıfınız varsa onu kullanın */
+    background-color: var(--navbar-bg) !important;
+    border-top-color: var(--bs-border-color-translucent) !important;
+    color: var(--text-secondary-light);
+}
+
+.footer a {
+    color: #667eea;
+}
+
+.footer a:hover {
+    color: #764ba2;
+}
+
+/* ============================
+   SAYFA ÖZEL STİLLERİ (GEREKİRSE)
+   ============================ */
+/* Örneğin Login Sayfası */
+.login-container {
+    /* Login formunu saran bir div varsa */
+    max-width: 450px;
+    margin: 3rem auto;
+}
+
+.login-card {
+    /* Login formunu içeren kart */
+    padding: 2rem;
+    border-radius: 15px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+}
+
+.login-tabs .nav-link {
+    color: var(--text-secondary);
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+
+.login-tabs .nav-link.active {
+    color: var(--text-primary);
+    background-color: transparent;
+    border-color: #667eea;
+}
+
+/* ============================
+   YARDIMCI SINIFLAR (GEREKİRSE)
+   ============================ */
+/* Örn: Ana içerik alanı üst boşluğu */
+.main-content-area {
+    padding-top: 1.5rem;
+}
