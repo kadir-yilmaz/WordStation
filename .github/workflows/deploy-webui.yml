@@ -39,3 +39,6 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./publish/
+        server-dir: ./
+        state-name: .ftp-deploy-sync-state.json
+        log-level: verbose
