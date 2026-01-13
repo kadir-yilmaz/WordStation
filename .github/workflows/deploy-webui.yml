@@ -33,8 +33,9 @@ jobs:
       run: |
         dotnet publish WordStation.WebUI -c Release `
           /p:WebPublishMethod=MSDeploy `
-          /p:MsDeployServiceUrl=${{ secrets.WEBDEPLOY_SERVER }} `
+          /p:MsDeployServiceUrl=https://${{ secrets.WEBDEPLOY_SERVER }}:8172/msdeploy.axd `
           /p:DeployIisAppPath=${{ secrets.WEBDEPLOY_SITENAME }} `
           /p:UserName=${{ secrets.WEBDEPLOY_USERNAME }} `
           /p:Password=${{ secrets.WEBDEPLOY_PASSWORD }} `
-          /p:AllowUntrustedCertificate=true
+          /p:AllowUntrustedCertificate=true `
+          /p:AuthType=Basic
