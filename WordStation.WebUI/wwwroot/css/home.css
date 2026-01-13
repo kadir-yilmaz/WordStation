@@ -48,56 +48,69 @@
     overflow: hidden;
 }
 
-/* Snake-like rotating border animation */
-@keyframes snakeBorder {
+/* Professional Spotlight/Shine Effect */
+@keyframes shine {
     0% {
-        transform: rotate(0deg);
+        left: -100%;
     }
 
     100% {
-        transform: rotate(360deg);
+        left: 200%;
     }
 }
 
+/* Shine overlay on hover */
 .dashboard-card::before {
     content: '';
     position: absolute;
-    inset: -3px;
-    border-radius: 26px;
-    background: conic-gradient(from 0deg,
-            transparent 0deg,
-            transparent 60deg,
-            #10b981 120deg,
-            #34d399 180deg,
-            #10b981 240deg,
-            transparent 300deg,
-            transparent 360deg);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: -1;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.08),
+            transparent);
+    transform: skewX(-25deg);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .dashboard-card:hover::before {
-    opacity: 1;
-    animation: snakeBorder 2s linear infinite;
+    animation: shine 0.8s ease;
 }
 
-/* Inner background to cover the rotating gradient */
+/* Subtle gradient border glow */
 .dashboard-card::after {
     content: '';
     position: absolute;
-    inset: 2px;
-    border-radius: 22px;
-    background: linear-gradient(145deg, rgba(22, 33, 62, 0.95) 0%, rgba(15, 20, 40, 0.9) 100%);
-    z-index: -1;
+    inset: 0;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(135deg,
+            rgba(102, 126, 234, 0) 0%,
+            rgba(102, 126, 234, 0.3) 50%,
+            rgba(167, 139, 250, 0.3) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.dashboard-card:hover::after {
+    opacity: 1;
 }
 
 .dashboard-card:hover {
-    border-color: transparent !important;
-    transform: translateY(-10px) scale(1.02);
+    border-color: rgba(102, 126, 234, 0.2) !important;
+    transform: translateY(-8px);
     box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.4),
-        0 0 40px rgba(16, 185, 129, 0.2);
+        0 20px 40px -12px rgba(0, 0, 0, 0.35),
+        0 0 20px rgba(102, 126, 234, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Icons with pulse animation */
