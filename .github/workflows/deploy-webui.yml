@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
     steps:
     - name: Checkout code
@@ -29,16 +29,12 @@ jobs:
     - name: Build
       run: dotnet build WordStation.WebUI -c Release --no-restore
     
-    - name: Publish
-      run: dotnet publish WordStation.WebUI -c Release -o ./publish --no-build
-    
-    - name: Deploy via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./publish/
-        server-dir: ./
-        state-name: .ftp-deploy-sync-state.json
-        log-level: verbose
+    - name: Deploy with Web Deploy
+      run: |
+        dotnet publish WordStation.WebUI -c Release `
+          /p:WebPublishMethod=MSDeploy `
+          /p:MsDeployServiceUrl=${{ secrets.WEBDEPLOY_SERVER }} `
+          /p:DeployIisAppPath=${{ secrets.WEBDEPLOY_SITENAME }} `
+          /p:UserName=${{ secrets.WEBDEPLOY_USERNAME }} `
+          /p:Password=${{ secrets.WEBDEPLOY_PASSWORD }} `
+          /p:AllowUntrustedCertificate=true
