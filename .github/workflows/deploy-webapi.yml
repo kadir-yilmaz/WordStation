@@ -1,24 +1,24 @@
-name: Deploy WebUI
+name: Deploy WebAPI
 
-run-name: Deploy WebUI - ${{ github.ref_name }} - ${{ github.sha }}
+run-name: Deploy WebAPI - ${{ github.ref_name }} - ${{ github.sha }}
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'WordStation.WebUI/**'
+      - 'WordStation.WebAPI/**'
       - 'WordStation.BLL/**'
       - 'WordStation.DAL/**'
       - 'WordStation.EL/**'
-      - '.github/workflows/deploy-webui.yml'
+      - '.github/workflows/deploy-webapi.yml'
   workflow_dispatch:
 
 concurrency:
-  group: deploy-webui
+  group: deploy-webapi
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-api:
     runs-on: windows-latest
 
     steps:
@@ -31,20 +31,20 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore WordStation.WebUI
+      run: dotnet restore WordStation.WebAPI
 
     - name: Build
-      run: dotnet build WordStation.WebUI -c Release --no-restore
+      run: dotnet build WordStation.WebAPI -c Release --no-restore
 
-    - name: Deploy WebUI with Web Deploy
+    - name: Deploy API with Web Deploy
       run: |
-        dotnet publish WordStation.WebUI -c Release `
+        dotnet publish WordStation.WebAPI -c Release `
           /p:WebPublishMethod=MSDeploy `
           /p:MSDeployPublishMethod=WMSVC `
-          /p:MsDeployServiceUrl=${{ secrets.WEBDEPLOY_SERVER }} `
-          /p:DeployIisAppPath=${{ secrets.WEBDEPLOY_SITENAME }} `
-          /p:UserName=${{ secrets.WEBDEPLOY_USERNAME }} `
-          /p:Password=${{ secrets.WEBDEPLOY_PASSWORD }} `
+          /p:MsDeployServiceUrl=${{ secrets.WEBAPI_SERVER }} `
+          /p:DeployIisAppPath=${{ secrets.WEBAPI_SITENAME }} `
+          /p:UserName=${{ secrets.WEBAPI_USERNAME }} `
+          /p:Password=${{ secrets.WEBAPI_PASSWORD }} `
           /p:AllowUntrustedCertificate=true `
           /p:EnableMsDeployAppOffline=true `
           /p:SkipExtraFilesOnServer=true
