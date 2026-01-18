@@ -8,5 +8,6 @@ namespace WordStation.WebUI.Models
         public IEnumerable<string> ListNames { get; set; }
         public string SelectedList { get; set; }
         public string SearchTerm { get; set; }
+        public string SearchMode { get; set; } = "starts";
     }
 }

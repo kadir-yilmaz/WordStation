@@ -6,7 +6,7 @@ namespace WordStation.BLL.Abstract
     {
         // Query metodları
         IEnumerable<Word> GetAllWords(string userId, string listName);
-        IEnumerable<Word> SearchWord(string en, string userId, string listName);
+        IEnumerable<Word> SearchWord(string en, string userId, string listName, string searchMode = "starts");
         IEnumerable<string> GetListNames(string userId);
 
         // CRUD metodları

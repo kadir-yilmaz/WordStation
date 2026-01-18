@@ -38,17 +38,13 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid transparent;
             border-radius: 13px;
-            padding: 8px 16px;
+            padding: 8px 12px; /* Padding biraz kısıldı */
         }
 
         .banner-shell:hover .banner-card { border-color: var(--banner-border-hover); }
-        .banner-top-row { flex-wrap: nowrap; }
-        .banner-dropdown { flex-shrink: 0; }
-        .banner-buttons { flex-shrink: 0; }
-        .banner-search-row { display: none; }
 
         .modern-input {
-            height: 36px;
+            height: 38px; /* Butonlarla eşitlendi */
             background: var(--glass-bg);
             border: 1.5px solid var(--glass-border);
             color: #fff;
@@ -60,19 +56,34 @@
         .modern-input:focus {
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(0, 220, 255, 0.6);
-            box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+            box-shadow: none; /* Focus shadow kaldırıldı, temiz görünüm */
             color: #fff;
             outline: none;
         }
+        
+        /* Input group içindeki border fix */
+        .input-group .btn {
+            border: 1.5px solid var(--glass-border);
+            border-right: none; 
+            height: 38px;
+            z-index: 2;
+        }
+        .input-group .form-control {
+            z-index: 1;
+        }
+        .input-group .form-control:focus {
+            z-index: 3;
+            border-color: rgba(0, 220, 255, 0.6);
+        }
 
         .banner-btn {
-            height: 36px;
-            min-width: 36px;
+            height: 38px;
+            min-width: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 10px !important;
-            padding: 0 12px;
+            padding: 0 14px;
             border: 1.5px solid var(--glass-border);
             transition: all 0.2s ease;
         }
@@ -93,19 +104,24 @@
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
 
-        /* ===== DESKTOP - 769px+ ===== */
-        @@media (min-width: 769px) {
-            .banner-top-row { margin-bottom: 0 !important; }
-            .banner-search-row { display: flex; margin-top: 8px; }
-        }
-
-        /* ===== TABLET - 768px and below ===== */
-        @@media (max-width: 768px) {
-            .banner-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px !important; }
-            .banner-dropdown { flex: 1; max-width: 50%; }
-            .banner-dropdown .banner-btn { width: 100%; justify-content: flex-start; }
-            .banner-buttons { flex: 0 0 auto; }
-            .banner-search-row { display: flex; width: 100%; }
+        /* ===== MOBILE TWEAKS ===== */
+        @@media (max-width: 576px) {
+            /* Mobilde arama barı tam genişlik olsun, alta geçsin */
+            .banner-card .d-flex {
+                flex-wrap: wrap; 
+            }
+            .banner-card form {
+                order: 3; /* En alta al */
+                width: 100%;
+                min-width: 100% !important;
+                margin-top: 4px;
+            }
+            .dropdown {
+                flex: 1; /* Dropdown genişlesin */
+            }
+            .dropdown button {
+                width: 100%;
+            }
         }
 
         /* ===== SMALL PHONE - 480px and below ===== */
@@ -175,19 +191,22 @@
         @* ===== BANNER ===== *@
         <div class="banner-shell">
             <div class="banner-card">
-                @* Top Row: Dropdown and Buttons *@
-                <div class="banner-top-row d-flex align-items-center justify-content-between gap-2 mb-2">
-                    @* List Selection *@
-                    <div class="dropdown banner-dropdown">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    
+                    @* 1. Liste Seçimi *@
+                    <div class="dropdown flex-shrink-0">
                         <button class="btn btn-outline-light banner-btn dropdown-toggle d-flex align-items-center gap-2"
                                 type="button"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
-                                title="Select List">
-                            <i class="bi bi-journal-text"></i>
-                            <span>@Model.SelectedList</span>
+                                title="Select List"
+                                style="min-width: 140px; justify-content: space-between;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-journal-text"></i>
+                                <span class="text-truncate" style="max-width: 120px;">@Model.SelectedList</span>
+                            </div>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-dark">
+                        <ul class="dropdown-menu dropdown-menu-dark shadow-lg">
                             @if (ViewBag.AllLists != null)
                             {
                                 @foreach (var list in ViewBag.AllLists)
@@ -209,8 +228,32 @@
                         </ul>
                     </div>
 
-                    @* Right Buttons *@
-                    <div class="d-flex align-items-center gap-2 banner-buttons">
+                    @* 2. Arama Formu (Esnek Genişlik) *@
+                    <form method="get" asp-controller="Word" asp-action="Index" class="d-flex gap-2 flex-grow-1" style="min-width: 250px;">
+                        <input type="hidden" name="listName" value="@Model.SelectedList" />
+                        <input type="hidden" name="searchMode" id="searchModeInput" value="@((Model.SearchMode ?? "starts").ToLower())" />
+                        
+                        <div class="input-group">
+                            <button type="button" 
+                                class="btn @(Model.SearchMode == "contains" ? "btn-info" : "btn-outline-light")" 
+                                id="searchModeToggle"
+                                title="Mod: @(Model.SearchMode == "contains" ? "İçeren" : "İle Başlayan")"
+                                style="border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-right: none;">
+                                <i class="bi @(Model.SearchMode == "contains" ? "bi-text-center" : "bi-text-left")"></i>
+                            </button>
+                            <input type="text"
+                               name="SearchTerm"
+                               id="searchInput"
+                               class="form-control modern-input border-start-0"
+                               value="@Model.SearchTerm"
+                               placeholder="Search..."
+                               autocomplete="off"
+                               style="border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important;" />
+                        </div>
+                    </form>
+
+                    @* 3. Butonlar (Sağda Sabit) *@
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
                         <button type="button"
                                 class="btn btn-success banner-btn"
                                 data-bs-toggle="modal"
@@ -226,21 +269,8 @@
                             <i class="bi bi-table" id="toggleViewIcon"></i>
                         </button>
                     </div>
-                </div>
 
-                @* Bottom Row: Search Form *@
-                <form method="get" asp-controller="Word" asp-action="Index" class="banner-search-row d-flex gap-2">
-                    <input type="hidden" name="listName" value="@Model.SelectedList" />
-                    <div class="flex-grow-1">
-                        <input type="text"
-                               name="SearchTerm"
-                               id="searchInput"
-                               class="form-control modern-input w-100"
-                               value="@Model.SearchTerm"
-                               placeholder="Search words..."
-                               autocomplete="off" />
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -351,6 +381,44 @@
                     }
                 }, 5000);
             });
+
+            // Search Mode Toggle
+            const modeInput = document.getElementById('searchModeInput');
+            const modeBtn = document.getElementById('searchModeToggle');
+            const modeIcon = modeBtn.querySelector('i');
+
+            if(modeBtn && modeInput){
+                modeBtn.addEventListener('click', function() {
+                    const currentMode = modeInput.value;
+                    const newMode = currentMode === 'starts' ? 'contains' : 'starts';
+                    
+                    modeInput.value = newMode;
+                    
+                    // Update UI
+                    if(newMode === 'contains') {
+                        modeBtn.classList.remove('btn-outline-light');
+                        modeBtn.classList.add('btn-info');
+                        modeIcon.classList.remove('bi-text-left');
+                        modeIcon.classList.add('bi-text-center');
+                        modeBtn.title = "Mod: İçeren";
+                    } else {
+                        modeBtn.classList.remove('btn-info');
+                        modeBtn.classList.add('btn-outline-light');
+                        modeIcon.classList.remove('bi-text-center');
+                        modeIcon.classList.add('bi-text-left');
+                        modeBtn.title = "Mod: İle Başlayan";
+                    }
+
+                    // Optional: Submit form automatically if there is search text
+                    const searchInput = document.getElementById('searchInput');
+                    if(searchInput && searchInput.value.length > 0) {
+                        modeBtn.closest('form').submit();
+                    } else {
+                         // Focus back to search input
+                        searchInput.focus();
+                    }
+                });
+            }
         });
     </script>
 }

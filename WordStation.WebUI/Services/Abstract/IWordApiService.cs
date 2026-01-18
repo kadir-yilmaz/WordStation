@@ -5,7 +5,7 @@ namespace WordStation.WebUI.Services.Abstract
     public interface IWordApiService
     {
         Task<IEnumerable<Word>> GetAllWordsAsync(string userId, string listName, string token);
-        Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string token);
+        Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string token, string searchMode = "starts");
         Task<IEnumerable<string>> GetListNamesAsync(string userId, string token);
         Task<bool> CreateWordAsync(Word word, string token);
         Task<bool> UpdateWordAsync(Word word, string token);
