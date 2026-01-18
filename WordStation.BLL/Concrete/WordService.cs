@@ -44,10 +44,20 @@ namespace WordStation.BLL.Concrete
                 .ToList();
         }
 
-        public IEnumerable<Word> SearchWord(string en, string userId, string listName)
+        public IEnumerable<Word> SearchWord(string en, string userId, string listName, string searchMode = "starts")
         {
             var enLower = en.ToLower();
             var listNameLower = listName.ToLower();
+
+            if (searchMode == "contains")
+            {
+                return _wordRepository.GetWordsByCondition(
+                        w => w.UserId == userId &&
+                             w.ListName.ToLower() == listNameLower &&
+                             w.En.ToLower().Contains(enLower),
+                        trackChanges: false)
+                    .ToList();
+            }
 
             return _wordRepository.GetWordsByCondition(
                     w => w.UserId == userId &&

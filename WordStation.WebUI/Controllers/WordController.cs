@@ -19,7 +19,7 @@ namespace WordStation.WebUI.Controllers
         private string? GetToken() => User.FindFirstValue("Token");
         private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        public async Task<IActionResult> Index(string listName, string SearchTerm = null)
+        public async Task<IActionResult> Index(string listName, string SearchTerm = null, string searchMode = "starts")
         {
             if (string.IsNullOrEmpty(listName))
             {
@@ -46,7 +46,7 @@ namespace WordStation.WebUI.Controllers
                 IEnumerable<Word> wordsEnumerable;
                 if (!string.IsNullOrEmpty(SearchTerm))
                 {
-                    wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token);
+                    wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
                 }
                 else
                 {
@@ -65,7 +65,8 @@ namespace WordStation.WebUI.Controllers
                 Words = words,
                 ListNames = allLists,
                 SelectedList = listName,
-                SearchTerm = SearchTerm
+                SearchTerm = SearchTerm,
+                SearchMode = searchMode
             };
 
             return View(vm);

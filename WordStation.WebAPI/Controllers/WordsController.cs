@@ -28,14 +28,14 @@ namespace WordStation.WebAPI.Controllers
             return Ok(words);
         }
 
-        // GET: api/words/search?en=xxx&userId=yyy&listName=zzz
+        // GET: api/words/search?en=xxx&userId=yyy&listName=zzz&searchMode=starts|contains
         [HttpGet("search")]
-        public IActionResult SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName)
+        public IActionResult SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName, [FromQuery] string searchMode = "starts")
         {
             if (string.IsNullOrWhiteSpace(en) || string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName))
                 return BadRequest("Arama kriterleri eksik.");
 
-            var results = _wordService.SearchWord(en, userId, listName);
+            var results = _wordService.SearchWord(en, userId, listName, searchMode);
             return Ok(results);
         }
 
