@@ -2,9 +2,15 @@
 
 <style>
     /* ===== TABLE VIEW STYLES ===== */
+    
+    /* Dropdown'ın tablo dışına taşabilmesi için overflow visible */
+    #tableView .table-responsive {
+        overflow: visible !important;
+    }
+    
     #tableView .table {
         border-radius: 12px;
-        overflow: hidden;
+        min-width: 100%; /* Tablo minimum genişliği korur */
     }
 
     #tableView .table thead th {
@@ -35,6 +41,8 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 10px;
+        z-index: 1050; /* Bootstrap modal z-index'inin altında ama diğer elementlerin üstünde */
+        position: absolute;
     }
 
     #tableView .dropdown-item {
