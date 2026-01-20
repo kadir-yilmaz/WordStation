@@ -19,7 +19,7 @@
         /* ===== TOP BAR ===== */
         .top-bar-fixed { position: relative; z-index: 1050; }
         .top-bar-fixed .dropdown-menu { z-index: 1051; }
-        .container { padding-top: 12px !important; max-width: 1200px; }
+        .container { max-width: 1200px; }
 
         /* ===== BANNER ===== */
         .banner-shell {
@@ -28,7 +28,7 @@
             padding: 1px;
             background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            margin-bottom: 12px !important;
+            margin-bottom: 24px;
             transition: transform 0.2s ease;
         }
 
@@ -105,22 +105,67 @@
         }
 
         /* ===== MOBILE TWEAKS ===== */
+        /* ===== MOBILE TWEAKS (Max 576px) ===== */
         @@media (max-width: 576px) {
-            /* Mobilde arama barı tam genişlik olsun, alta geçsin */
+            .banner-shell {
+                margin-bottom: 8px !important;
+            }
+
+            /* Tek satır zorla */
             .banner-card .d-flex {
-                flex-wrap: wrap; 
+                flex-wrap: nowrap !important;
+                gap: 6px !important;
             }
+
+            /* 1. DROP DOWN - Küçült */
+            .banner-card .dropdown button {
+                min-width: auto !important; /* HTML style'ını ez */
+                padding: 0 8px !important;
+                width: auto !important;
+            }
+            /* Metni gizle, sadece ikon kalsın */
+            .banner-card .dropdown button span.text-truncate {
+                display: none !important;
+            }
+            /* Gap'i kaldır (ikon ve ok arası boşluk) */
+            .banner-card .dropdown button div.d-flex {
+                gap: 0 !important;
+            }
+
+            /* 2. FORM - Esnek ve ortada */
             .banner-card form {
-                order: 3; /* En alta al */
-                width: 100%;
-                min-width: 100% !important;
-                margin-top: 4px;
+                width: auto !important;
+                min-width: 0 !important;
+                margin-top: 0 !important;
+                flex-grow: 1; /* Kalan boşluğu doldur */
+                order: 0 !important; /* Sırayı bozma */
             }
-            .dropdown {
-                flex: 1; /* Dropdown genişlesin */
+            
+            /* Search Mod Butonu (Sol) - Küçült */
+            #searchModeToggle {
+                padding: 0 6px !important;
+                font-size: 0.8rem;
+                width: 30px; /* Sabit küçük genişlik */
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
-            .dropdown button {
-                width: 100%;
+            #searchModeToggle i { font-size: 0.9rem; }
+
+            /* Input Alanı */
+            #searchInput {
+                padding: 0 8px !important;
+                font-size: 0.85rem;
+            }
+
+            /* 3. SAĞ BUTONLAR - Küçült */
+            .banner-card .flex-shrink-0 .btn {
+                padding: 0 8px !important;
+                width: 32px; /* Kare butonlar */
+                height: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
         }
 
