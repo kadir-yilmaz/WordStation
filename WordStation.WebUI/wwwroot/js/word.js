@@ -26,7 +26,12 @@ const els = {
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
     btnDelete: document.getElementById('flashcardDeleteBtn'),
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
-    synonymsList: document.getElementById('flashcardSynonyms')
+    synonymsList: document.getElementById('flashcardSynonyms'),
+    synonymsContainerMobile: document.getElementById('flashcardSynonymsContainerMobile'),
+    synonymsList: document.getElementById('flashcardSynonyms'),
+    synonymsContainerMobile: document.getElementById('flashcardSynonymsContainerMobile'),
+    synonymsListMobile: document.getElementById('flashcardSynonymsMobile'),
+    exampleTextMobile: document.getElementById('flashcardExampleTextMobile')
 };
 
 /* =====================================================
@@ -190,6 +195,18 @@ function showWord(index, opts = {}) {
             }
         }
 
+        // Mobile Modal Example Text Update
+        if (els.exampleTextMobile) {
+            if (example) {
+                els.exampleTextMobile.textContent = `${example}`;
+                els.exampleTextMobile.classList.remove('text-white-50', 'fs-6');
+                // Modal içinde text rengi zaten white
+            } else {
+                els.exampleTextMobile.textContent = "No example sentence available.";
+                els.exampleTextMobile.classList.add('text-white-50', 'fs-6');
+            }
+        }
+
         if (els.btnUpdate) {
             els.btnUpdate.dataset.id = data.id || data.Id;
             els.btnUpdate.dataset.en = data.en || data.En;
@@ -238,7 +255,8 @@ function showWord(index, opts = {}) {
             }
 
             if (foundSynonyms.length > 0) {
-                els.synonymsContainer.classList.remove('d-none');
+                if (els.synonymsContainer) els.synonymsContainer.classList.remove('d-none');
+                if (els.synonymsContainerMobile) els.synonymsContainerMobile.classList.remove('d-none');
                 let html = '';
                 // Tekrarları önlemek için
                 const uniqueSynonyms = [...new Map(foundSynonyms.map(item => [item.id || item.Id, item])).values()];
@@ -249,9 +267,11 @@ function showWord(index, opts = {}) {
                                 ${relatedWord.en || relatedWord.En}
                              </a>`;
                 });
-                els.synonymsList.innerHTML = html;
+                if (els.synonymsList) els.synonymsList.innerHTML = html;
+                if (els.synonymsListMobile) els.synonymsListMobile.innerHTML = html;
             } else {
-                els.synonymsContainer.classList.add('d-none');
+                if (els.synonymsContainer) els.synonymsContainer.classList.add('d-none');
+                if (els.synonymsContainerMobile) els.synonymsContainerMobile.classList.add('d-none');
             }
         }
     }
@@ -342,10 +362,13 @@ if (els.slider) {
         }
     });
 
-    // Klavye ile slider kontrolünü engelle (ok tuşları çakışabilir)
-    els.slider.addEventListener('keydown', (e) => {
-        e.preventDefault();
-    });
+    // Slider etkileşimi bitince odağı kaldır (Klavye yön tuşları çalışsın)
+    els.slider.addEventListener('change', () => els.slider.blur());
+    els.slider.addEventListener('mouseup', () => els.slider.blur());
+    els.slider.addEventListener('touchend', () => els.slider.blur());
+
+    // Klavye ile slider kontrolü global listener tarafından yapılacak
+    // Eski preventDefault listener kaldırıldı.
 }
 
 /* =====================================================
@@ -357,7 +380,8 @@ els.flashcard?.addEventListener('click', () => els.flashcard.classList.toggle('f
    Keyboard Controls
    ===================================================== */
 document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    // Input/Textarea ise işlem yapma (Ancak Range Slider hariç)
+    if ((e.target.tagName === 'INPUT' && e.target.type !== 'range') || e.target.tagName === 'TEXTAREA') return;
     if (els.flashcardView.classList.contains('d-none')) return;
 
     const key = e.key;
