@@ -36,8 +36,44 @@
         word-wrap: break-word;
         flex: 1;
         overflow-y: auto;
+        max-height: 350px; /* Limit height */
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .synonyms-container {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .synonyms-title {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .flashcard-synonym-badge {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        margin-right: 6px;
+        margin-bottom: 6px;
+        display: inline-block;
+        transition: all 0.2s;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .flashcard-synonym-badge:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        transform: translateY(-1px);
     }
 
     .example-text::-webkit-scrollbar { width: 5px; }
@@ -121,38 +157,64 @@
         display: inline-block;
     }
 
-    .interactive-slider {
-        position: relative;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 20px;
+    /* Custom Range Slider */
+    .custom-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 14px;
+        background: rgba(30, 40, 55, 0.95);
+        border-radius: 8px;
+        margin-bottom: 20px;
         cursor: pointer;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        margin-bottom: 24px;
     }
 
-    .slider-track {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        background: var(--success-gradient);
-        border-radius: 20px;
-        pointer-events: none;
+    .custom-slider:focus {
+        outline: none;
     }
 
-    .slider-handle {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 32px;
-        height: 32px;
-        background: #fff;
+    .custom-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 14px;
+        background: inherit;
+        border-radius: 8px;
+    }
+
+    .custom-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-        pointer-events: none;
-        z-index: 2;
+        background: #fff;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        margin-top: -4px;
+        border: none;
+    }
+
+    .custom-slider::-moz-range-track {
+        width: 100%;
+        height: 14px;
+        background: rgba(30, 40, 55, 0.95);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .custom-slider::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        border: none;
+    }
+
+    .custom-slider::-moz-range-progress {
+        background: #10b981;
+        height: 14px;
+        border-radius: 8px 0 0 8px;
     }
 
     .stage-controls .btn-outline-light {
@@ -275,8 +337,7 @@
 
         .stage-controls { max-width: 340px; }
         .index-label, #flashcardProgress { font-size: 0.85rem; padding: 6px 16px; margin-bottom: 12px; }
-        .interactive-slider { height: 36px; margin-bottom: 20px; }
-        .slider-handle { width: 28px; height: 28px; }
+
 
         .stage-controls .btn-outline-light,
         .stage-controls .btn-success {
@@ -316,8 +377,6 @@
 
         .stage-controls { max-width: 100%; }
         .index-label, #flashcardProgress { font-size: 0.8rem; padding: 5px 14px; margin-bottom: 10px; }
-        .interactive-slider { height: 32px; margin-bottom: 16px; }
-        .slider-handle { width: 26px; height: 26px; }
 
         .stage-controls .btn-outline-light,
         .stage-controls .btn-success {
@@ -342,6 +401,11 @@
             <div class="stage-left">
                 <div id="flashcardExampleText" class="example-text">
                     Loading...
+                </div>
+                
+                <div id="flashcardSynonymsContainer" class="synonyms-container d-none">
+                    <div class="synonyms-title">THESAURUS</div>
+                    <div id="flashcardSynonyms"></div>
                 </div>
             </div>
 
@@ -393,10 +457,7 @@
                         <span id="flashcardProgress" class="index-label">1/0</span>
                     </div>
 
-                    <div class="interactive-slider mb-3" id="interactiveSlider">
-                        <div class="slider-track" id="sliderTrack"></div>
-                        <div class="slider-handle" id="sliderHandle"></div>
-                    </div>
+                    <input type="range" class="form-range custom-slider mb-3" id="interactiveSlider" min="0" value="0">
 
                     <div class="d-flex gap-4 justify-content-center align-items-center">
                         <button class="btn btn-outline-light"

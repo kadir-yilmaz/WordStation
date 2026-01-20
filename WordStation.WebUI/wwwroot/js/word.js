@@ -24,7 +24,9 @@ const els = {
     randomBtn: document.getElementById('flashcardRandom'),
     searchInput: document.getElementById('searchInput'),
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
-    btnDelete: document.getElementById('flashcardDeleteBtn')
+    btnDelete: document.getElementById('flashcardDeleteBtn'),
+    synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
+    synonymsList: document.getElementById('flashcardSynonyms')
 };
 
 /* =====================================================
@@ -156,6 +158,10 @@ function showWord(index, opts = {}) {
     if (index < 0 || index >= window.wordsData.length) return;
 
     currentIndex = index;
+    if (els.slider) {
+        els.slider.value = currentIndex;
+        if (window.updateSliderTrack) window.updateSliderTrack(currentIndex, els.slider.max);
+    }
 
     if (!opts.skipStorage) {
         sessionStorage.setItem(getStorageKey('wordIndex'), currentIndex);
@@ -200,6 +206,53 @@ function showWord(index, opts = {}) {
                     data.en || data.En,
                     window.searchTermValue
                 );
+        }
+
+        // Synonyms Render
+        if (els.synonymsContainer && els.synonymsList) {
+            const mySynonymWords = data.synonymWords || data.SynonymWords;
+            els.synonymsList.innerHTML = '';
+            let foundSynonyms = [];
+
+            // SynonymGroupId tabanlı eşleştirme - allWordsData'dan ilgili kelimeleri bul
+            // allWordsData arama yapıldığında bile tam listeyi içerir
+            const lookupData = window.allWordsData || window.wordsData;
+            if (mySynonymWords && mySynonymWords.length > 0 && lookupData) {
+                // 1. Mevcut kelimenin dahil olduğu grup ID'lerini topla
+                const myGroupIds = new Set(mySynonymWords.map(s => s.synonymGroupId || s.SynonymGroupId));
+
+                // 2. Tüm kelimeleri tara ve aynı gruplarda olanları bul
+                lookupData.forEach(otherWord => {
+                    // Kendisi hariç
+                    if ((otherWord.id || otherWord.Id) === (data.id || data.Id)) return;
+
+                    const otherSynonyms = otherWord.synonymWords || otherWord.SynonymWords;
+                    if (otherSynonyms && otherSynonyms.length > 0) {
+                        // Diğer kelimenin gruplarından herhangi biri bizimkilerle eşleşiyor mu?
+                        const match = otherSynonyms.some(os => myGroupIds.has(os.synonymGroupId || os.SynonymGroupId));
+                        if (match) {
+                            foundSynonyms.push(otherWord);
+                        }
+                    }
+                });
+            }
+
+            if (foundSynonyms.length > 0) {
+                els.synonymsContainer.classList.remove('d-none');
+                let html = '';
+                // Tekrarları önlemek için
+                const uniqueSynonyms = [...new Map(foundSynonyms.map(item => [item.id || item.Id, item])).values()];
+
+                uniqueSynonyms.forEach(relatedWord => {
+                    const enSafe = (relatedWord.en || relatedWord.En).replace(/'/g, "\\'");
+                    html += `<a href="#" class="flashcard-synonym-badge" onclick="findAndShowDetail('${enSafe}'); return false;">
+                                ${relatedWord.en || relatedWord.En}
+                             </a>`;
+                });
+                els.synonymsList.innerHTML = html;
+            } else {
+                els.synonymsContainer.classList.add('d-none');
+            }
         }
     }
 
@@ -261,46 +314,37 @@ function commitSlider() {
 }
 
 if (els.slider) {
-    els.slider.addEventListener('mousedown', (e) => {
-        if (!window.wordsData || window.wordsData.length <= 1) return;
-        isDragging = true;
-        sliderRect = els.slider.getBoundingClientRect();
-        els.slider.classList.add('dragging');
-        scheduleDragUpdate(e.clientX);
+    // Slider Background Update Logic
+    const updateSliderTrack = (val, max) => {
+        val = parseInt(val) || 0;
+        max = parseInt(max) || 100;
+        if (max <= 0) max = 1;
+        const percent = (val / max) * 100;
+        // Green active, Dark gray inactive
+        els.slider.style.background = `linear-gradient(to right, #10b981 ${percent}%, rgba(30, 40, 55, 0.9) ${percent}%)`;
+    };
+    window.updateSliderTrack = updateSliderTrack;
+
+    // Init Slider values
+    if (window.wordsData && window.wordsData.length > 0) {
+        els.slider.max = window.wordsData.length - 1;
+        els.slider.value = currentIndex;
+        updateSliderTrack(currentIndex, els.slider.max);
+    }
+
+    // Range input listener
+    els.slider.addEventListener('input', (e) => {
+        const index = parseInt(e.target.value);
+        // Sınır kontrolü
+        if (window.wordsData && index >= 0 && index < window.wordsData.length) {
+            updateSliderTrack(index, els.slider.max);
+            showWord(index, { skipStorage: false });
+        }
     });
 
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
+    // Klavye ile slider kontrolünü engelle (ok tuşları çakışabilir)
+    els.slider.addEventListener('keydown', (e) => {
         e.preventDefault();
-        scheduleDragUpdate(e.clientX);
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        els.slider.classList.remove('dragging');
-        commitSlider();
-    });
-
-    els.slider.addEventListener('touchstart', (e) => {
-        if (!window.wordsData || window.wordsData.length <= 1) return;
-        isDragging = true;
-        sliderRect = els.slider.getBoundingClientRect();
-        els.slider.classList.add('dragging');
-        scheduleDragUpdate(e.touches[0].clientX);
-    }, { passive: false });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        scheduleDragUpdate(e.touches[0].clientX);
-    }, { passive: false });
-
-    document.addEventListener('touchend', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        els.slider.classList.remove('dragging');
-        commitSlider();
     });
 }
 
@@ -340,6 +384,36 @@ document.addEventListener('keydown', (e) => {
    ===================================================== */
 els.prevBtn?.addEventListener('click', () => showWord(currentIndex - 1));
 els.nextBtn?.addEventListener('click', () => showWord(currentIndex + 1));
+
+window.findAndShowWord = function (wordEn) {
+    if (!window.wordsData) return;
+    const index = window.wordsData.findIndex(w => (w.en || w.En).toLowerCase() === wordEn.toLowerCase());
+    if (index !== -1) {
+        showWord(index);
+    } else {
+        // İsteğe bağlı: Toast veya alert
+        alert("Bu kelime mevcut listede bulunamadı.");
+    }
+};
+
+window.findAndShowDetail = function (wordEn) {
+    if (!wordEn) return;
+
+    // Look in allWordsData first (full list), then wordsData
+    const lookup = window.allWordsData || window.wordsData;
+    if (!lookup) return;
+
+    const word = lookup.find(w => (w.en || w.En).toLowerCase() === wordEn.toLowerCase());
+
+    if (word) {
+        if (window.showWordDetail) {
+            window.showWordDetail(word.en || word.En, word.tr || word.Tr, word.example || word.Example);
+        }
+    } else {
+        // Fallback or ignore
+        console.log("Word detail not found for: " + wordEn);
+    }
+};
 
 // Random kelime seçme - tekrarsız
 function getRandomUnusedIndex() {

@@ -47,6 +47,9 @@ namespace WordStation.WebUI.Controllers
                 if (!string.IsNullOrEmpty(SearchTerm))
                 {
                     wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
+                    // Synonym aramaları için tüm kelimeleri de al
+                    var allWordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
+                    ViewBag.AllWords = allWordsEnumerable.ToList();
                 }
                 else
                 {
