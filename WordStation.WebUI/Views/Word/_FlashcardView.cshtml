@@ -489,13 +489,16 @@
         }
 
         .stage-col-example {
-            height: 220px;
+            height: 150px; /* Reduced for small screens */
             padding: 14px;
         }
 
         .example-text { font-size: 1rem; line-height: 1.5; }
 
-        .stage-col-flashcard { padding: 16px 14px; }
+        .stage-col-flashcard { 
+            padding: 16px 14px; 
+            padding-bottom: 200px; /* Clear fixed controls */
+        }
 
         .flashcard-container {
             max-width: 100%;
