@@ -26,12 +26,7 @@ const els = {
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
     btnDelete: document.getElementById('flashcardDeleteBtn'),
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
-    synonymsList: document.getElementById('flashcardSynonyms'),
-    synonymsContainerMobile: document.getElementById('flashcardSynonymsContainerMobile'),
-    synonymsList: document.getElementById('flashcardSynonyms'),
-    synonymsContainerMobile: document.getElementById('flashcardSynonymsContainerMobile'),
-    synonymsListMobile: document.getElementById('flashcardSynonymsMobile'),
-    exampleTextMobile: document.getElementById('flashcardExampleTextMobile')
+    synonymsList: document.getElementById('flashcardSynonyms')
 };
 
 /* =====================================================
@@ -195,17 +190,7 @@ function showWord(index, opts = {}) {
             }
         }
 
-        // Mobile Modal Example Text Update
-        if (els.exampleTextMobile) {
-            if (example) {
-                els.exampleTextMobile.textContent = `${example}`;
-                els.exampleTextMobile.classList.remove('text-white-50', 'fs-6');
-                // Modal içinde text rengi zaten white
-            } else {
-                els.exampleTextMobile.textContent = "No example sentence available.";
-                els.exampleTextMobile.classList.add('text-white-50', 'fs-6');
-            }
-        }
+
 
         if (els.btnUpdate) {
             els.btnUpdate.dataset.id = data.id || data.Id;
@@ -225,27 +210,22 @@ function showWord(index, opts = {}) {
                 );
         }
 
-        // Synonyms Render
+        // Synonyms Render (Unified)
         if (els.synonymsContainer && els.synonymsList) {
             const mySynonymWords = data.synonymWords || data.SynonymWords;
             els.synonymsList.innerHTML = '';
             let foundSynonyms = [];
 
-            // SynonymGroupId tabanlı eşleştirme - allWordsData'dan ilgili kelimeleri bul
-            // allWordsData arama yapıldığında bile tam listeyi içerir
+            // SynonymGroupId tabanlı eşleştirme
             const lookupData = window.allWordsData || window.wordsData;
             if (mySynonymWords && mySynonymWords.length > 0 && lookupData) {
-                // 1. Mevcut kelimenin dahil olduğu grup ID'lerini topla
                 const myGroupIds = new Set(mySynonymWords.map(s => s.synonymGroupId || s.SynonymGroupId));
 
-                // 2. Tüm kelimeleri tara ve aynı gruplarda olanları bul
                 lookupData.forEach(otherWord => {
-                    // Kendisi hariç
                     if ((otherWord.id || otherWord.Id) === (data.id || data.Id)) return;
 
                     const otherSynonyms = otherWord.synonymWords || otherWord.SynonymWords;
                     if (otherSynonyms && otherSynonyms.length > 0) {
-                        // Diğer kelimenin gruplarından herhangi biri bizimkilerle eşleşiyor mu?
                         const match = otherSynonyms.some(os => myGroupIds.has(os.synonymGroupId || os.SynonymGroupId));
                         if (match) {
                             foundSynonyms.push(otherWord);
@@ -254,11 +234,11 @@ function showWord(index, opts = {}) {
                 });
             }
 
+            // Always ensure container is visible
+            els.synonymsContainer.classList.remove('d-none');
+
             if (foundSynonyms.length > 0) {
-                if (els.synonymsContainer) els.synonymsContainer.classList.remove('d-none');
-                if (els.synonymsContainerMobile) els.synonymsContainerMobile.classList.remove('d-none');
                 let html = '';
-                // Tekrarları önlemek için
                 const uniqueSynonyms = [...new Map(foundSynonyms.map(item => [item.id || item.Id, item])).values()];
 
                 uniqueSynonyms.forEach(relatedWord => {
@@ -267,11 +247,13 @@ function showWord(index, opts = {}) {
                                 ${relatedWord.en || relatedWord.En}
                              </a>`;
                 });
-                if (els.synonymsList) els.synonymsList.innerHTML = html;
-                if (els.synonymsListMobile) els.synonymsListMobile.innerHTML = html;
+                els.synonymsList.innerHTML = html;
             } else {
-                if (els.synonymsContainer) els.synonymsContainer.classList.add('d-none');
-                if (els.synonymsContainerMobile) els.synonymsContainerMobile.classList.add('d-none');
+                // Empty state
+                const emptyMsg = document.createElement('span');
+                emptyMsg.className = 'text-white-50 small fst-italic px-2';
+                emptyMsg.textContent = 'No synonyms added.';
+                els.synonymsList.appendChild(emptyMsg);
             }
         }
     }
