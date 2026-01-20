@@ -210,51 +210,57 @@ function showWord(index, opts = {}) {
                 );
         }
 
-        // Synonyms Render (Unified)
+        // Synonyms Render (API-Based - Cross-List)
         if (els.synonymsContainer && els.synonymsList) {
-            const mySynonymWords = data.synonymWords || data.SynonymWords;
-            els.synonymsList.innerHTML = '';
-            let foundSynonyms = [];
-
-            // SynonymGroupId tabanlı eşleştirme
-            const lookupData = window.allWordsData || window.wordsData;
-            if (mySynonymWords && mySynonymWords.length > 0 && lookupData) {
-                const myGroupIds = new Set(mySynonymWords.map(s => s.synonymGroupId || s.SynonymGroupId));
-
-                lookupData.forEach(otherWord => {
-                    if ((otherWord.id || otherWord.Id) === (data.id || data.Id)) return;
-
-                    const otherSynonyms = otherWord.synonymWords || otherWord.SynonymWords;
-                    if (otherSynonyms && otherSynonyms.length > 0) {
-                        const match = otherSynonyms.some(os => myGroupIds.has(os.synonymGroupId || os.SynonymGroupId));
-                        if (match) {
-                            foundSynonyms.push(otherWord);
-                        }
-                    }
-                });
+            // Cancel previous request to prevent race condition
+            if (window.synonymFetchController) {
+                window.synonymFetchController.abort();
             }
+            window.synonymFetchController = new AbortController();
 
-            // Always ensure container is visible
+            els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
             els.synonymsContainer.classList.remove('d-none');
 
-            if (foundSynonyms.length > 0) {
-                let html = '';
-                const uniqueSynonyms = [...new Map(foundSynonyms.map(item => [item.id || item.Id, item])).values()];
+            const wordId = data.id || data.Id;
+            const currentFetchId = wordId; // Track which word this fetch is for
 
-                uniqueSynonyms.forEach(relatedWord => {
-                    const enSafe = (relatedWord.en || relatedWord.En).replace(/'/g, "\\'");
-                    html += `<a href="#" class="flashcard-synonym-badge" onclick="findAndShowDetail('${enSafe}'); return false;">
-                                ${relatedWord.en || relatedWord.En}
-                             </a>`;
+            // Fetch synonyms from API (cross-list)
+            fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
+                .then(response => {
+                    if (!response.ok) throw new Error('API error');
+                    return response.json();
+                })
+                .then(synonyms => {
+                    // Only update if this is still the current word
+                    if (synonyms && synonyms.length > 0) {
+                        let html = '';
+                        synonyms.forEach(relatedWord => {
+                            // Escape special characters for inline onclick
+                            const escapeForJs = (str) => (str || '')
+                                .replace(/\\/g, '\\\\')      // Backslash first
+                                .replace(/'/g, "\\'")        // Single quotes
+                                .replace(/"/g, '&quot;')     // Double quotes
+                                .replace(/\n/g, '\\n')       // Newlines
+                                .replace(/\r/g, '\\r');      // Carriage returns
+
+                            const wordEn = escapeForJs(relatedWord.en || relatedWord.En);
+                            const wordTr = escapeForJs(relatedWord.tr || relatedWord.Tr);
+                            const wordEx = escapeForJs(relatedWord.example || relatedWord.Example);
+                            // Call showWordDetail directly with all data
+                            html += `<a href="#" class="flashcard-synonym-badge" onclick="if(window.showWordDetail) window.showWordDetail('${wordEn}', '${wordTr}', '${wordEx}'); return false;">
+                                        ${relatedWord.en || relatedWord.En}
+                                     </a>`;
+                        });
+                        els.synonymsList.innerHTML = html;
+                    } else {
+                        els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
+                    }
+                })
+                .catch(err => {
+                    if (err.name === 'AbortError') return; // Ignore aborted requests
+                    console.error('Synonym fetch error:', err);
+                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
                 });
-                els.synonymsList.innerHTML = html;
-            } else {
-                // Empty state
-                const emptyMsg = document.createElement('span');
-                emptyMsg.className = 'text-white-50 small fst-italic px-2';
-                emptyMsg.textContent = 'No synonyms added.';
-                els.synonymsList.appendChild(emptyMsg);
-            }
         }
     }
 

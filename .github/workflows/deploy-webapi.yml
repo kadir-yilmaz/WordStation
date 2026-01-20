@@ -1,6 +1,6 @@
 name: Deploy WebAPI
 
-run-name: Deploy WebAPI - ${{ github.ref_name }} - ${{ github.sha }}
+run-name: Deploy WebAPI - ${{ github.event.head_commit.message }} - ${{ github.sha }}
 
 on:
   push:

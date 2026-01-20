@@ -58,6 +58,22 @@ namespace WordStation.WebUI.Controllers
         }
 
         /// <summary>
+        /// Bir kelimenin eş anlamlılarını JSON olarak döner (AJAX - Cross-List)
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetSynonymsForWord(int wordId)
+        {
+            var userId = GetUserId();
+            var token = GetToken();
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+                return Unauthorized();
+
+            var synonyms = await _synonymService.GetSynonymsForWordAsync(wordId, userId, token);
+            return Json(synonyms.Select(w => new { w.Id, w.En, w.Tr, w.Example }));
+        }
+
+        /// <summary>
         /// Yeni eş anlam grubu oluşturur
         /// </summary>
         [HttpPost]
