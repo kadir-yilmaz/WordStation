@@ -47,6 +47,23 @@
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    /* Thesaurus Container - Full Width Bottom */
+    .synonyms-container-bottom {
+        width: 100%;
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    @@media (max-width: 576px) {
+        .synonyms-container-bottom {
+            margin-top: 12px;
+            padding: 16px;
+        }
+    }
+
     .synonyms-title {
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -402,11 +419,6 @@
                 <div id="flashcardExampleText" class="example-text">
                     Loading...
                 </div>
-                
-                <div id="flashcardSynonymsContainer" class="synonyms-container d-none">
-                    <div class="synonyms-title">THESAURUS</div>
-                    <div id="flashcardSynonyms"></div>
-                </div>
             </div>
 
             @* Flashcard Section *@
@@ -480,6 +492,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        @* Thesaurus Section - Full Width Below *@
+        <div id="flashcardSynonymsContainer" class="synonyms-container-bottom d-none">
+            <div class="synonyms-title">THESAURUS</div>
+            <div id="flashcardSynonyms"></div>
         </div>
     }
     else
