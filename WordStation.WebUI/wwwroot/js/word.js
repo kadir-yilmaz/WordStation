@@ -272,6 +272,15 @@ function showWord(index, opts = {}) {
     if (els.nextBtn) els.nextBtn.disabled = (index === total - 1);
 }
 
+// Slider Background Update (Gradient for Webkit)
+window.updateSliderTrack = (val, max) => {
+    const slider = document.getElementById('interactiveSlider');
+    if (slider && max > 0) {
+        const percent = (val / max) * 100;
+        slider.style.background = `linear-gradient(to right, #10b981 0%, #10b981 ${percent}%, rgba(30, 40, 55, 0.95) ${percent}%, rgba(30, 40, 55, 0.95) 100%)`;
+    }
+};
+
 /* =====================================================
    Smooth Slider Logic
    ===================================================== */
