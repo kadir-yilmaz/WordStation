@@ -9,7 +9,8 @@
         background: linear-gradient(135deg, rgba(15, 15, 35, 0.6) 0%, rgba(30, 20, 50, 0.4) 100%);
         border: 1.5px solid var(--glass-border);
         border-radius: 24px;
-        min-height: 500px;
+        min-height: 400px; /* Reduced to fit viewport */
+        max-height: calc(100vh - 280px); /* Prevent page scroll */
         overflow: hidden;
         position: relative;
         backdrop-filter: blur(16px);
@@ -77,7 +78,7 @@
     /* Thesaurus Container - Top Fixed Area (Global) */
     .synonyms-container-top {
         width: 100%;
-        margin-bottom: 20px;
+        margin-bottom: 12px; /* Reduced margin */
         padding: 12px 16px;
         background: rgba(255, 255, 255, 0.03);
         border-radius: 16px;
@@ -87,6 +88,7 @@
         white-space: nowrap;
         display: flex;
         align-items: center;
+        min-height: 75px; /* Fixed height: Content + Padding + Scrollbar */
         scrollbar-width: thin; /* Show thin scrollbar by default (PC) */
         scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
@@ -352,12 +354,15 @@
         }
 
         .stage-col-flashcard {
-            padding: 24px 20px;
+            padding: 12px 20px; /* Reduced top padding */
             max-width: 100%;
             width: 100%;
             flex: 0 0 auto;
+            /* Fix vertical alignment: Start from top */
+            justify-content: flex-start !important; 
             /* Increased padding/margin to clear the fixed bottom dock */
             padding-bottom: 220px; 
+            min-height: 500px; /* Ensure enough scrollable area */
         }
 
         .flashcard-container {
@@ -406,13 +411,18 @@
 
         .custom-slider {
             margin-bottom: 16px !important;
-            height: 6px; /* Thinner slider for mobile dock */
+            height: 10px; /* Thicker slider for better visibility */
+        }
+        
+        .custom-slider::-webkit-slider-runnable-track {
+            height: 10px; /* Match input height */
+            border-radius: 5px;
         }
         
         .custom-slider::-webkit-slider-thumb {
             width: 18px;
             height: 18px;
-            margin-top: -6px;
+            margin-top: -4px; /* Centering: (10-18)/2 */
         }
 
         .stage-controls .d-flex.gap-4 {
