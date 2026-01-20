@@ -8,5 +8,6 @@
         public string? Example { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string ListName { get; set; } = string.Empty;
+        public List<SynonymWord> SynonymWords { get; set; } = new();
     }
 }

@@ -6,7 +6,12 @@ using WordStation.WebUI.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // MVC
-builder.Services.AddControllersWithViews();
+// MVC
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 builder.Services.ConfigureDataProtection(builder.Environment);
 
@@ -23,6 +28,7 @@ builder.Services.AddHttpClient("WordStationApi", client => {
 // Service Registrations
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IWordApiService, WordApiService>();
+builder.Services.AddScoped<ISynonymApiService, SynonymApiService>();
 
 var app = builder.Build();
 

@@ -36,7 +36,11 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarContent">
                     <ul class="navbar-nav me-auto mb-2 mb-sm-0">
-                        @* Navbar linkleri buraya eklenebilir *@
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Synonym" asp-action="Index">
+                                <i class="bi bi-diagram-3 me-1"></i>Eş Anlamlar
+                            </a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -57,5 +61,52 @@
 
     @* Sayfalara özel scriptler *@
     @await RenderSectionAsync("Scripts", required: false)
+    @* Word Detail Global Modal *@
+    <div class="modal fade" id="wordDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(30, 30, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fs-2 fw-bold text-white ps-0" id="detailWordEn"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 pb-4 pt-2">
+                    <h4 class="fw-bold mb-4" id="detailWordTr" style="color: #34d399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);"></h4>
+                    <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                        <small class="text-uppercase text-white-50 fw-bold mb-2 d-block" style="font-size: 0.7rem; letter-spacing: 1px;">Example Sentence</small>
+                        <p class="mb-0 text-white" id="detailWordExample" style="max-height: 200px; overflow-y: auto; white-space: pre-wrap; line-height: 1.6; scrollbar-width: thin;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.showWordDetail = function(en, tr, example) {
+            document.getElementById('detailWordEn').textContent = en || '';
+            document.getElementById('detailWordTr').textContent = tr || '';
+            
+            const exEl = document.getElementById('detailWordExample');
+            if(example && example.trim() !== '') {
+                exEl.textContent = example;
+                exEl.parentElement.style.display = 'block';
+            } else {
+                exEl.parentElement.style.display = 'none';
+            }
+            
+            const modalEl = document.getElementById('wordDetailModal');
+            if(modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        };
+
+        window.showWordDetailFromElement = function(element) {
+            const en = element.getAttribute('data-en');
+            const tr = element.getAttribute('data-tr');
+            const example = element.getAttribute('data-example');
+            showWordDetail(en, tr, example);
+        };
+    </script>
+
 </body>
 </html>

@@ -12,7 +12,11 @@ using WordStation.DAL.EFCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 
 // CORS
 builder.Services.AddCors(options =>
@@ -71,9 +75,11 @@ builder.Services.AddAuthentication(options =>
 
 // Scoped Services
 builder.Services.AddScoped<IWordRepository, WordRepository>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>(); // Added
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<ISynonymGroupRepository, SynonymGroupRepository>();
 builder.Services.AddScoped<IWordService, WordService>();
-builder.Services.AddScoped<IAuthService, AuthService>(); // Added
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISynonymGroupService, SynonymGroupService>();
 
 builder.Services.AddRouting(options =>
 {
