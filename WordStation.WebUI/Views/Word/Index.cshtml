@@ -350,6 +350,7 @@
                 <div class="modal-body">
                     <input type="hidden" name="ListName" value="@Model.SelectedList" />
                     <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                    <input type="hidden" name="searchMode" value="@Model.SearchMode" />
                     <div class="mb-3">
                         <label class="form-label">English</label>
                         <input type="text" name="En" class="form-control" required />
@@ -385,6 +386,7 @@
                     <input type="hidden" id="updateId" name="Id" />
                     <input type="hidden" id="updateListNameHidden" name="ListName" />
                     <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+                    <input type="hidden" name="searchMode" value="@Model.SearchMode" />
                     <div class="mb-3">
                         <label class="form-label">English</label>
                         <input type="text" id="updateEn" name="En" class="form-control" required />
@@ -412,6 +414,7 @@
         window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
         window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
         window.searchTermValue = '@Model.SearchTerm';
+        window.searchModeValue = '@Model.SearchMode';
         window.selectedList = '@Model.SelectedList';
     </script>
     <script src="~/js/word.js" asp-append-version="true"></script>

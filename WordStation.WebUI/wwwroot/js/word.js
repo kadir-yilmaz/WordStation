@@ -55,7 +55,7 @@ function getAntiForgeryToken() {
 /* =====================================================
    Delete Word
    ===================================================== */
-function deleteWord(id, listName, wordEn, searchTerm) {
+function deleteWord(id, listName, wordEn, searchTerm, searchMode) {
     if (confirm(`"${wordEn}" kelimesini silmek istediğinize emin misiniz?`)) {
         const isCardView = !els.flashcardView.classList.contains('d-none');
         const form = document.createElement('form');
@@ -66,6 +66,7 @@ function deleteWord(id, listName, wordEn, searchTerm) {
             { name: 'id', value: id },
             { name: 'listName', value: listName },
             { name: 'SearchTerm', value: searchTerm || '' },
+            { name: 'searchMode', value: searchMode || 'starts' },
             { name: 'wordEn', value: wordEn || '' }
         ];
 
@@ -206,7 +207,8 @@ function showWord(index, opts = {}) {
                     data.id || data.Id,
                     data.listName || data.ListName,
                     data.en || data.En,
-                    window.searchTermValue
+                    window.searchTermValue,
+                    window.searchModeValue
                 );
         }
 

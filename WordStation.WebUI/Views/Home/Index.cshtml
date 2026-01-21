@@ -1,4 +1,4 @@
-﻿@model List<string>
+﻿@model Dictionary<string, int>
 
 @{
     ViewData["Title"] = User.Identity.IsAuthenticated ? "Dashboard" : "Welcome";
@@ -47,8 +47,11 @@
         <div class="row g-4">
             @if (Model != null && Model.Any())
             {
-                @foreach (var listName in Model)
+                @foreach (var item in Model)
                 {
+                    var listName = item.Key;
+                    var wordCount = item.Value;
+                    
                     <div class="col-md-6 col-lg-4 col-xl-3">
                         <div class="dashboard-card">
 
@@ -78,11 +81,12 @@
                                 </ul>
                             </div>
 
-                            @* Clickable Area *@
-                            <a asp-controller="Word" asp-action="Index" asp-route-listName="@listName" class="text-decoration-none w-100 d-flex flex-column align-items-center">
+                            @* Card Content (Non-clickable) *@
+                            <div class="w-100 d-flex flex-column align-items-center">
                                 <i class="bi bi-folder2-open card-icon"></i>
                                 <h3 class="card-title">@listName</h3>
-                            </a>
+                                <span class="badge bg-secondary mt-2">@wordCount words</span>
+                            </div>
 
                         </div>
                     </div>
