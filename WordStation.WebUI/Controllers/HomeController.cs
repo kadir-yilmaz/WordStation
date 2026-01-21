@@ -29,19 +29,24 @@ namespace WordStation.WebUI.Controllers
                 return View(null);
             }
 
-            List<string> listNames = new();
+            var listsWithCount = new Dictionary<string, int>();
 
             try
             {
-                var lists = await _wordService.GetListNamesAsync(userId, token);
-                listNames = lists.ToList();
+                var listNames = await _wordService.GetListNamesAsync(userId, token);
+                
+                foreach (var listName in listNames)
+                {
+                    var words = await _wordService.GetAllWordsAsync(userId, listName, token);
+                    listsWithCount[listName] = words.Count();
+                }
             }
             catch (Exception ex)
             {
                 TempData["Error"] = $"Could not retrieve your lists: {ex.Message}";
             }
 
-            return View(listNames);
+            return View(listsWithCount);
         }
 
         [HttpPost]

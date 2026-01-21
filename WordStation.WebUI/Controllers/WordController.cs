@@ -21,11 +21,6 @@ namespace WordStation.WebUI.Controllers
 
         public async Task<IActionResult> Index(string listName, string SearchTerm = null, string searchMode = "starts")
         {
-            if (string.IsNullOrEmpty(listName))
-            {
-                return RedirectToAction("Index", "Home"); // Or wherever the list selection is
-            }
-
             var userId = GetUserId();
             var token = GetToken();
 
@@ -42,20 +37,30 @@ namespace WordStation.WebUI.Controllers
                 allLists = listsEnumerable.ToList();
                 ViewBag.AllLists = allLists;
 
-                // Kelimeleri Al
-                IEnumerable<Word> wordsEnumerable;
-                if (!string.IsNullOrEmpty(SearchTerm))
+                // listName yoksa ilk listeyi seç
+                if (string.IsNullOrEmpty(listName) && allLists.Any())
                 {
-                    wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
-                    // Synonym aramaları için tüm kelimeleri de al
-                    var allWordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
-                    ViewBag.AllWords = allWordsEnumerable.ToList();
+                    listName = allLists.First();
                 }
-                else
+
+                // Liste varsa kelimeleri al
+                if (!string.IsNullOrEmpty(listName))
                 {
-                    wordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
+                    IEnumerable<Word> wordsEnumerable;
+                    if (!string.IsNullOrEmpty(SearchTerm))
+                    {
+                        wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
+                        // Synonym aramaları için tüm kelimeleri de al
+                        var allWordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
+                        ViewBag.AllWords = allWordsEnumerable.ToList();
+                    }
+                    else
+                    {
+                        wordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
+                    }
+                    words = wordsEnumerable.ToList();
                 }
-                words = wordsEnumerable.ToList();
+                
                 ViewBag.WordsCount = words.Count;
             }
             catch (Exception ex)
@@ -77,7 +82,7 @@ namespace WordStation.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateWord(Word word, string SearchTerm)
+        public async Task<IActionResult> CreateWord(Word word, string SearchTerm, string searchMode)
         {
             var userId = GetUserId();
             var token = GetToken();
@@ -96,12 +101,12 @@ namespace WordStation.WebUI.Controllers
                 TempData["Error"] = $"Error adding \"{word.En}\".";
             }
 
-            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm });
+            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateWord(Word word, string SearchTerm)
+        public async Task<IActionResult> UpdateWord(Word word, string SearchTerm, string searchMode)
         {
             var userId = GetUserId();
             var token = GetToken();
@@ -120,12 +125,12 @@ namespace WordStation.WebUI.Controllers
                 TempData["Error"] = $"Error updating \"{word.En}\".";
             }
 
-            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm });
+            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteWord(int id, string listName, string SearchTerm, string wordEn)
+        public async Task<IActionResult> DeleteWord(int id, string listName, string SearchTerm, string searchMode, string wordEn)
         {
             var token = GetToken();
             if (string.IsNullOrEmpty(token))
@@ -140,7 +145,7 @@ namespace WordStation.WebUI.Controllers
                 TempData["Error"] = $"Error deleting \"{wordEn}\".";
             }
 
-            return RedirectToAction("Index", new { listName, SearchTerm });
+            return RedirectToAction("Index", new { listName, SearchTerm, searchMode });
         }
 
         [HttpPost]
