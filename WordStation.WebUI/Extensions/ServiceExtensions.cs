@@ -30,7 +30,7 @@ namespace WordStation.WebUI.Extensions
                     options.Cookie = cookieBuilder;
                     
                     options.SlidingExpiration = false;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(2); 
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7); 
 
                     options.Events = new CookieAuthenticationEvents
                     {

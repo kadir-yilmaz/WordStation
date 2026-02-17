@@ -5,16 +5,12 @@ namespace WordStation.DAL.Abstract
 {
     public interface IWordRepository
     {
-        // Query metodları
-        IQueryable<Word> GetAllWords(bool trackChanges);
-        IQueryable<Word> GetWordsByCondition(Expression<Func<Word, bool>> expression, bool trackChanges);
-
-        // CRUD metodları
+        Task<List<Word>> GetAllWordsAsync(bool trackChanges);
+        Task<List<Word>> GetWordsByConditionAsync(Expression<Func<Word, bool>> expression, bool trackChanges);
         void CreateWord(Word entity);
         void UpdateWord(Word entity);
         void DeleteWord(Word entity);
-
-        // Persistence
-        void Save();
+        Task SaveAsync();
     }
 }
+

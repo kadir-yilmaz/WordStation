@@ -13,95 +13,91 @@ namespace WordStation.BLL.Concrete
             _wordRepository = wordRepository;
         }
 
-        public void CreateWord(Word word)
+        public async Task CreateWordAsync(Word word)
         {
             _wordRepository.CreateWord(word);
-            _wordRepository.Save();
+            await _wordRepository.SaveAsync();
         }
 
-        public void DeleteWord(int id)
+        public async Task DeleteWordAsync(int id)
         {
-            var word = _wordRepository.GetWordsByCondition(w => w.Id == id, trackChanges: true)
-                                       .FirstOrDefault();
+            var words = await _wordRepository.GetWordsByConditionAsync(w => w.Id == id, trackChanges: true);
+            var word = words.FirstOrDefault();
             if (word != null)
             {
                 _wordRepository.DeleteWord(word);
-                _wordRepository.Save();
+                await _wordRepository.SaveAsync();
             }
         }
 
-        public void UpdateWord(Word word)
+        public async Task UpdateWordAsync(Word word)
         {
             _wordRepository.UpdateWord(word);
-            _wordRepository.Save();
+            await _wordRepository.SaveAsync();
         }
 
-        public IEnumerable<Word> GetAllWords(string userId, string listName)
+        public async Task<IEnumerable<Word>> GetAllWordsAsync(string userId, string listName)
         {
-            return _wordRepository.GetWordsByCondition(
+            return await _wordRepository.GetWordsByConditionAsync(
                     w => w.UserId == userId && w.ListName == listName,
-                    trackChanges: false)
-                .ToList();
+                    trackChanges: false);
         }
 
-        public IEnumerable<Word> SearchWord(string en, string userId, string listName, string searchMode = "starts")
+        public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts")
         {
             var enLower = en.ToLower();
             var listNameLower = listName.ToLower();
 
             if (searchMode == "contains")
             {
-                return _wordRepository.GetWordsByCondition(
+                return await _wordRepository.GetWordsByConditionAsync(
                         w => w.UserId == userId &&
                              w.ListName.ToLower() == listNameLower &&
                              w.En.ToLower().Contains(enLower),
-                        trackChanges: false)
-                    .ToList();
+                        trackChanges: false);
             }
 
-            return _wordRepository.GetWordsByCondition(
+            return await _wordRepository.GetWordsByConditionAsync(
                     w => w.UserId == userId &&
                          w.ListName.ToLower() == listNameLower &&
                          w.En.ToLower().StartsWith(enLower),
-                    trackChanges: false)
-                .ToList();
+                    trackChanges: false);
         }
 
-        public IEnumerable<string> GetListNames(string userId)
+        public async Task<IEnumerable<string>> GetListNamesAsync(string userId)
         {
-            return _wordRepository.GetWordsByCondition(w => w.UserId == userId, trackChanges: false)
-                           .Select(w => w.ListName)
-                           .Distinct()
-                           .ToList();
+            var words = await _wordRepository.GetWordsByConditionAsync(w => w.UserId == userId, trackChanges: false);
+            return words.Select(w => w.ListName)
+                        .Distinct()
+                        .ToList();
         }
 
-        public void UpdateListName(string listName, string newListName, string userId)
+        public async Task UpdateListNameAsync(string listName, string newListName, string userId)
         {
-            var words = _wordRepository.GetWordsByCondition(
+            var words = await _wordRepository.GetWordsByConditionAsync(
                     w => w.UserId == userId && w.ListName == listName,
-                    trackChanges: true)
-                .ToList();
+                    trackChanges: true);
 
             foreach (var word in words)
             {
                 word.ListName = newListName;
                 _wordRepository.UpdateWord(word);
             }
-            _wordRepository.Save();
+            await _wordRepository.SaveAsync();
         }
 
-        public void DeleteList(string listName, string userId)
+        public async Task DeleteListAsync(string listName, string userId)
         {
-            var wordsToDelete = _wordRepository.GetWordsByCondition(
+            var wordsToDelete = await _wordRepository.GetWordsByConditionAsync(
                     w => w.UserId == userId && w.ListName == listName,
-                    trackChanges: true)
-                .ToList();
+                    trackChanges: true);
 
             foreach (var word in wordsToDelete)
             {
                 _wordRepository.DeleteWord(word);
             }
-            _wordRepository.Save();
+            await _wordRepository.SaveAsync();
         }
     }
 }
+

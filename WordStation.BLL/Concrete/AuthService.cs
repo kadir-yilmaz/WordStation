@@ -104,7 +104,7 @@ namespace WordStation.BLL.Concrete
             {
                 UserId = user.Id,
                 Token = refreshToken,
-                Expires = DateTime.UtcNow.AddDays(1), // Same as Cookie/Token life
+                Expires = DateTime.UtcNow.AddDays(7), // Same as Cookie/Token life
                 Created = DateTime.UtcNow
             };
 
