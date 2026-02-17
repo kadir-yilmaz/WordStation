@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using WordStation.DAL.Abstract;
 using WordStation.EL.Models;
 
-namespace WordStation.DAL.EFCore
+namespace WordStation.DAL.Abstract.EFCore
 {
     public class WordRepository : IWordRepository
     {
@@ -14,33 +14,31 @@ namespace WordStation.DAL.EFCore
             _context = context;
         }
 
-        public IQueryable<Word> GetAllWords(bool trackChanges) =>
-            trackChanges 
-                ? _context.Words
-                    .Include(w => w.SynonymWords)
-                    .ThenInclude(sw => sw.SynonymGroup)
-                    .ThenInclude(sg => sg.SynonymWords)
-                    .ThenInclude(sw => sw.Word)
-                : _context.Words
-                    .Include(w => w.SynonymWords)
-                    .ThenInclude(sw => sw.SynonymGroup)
-                    .ThenInclude(sg => sg.SynonymWords)
-                    .ThenInclude(sw => sw.Word)
-                    .AsNoTrackingWithIdentityResolution();
+        public async Task<List<Word>> GetAllWordsAsync(bool trackChanges)
+        {
+            var query = _context.Words
+                .Include(w => w.SynonymWords)
+                .ThenInclude(sw => sw.SynonymGroup)
+                .ThenInclude(sg => sg.SynonymWords)
+                .ThenInclude(sw => sw.Word);
 
-        public IQueryable<Word> GetWordsByCondition(Expression<Func<Word, bool>> expression, bool trackChanges) =>
-            trackChanges
-                ? _context.Words.Where(expression)
-                    .Include(w => w.SynonymWords)
-                    .ThenInclude(sw => sw.SynonymGroup)
-                    .ThenInclude(sg => sg.SynonymWords)
-                    .ThenInclude(sw => sw.Word)
-                : _context.Words.Where(expression)
-                    .Include(w => w.SynonymWords)
-                    .ThenInclude(sw => sw.SynonymGroup)
-                    .ThenInclude(sg => sg.SynonymWords)
-                    .ThenInclude(sw => sw.Word)
-                    .AsNoTrackingWithIdentityResolution();
+            return trackChanges
+                ? await query.ToListAsync()
+                : await query.AsNoTrackingWithIdentityResolution().ToListAsync();
+        }
+
+        public async Task<List<Word>> GetWordsByConditionAsync(Expression<Func<Word, bool>> expression, bool trackChanges)
+        {
+            var query = _context.Words.Where(expression)
+                .Include(w => w.SynonymWords)
+                .ThenInclude(sw => sw.SynonymGroup)
+                .ThenInclude(sg => sg.SynonymWords)
+                .ThenInclude(sw => sw.Word);
+
+            return trackChanges
+                ? await query.ToListAsync()
+                : await query.AsNoTrackingWithIdentityResolution().ToListAsync();
+        }
 
         public void CreateWord(Word entity) => _context.Words.Add(entity);
 
@@ -48,6 +46,7 @@ namespace WordStation.DAL.EFCore
 
         public void DeleteWord(Word entity) => _context.Words.Remove(entity);
 
-        public void Save() => _context.SaveChanges();
+        public async Task SaveAsync() => await _context.SaveChangesAsync();
     }
 }
+

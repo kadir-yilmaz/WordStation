@@ -7,6 +7,7 @@ using WordStation.BLL.Abstract;
 using WordStation.BLL.Concrete;
 using WordStation.DAL;
 using WordStation.DAL.Abstract;
+using WordStation.DAL.Abstract.EFCore;
 using WordStation.DAL.EFCore;
 
 var builder = WebApplication.CreateBuilder(args);

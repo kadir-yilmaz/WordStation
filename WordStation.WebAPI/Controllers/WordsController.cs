@@ -19,90 +19,91 @@ namespace WordStation.WebAPI.Controllers
 
         // GET: api/words?userId=xxx&listName=yyy
         [HttpGet]
-        public IActionResult GetAllWords([FromQuery] string userId, [FromQuery] string listName)
+        public async Task<IActionResult> GetAllWords([FromQuery] string userId, [FromQuery] string listName)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName))
                 return BadRequest("Kullanıcı ID ve liste adı gereklidir.");
 
-            var words = _wordService.GetAllWords(userId, listName);
+            var words = await _wordService.GetAllWordsAsync(userId, listName);
             return Ok(words);
         }
 
         // GET: api/words/search?en=xxx&userId=yyy&listName=zzz&searchMode=starts|contains
         [HttpGet("search")]
-        public IActionResult SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName, [FromQuery] string searchMode = "starts")
+        public async Task<IActionResult> SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName, [FromQuery] string searchMode = "starts")
         {
             if (string.IsNullOrWhiteSpace(en) || string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName))
                 return BadRequest("Arama kriterleri eksik.");
 
-            var results = _wordService.SearchWord(en, userId, listName, searchMode);
+            var results = await _wordService.SearchWordAsync(en, userId, listName, searchMode);
             return Ok(results);
         }
 
         // GET: api/words/lists?userId=xxx
         [HttpGet("lists")]
-        public IActionResult GetListNames([FromQuery] string userId)
+        public async Task<IActionResult> GetListNames([FromQuery] string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 return BadRequest("Kullanıcı ID gereklidir.");
 
-            var listNames = _wordService.GetListNames(userId);
+            var listNames = await _wordService.GetListNamesAsync(userId);
             return Ok(listNames);
         }
 
         // POST: api/words
         [HttpPost]
-        public IActionResult CreateWord([FromBody] Word word)
+        public async Task<IActionResult> CreateWord([FromBody] Word word)
         {
             if (word == null || string.IsNullOrWhiteSpace(word.En))
                 return BadRequest("Geçersiz kelime verisi.");
 
-            _wordService.CreateWord(word);
+            await _wordService.CreateWordAsync(word);
             return CreatedAtAction(nameof(GetAllWords), new { userId = word.UserId, listName = word.ListName }, word);
         }
 
         // PUT: api/words
         [HttpPut]
-        public IActionResult UpdateWord([FromBody] Word word)
+        public async Task<IActionResult> UpdateWord([FromBody] Word word)
         {
             if (word == null || word.Id <= 0)
                 return BadRequest("Geçersiz kelime verisi.");
 
-            _wordService.UpdateWord(word);
+            await _wordService.UpdateWordAsync(word);
             return NoContent();
         }
 
         // DELETE: api/words/{id}
         [HttpDelete("{id:int}")]
-        public IActionResult DeleteWord(int id)
+        public async Task<IActionResult> DeleteWord(int id)
         {
             if (id <= 0)
                 return BadRequest("Geçersiz ID.");
 
-            _wordService.DeleteWord(id);
+            await _wordService.DeleteWordAsync(id);
             return NoContent();
         }
 
         // PUT: api/words/lists/rename?userId=xxx&listName=yyy&newListName=zzz
         [HttpPut("lists/rename")]
-        public IActionResult UpdateListName([FromQuery] string userId, [FromQuery] string listName, [FromQuery] string newListName)
+        public async Task<IActionResult> UpdateListName([FromQuery] string userId, [FromQuery] string listName, [FromQuery] string newListName)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName) || string.IsNullOrWhiteSpace(newListName))
                 return BadRequest("Tüm parametreler gereklidir.");
 
-            _wordService.UpdateListName(listName, newListName, userId);
+            await _wordService.UpdateListNameAsync(listName, newListName, userId);
             return NoContent();
         }
 
         // DELETE: api/words/lists?userId=xxx&listName=yyy
         [HttpDelete("lists")]
-        public IActionResult DeleteList([FromQuery] string userId, [FromQuery] string listName)
+        public async Task<IActionResult> DeleteList([FromQuery] string userId, [FromQuery] string listName)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName))
                 return BadRequest("Kullanıcı ID ve liste adı gereklidir.");
 
-            _wordService.DeleteList(listName, userId);
+            await _wordService.DeleteListAsync(listName, userId);
             return NoContent();
         }
     }
 }
+
