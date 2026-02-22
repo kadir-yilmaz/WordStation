@@ -214,55 +214,67 @@ function showWord(index, opts = {}) {
 
         // Synonyms Render (API-Based - Cross-List)
         if (els.synonymsContainer && els.synonymsList) {
-            // Cancel previous request to prevent race condition
-            if (window.synonymFetchController) {
-                window.synonymFetchController.abort();
-            }
-            window.synonymFetchController = new AbortController();
+            const wordId = data.id || data.Id;
+            
+            // Initializing cache object globally if not exists
+            window.synonymCache = window.synonymCache || {};
 
-            els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
+            const renderSynonyms = (synonyms) => {
+                if (synonyms && synonyms.length > 0) {
+                    let html = '';
+                    synonyms.forEach(relatedWord => {
+                        // Escape special characters for inline onclick
+                        const escapeForJs = (str) => (str || '')
+                            .replace(/\\/g, '\\\\')      // Backslash first
+                            .replace(/'/g, "\\'")        // Single quotes
+                            .replace(/"/g, '&quot;')     // Double quotes
+                            .replace(/\n/g, '\\n')       // Newlines
+                            .replace(/\r/g, '\\r');      // Carriage returns
+
+                        const wordEn = escapeForJs(relatedWord.en || relatedWord.En);
+                        const wordTr = escapeForJs(relatedWord.tr || relatedWord.Tr);
+                        const wordEx = escapeForJs(relatedWord.example || relatedWord.Example);
+                        // Call showWordDetail directly with all data
+                        html += `<a href="#" class="flashcard-synonym-badge" onclick="if(window.showWordDetail) window.showWordDetail('${wordEn}', '${wordTr}', '${wordEx}'); return false;">
+                                    ${relatedWord.en || relatedWord.En}
+                                 </a>`;
+                    });
+                    els.synonymsList.innerHTML = html;
+                } else {
+                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
+                }
+            };
+
             els.synonymsContainer.classList.remove('d-none');
 
-            const wordId = data.id || data.Id;
-            const currentFetchId = wordId; // Track which word this fetch is for
+            if (window.synonymCache[wordId]) {
+                // If we have cached synonyms, just render them directly
+                renderSynonyms(window.synonymCache[wordId]);
+            } else {
+                // Cancel previous request to prevent race condition
+                if (window.synonymFetchController) {
+                    window.synonymFetchController.abort();
+                }
+                window.synonymFetchController = new AbortController();
 
-            // Fetch synonyms from API (cross-list)
-            fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
-                .then(response => {
-                    if (!response.ok) throw new Error('API error');
-                    return response.json();
-                })
-                .then(synonyms => {
-                    // Only update if this is still the current word
-                    if (synonyms && synonyms.length > 0) {
-                        let html = '';
-                        synonyms.forEach(relatedWord => {
-                            // Escape special characters for inline onclick
-                            const escapeForJs = (str) => (str || '')
-                                .replace(/\\/g, '\\\\')      // Backslash first
-                                .replace(/'/g, "\\'")        // Single quotes
-                                .replace(/"/g, '&quot;')     // Double quotes
-                                .replace(/\n/g, '\\n')       // Newlines
-                                .replace(/\r/g, '\\r');      // Carriage returns
+                els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
 
-                            const wordEn = escapeForJs(relatedWord.en || relatedWord.En);
-                            const wordTr = escapeForJs(relatedWord.tr || relatedWord.Tr);
-                            const wordEx = escapeForJs(relatedWord.example || relatedWord.Example);
-                            // Call showWordDetail directly with all data
-                            html += `<a href="#" class="flashcard-synonym-badge" onclick="if(window.showWordDetail) window.showWordDetail('${wordEn}', '${wordTr}', '${wordEx}'); return false;">
-                                        ${relatedWord.en || relatedWord.En}
-                                     </a>`;
-                        });
-                        els.synonymsList.innerHTML = html;
-                    } else {
+                // Fetch synonyms from API (cross-list)
+                fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
+                    .then(response => {
+                        if (!response.ok) throw new Error('API error');
+                        return response.json();
+                    })
+                    .then(synonyms => {
+                        window.synonymCache[wordId] = synonyms; // Cache the result
+                        renderSynonyms(synonyms);
+                    })
+                    .catch(err => {
+                        if (err.name === 'AbortError') return; // Ignore aborted requests
+                        console.error('Synonym fetch error:', err);
                         els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
-                    }
-                })
-                .catch(err => {
-                    if (err.name === 'AbortError') return; // Ignore aborted requests
-                    console.error('Synonym fetch error:', err);
-                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
-                });
+                    });
+            }
         }
     }
 
