@@ -215,7 +215,7 @@ function showWord(index, opts = {}) {
         // Synonyms Render (API-Based - Cross-List)
         if (els.synonymsContainer && els.synonymsList) {
             const wordId = data.id || data.Id;
-            
+
             // Initializing cache object globally if not exists
             window.synonymCache = window.synonymCache || {};
 
@@ -247,33 +247,45 @@ function showWord(index, opts = {}) {
 
             els.synonymsContainer.classList.remove('d-none');
 
-            if (window.synonymCache[wordId]) {
-                // If we have cached synonyms, just render them directly
-                renderSynonyms(window.synonymCache[wordId]);
-            } else {
-                // Cancel previous request to prevent race condition
-                if (window.synonymFetchController) {
-                    window.synonymFetchController.abort();
+            // If the global cache is loaded from the backend (i.e. not undefined)
+            if (typeof window.synonymCache !== 'undefined') {
+                if (window.synonymCache[wordId]) {
+                    renderSynonyms(window.synonymCache[wordId]);
+                } else {
+                    // Cache is loaded, but this word has no synonyms
+                    renderSynonyms([]);
                 }
-                window.synonymFetchController = new AbortController();
+            } else {
+                // Initializing cache object globally if not exists for fallback
+                window.synonymCacheFallback = window.synonymCacheFallback || {};
 
-                els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
+                if (window.synonymCacheFallback[wordId]) {
+                    renderSynonyms(window.synonymCacheFallback[wordId]);
+                } else {
+                    // Cancel previous request to prevent race condition
+                    if (window.synonymFetchController) {
+                        window.synonymFetchController.abort();
+                    }
+                    window.synonymFetchController = new AbortController();
 
-                // Fetch synonyms from API (cross-list)
-                fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
-                    .then(response => {
-                        if (!response.ok) throw new Error('API error');
-                        return response.json();
-                    })
-                    .then(synonyms => {
-                        window.synonymCache[wordId] = synonyms; // Cache the result
-                        renderSynonyms(synonyms);
-                    })
-                    .catch(err => {
-                        if (err.name === 'AbortError') return; // Ignore aborted requests
-                        console.error('Synonym fetch error:', err);
-                        els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
-                    });
+                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
+
+                    // Fetch synonyms from API (cross-list)
+                    fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
+                        .then(response => {
+                            if (!response.ok) throw new Error('API error');
+                            return response.json();
+                        })
+                        .then(synonyms => {
+                            window.synonymCacheFallback[wordId] = synonyms; // Cache the result
+                            renderSynonyms(synonyms);
+                        })
+                        .catch(err => {
+                            if (err.name === 'AbortError') return; // Ignore aborted requests
+                            console.error('Synonym fetch error:', err);
+                            els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
+                        });
+                }
             }
         }
     }

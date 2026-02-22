@@ -15,6 +15,11 @@ namespace WordStation.WebUI.Services.Abstract
         Task<IEnumerable<Word>> GetSynonymsForWordAsync(int wordId, string userId, string token);
 
         /// <summary>
+        /// Kullanıcıya ait tüm eş anlamlı kelimeleri sözlük formatında getirir
+        /// </summary>
+        Task<Dictionary<int, IEnumerable<Word>>> GetAllSynonymsForUserAsync(string userId, string token);
+
+        /// <summary>
         /// Yeni eş anlam grubu oluşturur
         /// </summary>
         Task<SynonymGroup?> CreateGroupAsync(string? name, List<int> wordIds, string userId, string token);

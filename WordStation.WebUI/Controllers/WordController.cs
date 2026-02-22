@@ -10,10 +10,12 @@ namespace WordStation.WebUI.Controllers
     public class WordController : Controller
     {
         private readonly IWordApiService _wordService;
+        private readonly ISynonymApiService _synonymService;
 
-        public WordController(IWordApiService wordService)
+        public WordController(IWordApiService wordService, ISynonymApiService synonymService)
         {
             _wordService = wordService;
+            _synonymService = synonymService;
         }
 
         private string? GetToken() => User.FindFirstValue("Token");
@@ -60,8 +62,12 @@ namespace WordStation.WebUI.Controllers
                     }
                     words = wordsEnumerable.ToList();
                 }
-                
+
                 ViewBag.WordsCount = words.Count;
+
+                // Get all synonyms for the user to optimize client performance
+                var synonymsMap = await _synonymService.GetAllSynonymsForUserAsync(userId, token);
+                ViewBag.SynonymsData = synonymsMap;
             }
             catch (Exception ex)
             {
@@ -113,7 +119,7 @@ namespace WordStation.WebUI.Controllers
 
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
-            
+
             word.UserId = userId;
 
             if (await _wordService.UpdateWordAsync(word, token))

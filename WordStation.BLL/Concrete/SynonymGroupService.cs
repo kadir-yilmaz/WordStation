@@ -45,6 +45,40 @@ namespace WordStation.BLL.Concrete
             return synonyms;
         }
 
+        public Dictionary<int, IEnumerable<Word>> GetAllSynonymsForUser(string userId)
+        {
+            var groups = _repository
+                .GetByCondition(g => g.UserId == userId, trackChanges: false)
+                .ToList();
+
+            var result = new Dictionary<int, IEnumerable<Word>>();
+
+            // Get all unique word IDs that are in any synonym group
+            var allWordIds = groups
+                .SelectMany(g => g.SynonymWords)
+                .Select(sw => sw.WordId)
+                .Distinct()
+                .ToList();
+            
+            foreach(var wordId in allWordIds)
+            {
+                var wordGroups = groups.Where(g => g.SynonymWords.Any(sw => sw.WordId == wordId));
+                var synonyms = wordGroups
+                    .SelectMany(g => g.SynonymWords)
+                    .Where(sw => sw.WordId != wordId)
+                    .Select(sw => sw.Word)
+                    .DistinctBy(w => w.Id)
+                    .ToList();
+                
+                if (synonyms.Any())
+                {
+                    result[wordId] = synonyms;
+                }
+            }
+
+            return result;
+        }
+
         public SynonymGroup CreateGroup(string? name, List<int> wordIds, string userId)
         {
             var group = new SynonymGroup

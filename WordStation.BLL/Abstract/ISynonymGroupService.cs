@@ -20,6 +20,11 @@ namespace WordStation.BLL.Abstract
         IEnumerable<Word> GetSynonymsForWord(int wordId, string userId);
         
         /// <summary>
+        /// Kullanıcıya ait tüm eş anlamlı kelimeleri sözlük formatında (WordId -> List<Word>) getirir
+        /// </summary>
+        Dictionary<int, IEnumerable<Word>> GetAllSynonymsForUser(string userId);
+        
+        /// <summary>
         /// Yeni grup oluşturur
         /// </summary>
         SynonymGroup CreateGroup(string? name, List<int> wordIds, string userId);
