@@ -47,6 +47,19 @@ namespace WordStation.WebUI.Services.Concrete
                    ?? Enumerable.Empty<Word>();
         }
 
+        public async Task<Dictionary<int, IEnumerable<Word>>> GetAllSynonymsForUserAsync(string userId, string token)
+        {
+            SetAuthHeader(token);
+            var response = await _httpClient.GetAsync($"synonymgroups/all-synonyms?userId={userId}");
+
+            if (!response.IsSuccessStatusCode)
+                return new Dictionary<int, IEnumerable<Word>>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Dictionary<int, IEnumerable<Word>>>(json, _jsonOptions) 
+                   ?? new Dictionary<int, IEnumerable<Word>>();
+        }
+
         public async Task<SynonymGroup?> CreateGroupAsync(string? name, List<int> wordIds, string userId, string token)
         {
             SetAuthHeader(token);

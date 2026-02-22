@@ -31,6 +31,20 @@ namespace WordStation.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Kullanıcıya ait tüm eş anlamlı kelimeleri sözlük formatında (WordId -> List<Word>) getirir
+        /// GET: api/synonymgroups/all-synonyms?userId=xxx
+        /// </summary>
+        [HttpGet("all-synonyms")]
+        public IActionResult GetAllSynonymsForUser([FromQuery] string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest("Kullanıcı ID gereklidir.");
+
+            var synonymsMap = _service.GetAllSynonymsForUser(userId);
+            return Ok(synonymsMap);
+        }
+
+        /// <summary>
         /// ID'ye göre grup getirir
         /// GET: api/synonymgroups/{id}?userId=xxx
         /// </summary>

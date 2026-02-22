@@ -5,228 +5,228 @@
 }
 
 @section Styles {
-    <style>
-        /* ===== CSS VARIABLES (Shared) ===== */
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --banner-bg: rgba(255, 255, 255, 0.045);
-            --banner-border-hover: rgba(0, 220, 255, 0.40);
-        }
+        <style>
+            /* ===== CSS VARIABLES (Shared) ===== */
+            :root {
+                --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+                --glass-bg: rgba(255, 255, 255, 0.05);
+                --glass-border: rgba(255, 255, 255, 0.1);
+                --banner-bg: rgba(255, 255, 255, 0.045);
+                --banner-border-hover: rgba(0, 220, 255, 0.40);
+            }
 
-        /* ===== TOP BAR ===== */
-        .top-bar-fixed { position: relative; z-index: 1050; }
-        .top-bar-fixed .dropdown-menu { z-index: 1051; }
+            /* ===== TOP BAR ===== */
+            .top-bar-fixed { position: relative; z-index: 1050; }
+            .top-bar-fixed .dropdown-menu { z-index: 1051; }
 
 
-        /* ===== BANNER ===== */
-        .banner-shell {
-            position: relative;
-            border-radius: 14px;
-            padding: 1px;
-            background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            margin-bottom: 24px;
-            transition: transform 0.2s ease;
-        }
-
-        .banner-card {
-            background: var(--banner-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid transparent;
-            border-radius: 13px;
-            padding: 8px 12px; /* Padding biraz kısıldı */
-        }
-
-        .banner-shell:hover .banner-card { border-color: var(--banner-border-hover); }
-
-        .modern-input {
-            height: 38px; /* Butonlarla eşitlendi */
-            background: var(--glass-bg);
-            border: 1.5px solid var(--glass-border);
-            color: #fff;
-            border-radius: 10px !important;
-            padding: 0 14px;
-            font-size: 0.9rem;
-        }
-
-        .modern-input:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(0, 220, 255, 0.6);
-            box-shadow: none; /* Focus shadow kaldırıldı, temiz görünüm */
-            color: #fff;
-            outline: none;
-        }
-        
-        /* Input group içindeki border fix */
-        .input-group .btn {
-            border: 1.5px solid var(--glass-border);
-            border-right: none; 
-            height: 38px;
-            z-index: 2;
-        }
-        .input-group .form-control {
-            z-index: 1;
-        }
-        .input-group .form-control:focus {
-            z-index: 3;
-            border-color: rgba(0, 220, 255, 0.6);
-        }
-
-        .banner-btn {
-            height: 38px;
-            min-width: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px !important;
-            padding: 0 14px;
-            border: 1.5px solid var(--glass-border);
-            transition: all 0.2s ease;
-        }
-
-        .banner-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .banner-btn.btn-success {
-            background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
-            border: none;
-            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
-        }
-
-        .banner-btn.btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        /* ===== MOBILE TWEAKS ===== */
-        /* ===== MOBILE TWEAKS (Max 576px) ===== */
-        @@media (max-width: 576px) {
+            /* ===== BANNER ===== */
             .banner-shell {
-                margin-bottom: 8px !important;
+                position: relative;
+                border-radius: 14px;
+                padding: 1px;
+                background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+                margin-bottom: 24px;
+                transition: transform 0.2s ease;
             }
 
-            /* Tek satır zorla */
-            .banner-card .d-flex {
-                flex-wrap: nowrap !important;
-                gap: 6px !important;
+            .banner-card {
+                background: var(--banner-bg);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid transparent;
+                border-radius: 13px;
+                padding: 8px 12px; /* Padding biraz kısıldı */
             }
 
-            /* 1. DROP DOWN - Küçült */
-            .banner-card .dropdown button {
-                min-width: auto !important; /* HTML style'ını ez */
-                padding: 0 8px !important;
-                width: auto !important;
-            }
-            /* Metni gizle, sadece ikon kalsın */
-            .banner-card .dropdown button span.text-truncate {
-                display: none !important;
-            }
-            /* Gap'i kaldır (ikon ve ok arası boşluk) */
-            .banner-card .dropdown button div.d-flex {
-                gap: 0 !important;
+            .banner-shell:hover .banner-card { border-color: var(--banner-border-hover); }
+
+            .modern-input {
+                height: 38px; /* Butonlarla eşitlendi */
+                background: var(--glass-bg);
+                border: 1.5px solid var(--glass-border);
+                color: #fff;
+                border-radius: 10px !important;
+                padding: 0 14px;
+                font-size: 0.9rem;
             }
 
-            /* 2. FORM - Esnek ve ortada */
-            .banner-card form {
-                width: auto !important;
-                min-width: 0 !important;
-                margin-top: 0 !important;
-                flex-grow: 1; /* Kalan boşluğu doldur */
-                order: 0 !important; /* Sırayı bozma */
-            }
-            
-            /* Search Mod Butonu (Sol) - Küçült */
-            #searchModeToggle {
-                padding: 0 6px !important;
-                font-size: 0.8rem;
-                width: 30px; /* Sabit küçük genişlik */
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            #searchModeToggle i { font-size: 0.9rem; }
-
-            /* Input Alanı */
-            #searchInput {
-                padding: 0 8px !important;
-                font-size: 0.85rem;
+            .modern-input:focus {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(0, 220, 255, 0.6);
+                box-shadow: none; /* Focus shadow kaldırıldı, temiz görünüm */
+                color: #fff;
+                outline: none;
             }
 
-            /* 3. SAĞ BUTONLAR - Küçült */
-            .banner-card .flex-shrink-0 .btn {
-                padding: 0 8px !important;
-                width: 32px; /* Kare butonlar */
+            /* Input group içindeki border fix */
+            .input-group .btn {
+                border: 1.5px solid var(--glass-border);
+                border-right: none; 
                 height: 38px;
+                z-index: 2;
+            }
+            .input-group .form-control {
+                z-index: 1;
+            }
+            .input-group .form-control:focus {
+                z-index: 3;
+                border-color: rgba(0, 220, 255, 0.6);
+            }
+
+            .banner-btn {
+                height: 38px;
+                min-width: 38px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                border-radius: 10px !important;
+                padding: 0 14px;
+                border: 1.5px solid var(--glass-border);
+                transition: all 0.2s ease;
             }
-        }
 
-        /* ===== SMALL PHONE - 480px and below ===== */
-        @@media (max-width: 480px) {
-            .container { padding-left: 8px !important; padding-right: 8px !important; }
-            .banner-card { padding: 6px 10px; }
-            .banner-btn { height: 32px; min-width: 32px; padding: 0 8px; font-size: 0.8rem; }
-            .modern-input { height: 32px; font-size: 0.85rem; }
-            .dropdown-item { padding: 10px 14px; }
-        }
+            .banner-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: translateY(-1px);
+            }
 
-        /* ===== MODAL STYLES ===== */
-        .modal-content {
-            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-        }
+            .banner-btn.btn-success {
+                background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+                border: none;
+                box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+            }
 
-        .modal-header { padding: 20px 24px 10px; }
-        .modal-body { padding: 10px 24px 20px; }
-        .modal-footer { padding: 10px 24px 20px; }
+            .banner-btn.btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            }
 
-        .modal .form-control {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border-radius: 8px;
-        }
+            /* ===== MOBILE TWEAKS ===== */
+            /* ===== MOBILE TWEAKS (Max 576px) ===== */
+            @@media (max-width: 576px) {
+                .banner-shell {
+                    margin-bottom: 8px !important;
+                }
 
-        .modal .form-control:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(0, 220, 255, 0.5);
-            box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
-            color: #fff;
-        }
+                /* Tek satır zorla */
+                .banner-card .d-flex {
+                    flex-wrap: nowrap !important;
+                    gap: 6px !important;
+                }
 
-        .modal .form-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-    </style>
+                /* 1. DROP DOWN - Küçült */
+                .banner-card .dropdown button {
+                    min-width: auto !important; /* HTML style'ını ez */
+                    padding: 0 8px !important;
+                    width: auto !important;
+                }
+                /* Metni gizle, sadece ikon kalsın */
+                .banner-card .dropdown button span.text-truncate {
+                    display: none !important;
+                }
+                /* Gap'i kaldır (ikon ve ok arası boşluk) */
+                .banner-card .dropdown button div.d-flex {
+                    gap: 0 !important;
+                }
+
+                /* 2. FORM - Esnek ve ortada */
+                .banner-card form {
+                    width: auto !important;
+                    min-width: 0 !important;
+                    margin-top: 0 !important;
+                    flex-grow: 1; /* Kalan boşluğu doldur */
+                    order: 0 !important; /* Sırayı bozma */
+                }
+
+                /* Search Mod Butonu (Sol) - Küçült */
+                #searchModeToggle {
+                    padding: 0 6px !important;
+                    font-size: 0.8rem;
+                    width: 30px; /* Sabit küçük genişlik */
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                #searchModeToggle i { font-size: 0.9rem; }
+
+                /* Input Alanı */
+                #searchInput {
+                    padding: 0 8px !important;
+                    font-size: 0.85rem;
+                }
+
+                /* 3. SAĞ BUTONLAR - Küçült */
+                .banner-card .flex-shrink-0 .btn {
+                    padding: 0 8px !important;
+                    width: 32px; /* Kare butonlar */
+                    height: 38px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            /* ===== SMALL PHONE - 480px and below ===== */
+            @@media (max-width: 480px) {
+                .container { padding-left: 8px !important; padding-right: 8px !important; }
+                .banner-card { padding: 6px 10px; }
+                .banner-btn { height: 32px; min-width: 32px; padding: 0 8px; font-size: 0.8rem; }
+                .modern-input { height: 32px; font-size: 0.85rem; }
+                .dropdown-item { padding: 10px 14px; }
+            }
+
+            /* ===== MODAL STYLES ===== */
+            .modal-content {
+                background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+            }
+
+            .modal-header { padding: 20px 24px 10px; }
+            .modal-body { padding: 10px 24px 20px; }
+            .modal-footer { padding: 10px 24px 20px; }
+
+            .modal .form-control {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                color: #fff;
+                border-radius: 8px;
+            }
+
+            .modal .form-control:focus {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(0, 220, 255, 0.5);
+                box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+                color: #fff;
+            }
+
+            .modal .form-label {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+        </style>
 }
 
 @* Toast Container - Navbar altında, sağ üst köşe *@
 <div class="toast-container position-fixed end-0 p-3" style="bottom: 20px; z-index: 9999; pointer-events: none;">
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Error!</strong> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+            <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Error!</strong> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
     }
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <strong><i class="bi bi-check-circle-fill"></i> Success!</strong> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+            <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
+                <strong><i class="bi bi-check-circle-fill"></i> Success!</strong> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
     }
 </div>
 
@@ -237,7 +237,7 @@
         <div class="banner-shell">
             <div class="banner-card">
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                    
+
                     @* 1. Liste Seçimi *@
                     <div class="dropdown flex-shrink-0">
                         <button class="btn btn-outline-light banner-btn dropdown-toggle d-flex align-items-center gap-2"
@@ -256,19 +256,19 @@
                             {
                                 @foreach (var list in ViewBag.AllLists)
                                 {
-                                    <li>
-                                        <a class="dropdown-item @(list == Model.SelectedList ? "active" : "")"
-                                           asp-controller="Word"
-                                           asp-action="Index"
-                                           asp-route-listName="@list">
+                                            <li>
+                                                <a class="dropdown-item @(list == Model.SelectedList ? "active" : "")"
+                                                   asp-controller="Word"
+                                                   asp-action="Index"
+                                                   asp-route-listName="@list">
                                             @list
-                                        </a>
-                                    </li>
+                                                </a>
+                                            </li>
                                 }
                             }
                             else
                             {
-                                <li><a class="dropdown-item disabled" href="#">No lists available</a></li>
+                                    <li><a class="dropdown-item disabled" href="#">No lists available</a></li>
                             }
                         </ul>
                     </div>
@@ -277,7 +277,7 @@
                     <form method="get" asp-controller="Word" asp-action="Index" class="d-flex gap-2 flex-grow-1" style="min-width: 250px;">
                         <input type="hidden" name="listName" value="@Model.SelectedList" />
                         <input type="hidden" name="searchMode" id="searchModeInput" value="@((Model.SearchMode ?? "starts").ToLower())" />
-                        
+
                         <div class="input-group">
                             <button type="button" 
                                 class="btn @(Model.SearchMode == "contains" ? "btn-info" : "btn-outline-light")" 
@@ -410,64 +410,65 @@
 </div>
 
 @section Scripts {
-    <script>
-        window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
-        window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
-        window.searchTermValue = '@Model.SearchTerm';
-        window.searchModeValue = '@Model.SearchMode';
-        window.selectedList = '@Model.SelectedList';
-    </script>
-    <script src="~/js/word.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const alerts = document.querySelectorAll('.alert.auto-close');
-            alerts.forEach(function (alertEl) {
-                setTimeout(function () {
-                    try {
-                        bootstrap.Alert.getOrCreateInstance(alertEl).close();
-                    } catch (e) {
-                        alertEl.classList.remove('show');
-                    }
-                }, 3000);
-            });
-
-            // Search Mode Toggle
-            const modeInput = document.getElementById('searchModeInput');
-            const modeBtn = document.getElementById('searchModeToggle');
-            const modeIcon = modeBtn.querySelector('i');
-
-            if(modeBtn && modeInput){
-                modeBtn.addEventListener('click', function() {
-                    const currentMode = modeInput.value;
-                    const newMode = currentMode === 'starts' ? 'contains' : 'starts';
-                    
-                    modeInput.value = newMode;
-                    
-                    // Update UI
-                    if(newMode === 'contains') {
-                        modeBtn.classList.remove('btn-outline-light');
-                        modeBtn.classList.add('btn-info');
-                        modeIcon.classList.remove('bi-text-left');
-                        modeIcon.classList.add('bi-text-center');
-                        modeBtn.title = "Mod: İçeren";
-                    } else {
-                        modeBtn.classList.remove('btn-info');
-                        modeBtn.classList.add('btn-outline-light');
-                        modeIcon.classList.remove('bi-text-center');
-                        modeIcon.classList.add('bi-text-left');
-                        modeBtn.title = "Mod: İle Başlayan";
-                    }
-
-                    // Optional: Submit form automatically if there is search text
-                    const searchInput = document.getElementById('searchInput');
-                    if(searchInput && searchInput.value.length > 0) {
-                        modeBtn.closest('form').submit();
-                    } else {
-                         // Focus back to search input
-                        searchInput.focus();
-                    }
+        <script>
+            window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
+            window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
+            window.synonymCache = @Html.Raw(Json.Serialize(ViewBag.SynonymsData ?? new Dictionary<int, IEnumerable<WordStation.WebUI.Models.Word>>()));
+            window.searchTermValue = '@Model.SearchTerm';
+            window.searchModeValue = '@Model.SearchMode';
+            window.selectedList = '@Model.SelectedList';
+        </script>
+        <script src="~/js/word.js" asp-append-version="true"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const alerts = document.querySelectorAll('.alert.auto-close');
+                alerts.forEach(function (alertEl) {
+                    setTimeout(function () {
+                        try {
+                            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+                        } catch (e) {
+                            alertEl.classList.remove('show');
+                        }
+                    }, 3000);
                 });
-            }
-        });
-    </script>
+
+                // Search Mode Toggle
+                const modeInput = document.getElementById('searchModeInput');
+                const modeBtn = document.getElementById('searchModeToggle');
+                const modeIcon = modeBtn.querySelector('i');
+
+                if(modeBtn && modeInput){
+                    modeBtn.addEventListener('click', function() {
+                        const currentMode = modeInput.value;
+                        const newMode = currentMode === 'starts' ? 'contains' : 'starts';
+
+                        modeInput.value = newMode;
+
+                        // Update UI
+                        if(newMode === 'contains') {
+                            modeBtn.classList.remove('btn-outline-light');
+                            modeBtn.classList.add('btn-info');
+                            modeIcon.classList.remove('bi-text-left');
+                            modeIcon.classList.add('bi-text-center');
+                            modeBtn.title = "Mod: İçeren";
+                        } else {
+                            modeBtn.classList.remove('btn-info');
+                            modeBtn.classList.add('btn-outline-light');
+                            modeIcon.classList.remove('bi-text-center');
+                            modeIcon.classList.add('bi-text-left');
+                            modeBtn.title = "Mod: İle Başlayan";
+                        }
+
+                        // Optional: Submit form automatically if there is search text
+                        const searchInput = document.getElementById('searchInput');
+                        if(searchInput && searchInput.value.length > 0) {
+                            modeBtn.closest('form').submit();
+                        } else {
+                             // Focus back to search input
+                            searchInput.focus();
+                        }
+                    });
+                }
+            });
+        </script>
 }
