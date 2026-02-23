@@ -16,10 +16,22 @@
             --banner-border-hover: rgba(0, 220, 255, 0.40);
         }
 
-        /* ===== TOP BAR ===== */
+        /* ===== TOP BAR (Sticky Search) ===== */
         .top-bar-fixed {
-            position: relative;
+            position: sticky;
+            top: 0;
             z-index: 1050;
+            background-color: rgba(13, 13, 20, 0.85); /* Semitransparent dark bg */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding-top: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 20px;
+            margin-left: -15px;
+            margin-right: -15px;
+            padding-left: 15px;
+            padding-right: 15px;
         }
 
         .top-bar-fixed .dropdown-menu {
@@ -34,7 +46,8 @@
             padding: 1px;
             background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            margin-bottom: 24px;
+            margin-bottom: 0;
+            /* Margin handled by top-bar-fixed */
             transition: transform 0.2s ease;
         }
 
