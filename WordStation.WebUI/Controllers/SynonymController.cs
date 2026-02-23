@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WordStation.WebUI.Models;
 using WordStation.WebUI.Services.Abstract;
+using WordStation.WebUI.Extensions;
 
 namespace WordStation.WebUI.Controllers
 {
@@ -89,7 +90,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || wordIds.Count < 2)
             {
-                TempData["Error"] = "En az 2 kelime seçmelisiniz.";
+                this.NotifyError("Hata", "En az 2 kelime seçmelisiniz.");
                 return RedirectToAction("Index");
             }
 
@@ -97,11 +98,11 @@ namespace WordStation.WebUI.Controllers
 
             if (group != null)
             {
-                TempData["Success"] = $"Eş anlam grubu \"{group.Name ?? $"Grup #{group.Id}"}\" oluşturuldu!";
+                this.NotifySuccess("Başarılı", $"Eş anlam grubu \"{group.Name ?? $"Grup #{group.Id}"}\" oluşturuldu!");
             }
             else
             {
-                TempData["Error"] = "Grup oluşturulurken bir hata oluştu.";
+                this.NotifyError("Hata", "Grup oluşturulurken bir hata oluştu.");
             }
 
             return RedirectToAction("Index");
@@ -122,11 +123,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _synonymService.DeleteGroupAsync(id, userId, token))
             {
-                TempData["Success"] = "Grup silindi.";
+                this.NotifySuccess("Başarılı", "Grup silindi.");
             }
             else
             {
-                TempData["Error"] = "Grup silinirken bir hata oluştu.";
+                this.NotifyError("Hata", "Grup silinirken bir hata oluştu.");
             }
 
             return RedirectToAction("Index");
@@ -172,7 +173,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || !wordIds.Any())
             {
-                TempData["Error"] = "Seçili kelime yok.";
+                this.NotifyError("Hata", "Seçili kelime yok.");
                 return RedirectToAction("Index");
             }
 
@@ -184,9 +185,9 @@ namespace WordStation.WebUI.Controllers
             }
 
             if (successCount > 0)
-                TempData["Success"] = $"{successCount} kelime gruba eklendi.";
+                this.NotifySuccess("Başarılı", $"{successCount} kelime gruba eklendi.");
             else
-                TempData["Error"] = "Kelimeler eklenirken hata oluştu.";
+                this.NotifyError("Hata", "Kelimeler eklenirken hata oluştu.");
 
             return RedirectToAction("Index");
         }
@@ -206,11 +207,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _synonymService.RemoveWordFromGroupAsync(groupId, wordId, userId, token))
             {
-                TempData["Success"] = "Kelime gruptan çıkarıldı.";
+                this.NotifySuccess("Başarılı", "Kelime gruptan çıkarıldı.");
             }
             else
             {
-                TempData["Error"] = "Kelime çıkarılırken bir hata oluştu.";
+                this.NotifyError("Hata", "Kelime çıkarılırken bir hata oluştu.");
             }
 
             return RedirectToAction("Index");
@@ -231,7 +232,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || wordIds.Count == 0)
             {
-                TempData["Error"] = "Çıkarılacak kelime seçilmedi.";
+                this.NotifyError("Hata", "Çıkarılacak kelime seçilmedi.");
                 return RedirectToAction("Index");
             }
 
@@ -243,9 +244,9 @@ namespace WordStation.WebUI.Controllers
             }
 
             if (successCount > 0)
-                TempData["Success"] = $"{successCount} kelime gruptan çıkarıldı.";
+                this.NotifySuccess("Başarılı", $"{successCount} kelime gruptan çıkarıldı.");
             else
-                TempData["Error"] = "Kelimeler çıkarılırken hata oluştu.";
+                this.NotifyError("Hata", "Kelimeler çıkarılırken hata oluştu.");
 
             return RedirectToAction("Index");
         }

@@ -255,26 +255,6 @@
     </style>
 }
 
-@* Toast Container - Navbar altında, sağ üst köşe *@
-<div class="toast-container position-fixed start-0 p-3" style="bottom: 20px; z-index: 9999; pointer-events: none;">
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert"
-            style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Error!</strong> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert"
-            style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <strong><i class="bi bi-check-circle-fill"></i> Success!</strong> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-</div>
-
 <div class="top-bar-fixed">
     <div class="container">
 
@@ -453,16 +433,6 @@
     <script src="~/js/word.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const alerts = document.querySelectorAll('.alert.auto-close');
-            alerts.forEach(function (alertEl) {
-                setTimeout(function () {
-                    try {
-                        bootstrap.Alert.getOrCreateInstance(alertEl).close();
-                    } catch (e) {
-                        alertEl.classList.remove('show');
-                    }
-                }, 3000);
-            });
 
             // Search Mode Toggle
             const modeInput = document.getElementById('searchModeInput');

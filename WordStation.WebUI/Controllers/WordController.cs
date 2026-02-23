@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WordStation.WebUI.Models;
 using WordStation.WebUI.Services.Abstract;
+using WordStation.WebUI.Extensions;
 
 namespace WordStation.WebUI.Controllers
 {
@@ -71,7 +72,7 @@ namespace WordStation.WebUI.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error loading data: {ex.Message}";
+                this.NotifyError("System Error", $"Error loading data: {ex.Message}");
             }
 
             var vm = new HomeViewModel
@@ -100,11 +101,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _wordService.CreateWordAsync(word, token))
             {
-                TempData["Success"] = $"Word \"{word.En}\" added successfully!";
+                this.NotifySuccess("Success", $"Word \"{word.En}\" added successfully!");
             }
             else
             {
-                TempData["Error"] = $"Error adding \"{word.En}\".";
+                this.NotifyError("Failure", $"Error adding \"{word.En}\".");
             }
 
             return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
@@ -124,11 +125,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _wordService.UpdateWordAsync(word, token))
             {
-                TempData["Success"] = $"Word \"{word.En}\" updated successfully!";
+                this.NotifySuccess("Success", $"Word \"{word.En}\" updated successfully!");
             }
             else
             {
-                TempData["Error"] = $"Error updating \"{word.En}\".";
+                this.NotifyError("Failure", $"Error updating \"{word.En}\".");
             }
 
             return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
@@ -144,11 +145,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _wordService.DeleteWordAsync(id, token))
             {
-                TempData["Success"] = $"Word \"{wordEn}\" deleted successfully!";
+                this.NotifySuccess("Success", $"Word \"{wordEn}\" deleted successfully!");
             }
             else
             {
-                TempData["Error"] = $"Error deleting \"{wordEn}\".";
+                this.NotifyError("Failure", $"Error deleting \"{wordEn}\".");
             }
 
             return RedirectToAction("Index", new { listName, SearchTerm, searchMode });
@@ -166,12 +167,12 @@ namespace WordStation.WebUI.Controllers
 
             if (await _wordService.UpdateListNameAsync(userId, listName, newListName, token))
             {
-                TempData["Success"] = "List renamed successfully!";
+                this.NotifySuccess("Success", "List renamed successfully!");
                 return RedirectToAction("Index", new { listName = newListName });
             }
             else
             {
-                TempData["Error"] = "Error renaming list.";
+                this.NotifyError("Failure", "Error renaming list.");
                 return RedirectToAction("Index", new { listName });
             }
         }
@@ -188,12 +189,12 @@ namespace WordStation.WebUI.Controllers
 
             if (await _wordService.DeleteListAsync(userId, listName, token))
             {
-                TempData["Success"] = "List deleted successfully!";
+                this.NotifySuccess("Success", "List deleted successfully!");
                 return RedirectToAction("Index", "Home"); // Or wherever appropriate
             }
             else
             {
-                TempData["Error"] = "Error deleting list.";
+                this.NotifyError("Failure", "Error deleting list.");
                 return RedirectToAction("Index", new { listName });
             }
         }

@@ -236,24 +236,6 @@
         </style>
 }
 
-@* Toast Container *@
-<div class="toast-container position-fixed start-0 p-3" style="bottom: 20px; z-index: 9999;">
-    @if (TempData["Error"] != null)
-    {
-            <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
-                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hata!</strong> @TempData["Error"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-    }
-    @if (TempData["Success"] != null)
-    {
-            <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
-                <strong><i class="bi bi-check-circle-fill"></i> Başarılı!</strong> @TempData["Success"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-    }
-</div>
-
 <div class="container mt-4">
     <div class="page-header">
         <h1 class="page-title">
@@ -490,15 +472,8 @@
 </div>
 
 @section Scripts {
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Auto-close alerts
-                document.querySelectorAll('.alert.auto-close').forEach(alert => {
-                    setTimeout(() => {
-                        try { bootstrap.Alert.getOrCreateInstance(alert).close(); } 
-                        catch(e) { alert.classList.remove('show'); }
-                    }, 3000);
-                });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
                 // Setup Modals
                 setupWordSelection('createListSelector', 'createWordSelector', 'createSearchInput', 'createBtn', 2);

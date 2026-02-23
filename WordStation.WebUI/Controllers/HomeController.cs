@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using WordStation.WebUI.Models;
 using WordStation.WebUI.Services.Abstract;
+using WordStation.WebUI.Extensions;
 
 namespace WordStation.WebUI.Controllers
 {
@@ -34,7 +35,7 @@ namespace WordStation.WebUI.Controllers
             try
             {
                 var listNames = await _wordService.GetListNamesAsync(userId, token);
-                
+
                 foreach (var listName in listNames)
                 {
                     var words = await _wordService.GetAllWordsAsync(userId, listName, token);
@@ -43,7 +44,7 @@ namespace WordStation.WebUI.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Could not retrieve your lists: {ex.Message}";
+                this.NotifyError("Hata", $"Could not retrieve your lists: {ex.Message}");
             }
 
             return View(listsWithCount);
@@ -62,17 +63,17 @@ namespace WordStation.WebUI.Controllers
 
             if (string.IsNullOrWhiteSpace(word.ListName) || string.IsNullOrWhiteSpace(word.En) || string.IsNullOrWhiteSpace(word.Tr))
             {
-                TempData["Error"] = "List name and the first word's English/Turkish translations cannot be empty.";
+                this.NotifyError("Hata", "List name and the first word's English/Turkish translations cannot be empty.");
                 return RedirectToAction("Index");
             }
 
             if (await _wordService.CreateWordAsync(word, token))
             {
-                TempData["Success"] = $"List '{word.ListName}' has been created successfully!";
+                this.NotifySuccess("Başarılı", $"List '{word.ListName}' has been created successfully!");
             }
             else
             {
-                TempData["Error"] = "Error creating list (adding first word).";
+                this.NotifyError("Hata", "Error creating list (adding first word).");
             }
 
             return RedirectToAction("Index");
@@ -89,17 +90,17 @@ namespace WordStation.WebUI.Controllers
 
             if (string.IsNullOrWhiteSpace(oldListName) || string.IsNullOrWhiteSpace(newListName))
             {
-                TempData["Error"] = "Old and new list names cannot be empty.";
+                this.NotifyError("Hata", "Old and new list names cannot be empty.");
                 return RedirectToAction("Index");
             }
 
             if (await _wordService.UpdateListNameAsync(userId, oldListName, newListName, token))
             {
-                TempData["Success"] = "List name has been updated successfully.";
+                this.NotifySuccess("Başarılı", "List name has been updated successfully.");
             }
             else
             {
-                TempData["Error"] = "Error updating list name.";
+                this.NotifyError("Hata", "Error updating list name.");
             }
 
             return RedirectToAction("Index");
@@ -116,17 +117,17 @@ namespace WordStation.WebUI.Controllers
 
             if (string.IsNullOrWhiteSpace(listName))
             {
-                TempData["Error"] = "List name to delete was not specified.";
+                this.NotifyError("Hata", "List name to delete was not specified.");
                 return RedirectToAction("Index");
             }
 
             if (await _wordService.DeleteListAsync(userId, listName, token))
             {
-                TempData["Success"] = $"List '{listName}' has been deleted successfully.";
+                this.NotifySuccess("Başarılı", $"List '{listName}' has been deleted successfully.");
             }
             else
             {
-                TempData["Error"] = "Error deleting list.";
+                this.NotifyError("Hata", "Error deleting list.");
             }
 
             return RedirectToAction("Index");

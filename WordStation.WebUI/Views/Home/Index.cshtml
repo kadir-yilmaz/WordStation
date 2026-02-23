@@ -9,23 +9,6 @@
 }
 
 
-@* Toast Container - Navbar altında, sağ üst köşe *@
-<div class="toast-container position-fixed start-0 p-3" style="bottom: 20px; z-index: 9999; pointer-events: none;">
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <i class="bi bi-exclamation-circle-fill me-2"></i> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert" style="pointer-events: auto; min-width: 280px; max-width: 400px;">
-            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-</div>
 
 @if (User.Identity.IsAuthenticated)
 {
