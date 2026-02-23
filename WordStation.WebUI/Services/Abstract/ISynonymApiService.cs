@@ -1,3 +1,4 @@
+#nullable enable
 using WordStation.WebUI.Models;
 
 namespace WordStation.WebUI.Services.Abstract
@@ -38,5 +39,10 @@ namespace WordStation.WebUI.Services.Abstract
         /// Grubu siler
         /// </summary>
         Task<bool> DeleteGroupAsync(int groupId, string userId, string token);
+
+        /// <summary>
+        /// Grup adını günceller
+        /// </summary>
+        Task<bool> UpdateGroupNameAsync(int groupId, string? newName, string userId, string token);
     }
 }

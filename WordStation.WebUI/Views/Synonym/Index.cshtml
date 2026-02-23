@@ -6,251 +6,251 @@
 }
 
 @section Styles {
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+        <style>
+            :root {
+                --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                --success-gradient: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+                --glass-bg: rgba(255, 255, 255, 0.05);
+                --glass-border: rgba(255, 255, 255, 0.1);
+            }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
 
-        .page-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #fff;
-            margin: 0;
-        }
+            .page-title {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: #fff;
+                margin: 0;
+            }
 
-        .group-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-        }
+            .group-card {
+                background: var(--glass-bg);
+                backdrop-filter: blur(12px);
+                border: 1px solid var(--glass-border);
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 16px;
+                transition: all 0.3s ease;
+            }
 
-        .group-card:hover {
-            border-color: rgba(102, 126, 234, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
+            .group-card:hover {
+                border-color: rgba(102, 126, 234, 0.4);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            }
 
-        .group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+            .group-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
 
-        .group-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin: 0;
-        }
+            .group-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #fff;
+                margin: 0;
+            }
 
-        .group-actions .btn {
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
+            .group-actions .btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
 
-        .word-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+            .word-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
 
-        .word-badge {
-            background: var(--primary-gradient);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+            .word-badge {
+                background: var(--primary-gradient);
+                color: #fff;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s ease;
+                position: relative;
+            }
 
-        .word-badge:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
+            .word-badge:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
 
-        .word-badge .badge-menu-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 10px;
-            color: #fff;
-            padding: 0;
-            line-height: 1;
-            transition: background 0.2s;
-        }
+            .word-badge .badge-menu-btn {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 10px;
+                color: #fff;
+                padding: 0;
+                line-height: 1;
+                transition: background 0.2s;
+            }
 
-        .word-badge .badge-menu-btn:hover {
-            background: rgba(255, 255, 255, 0.4);
-        }
+            .word-badge .badge-menu-btn:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
 
-        .word-badge .dropdown-menu {
-            min-width: 120px;
-            background: rgba(30, 30, 50, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+            .word-badge .dropdown-menu {
+                min-width: 120px;
+                background: rgba(30, 30, 50, 0.95);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
 
-        .word-badge .dropdown-item {
-            color: #fff;
-            font-size: 0.85rem;
-            padding: 8px 12px;
-        }
+            .word-badge .dropdown-item {
+                color: #fff;
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
 
-        .word-badge .dropdown-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
+            .word-badge .dropdown-item:hover {
+                background: rgba(255,255,255,0.1);
+            }
 
-        .word-badge .dropdown-item.text-danger:hover {
-            background: rgba(220, 53, 69, 0.2);
-        }
+            .word-badge .dropdown-item.text-danger:hover {
+                background: rgba(220, 53, 69, 0.2);
+            }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: rgba(255, 255, 255, 0.6);
-        }
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: rgba(255, 255, 255, 0.6);
+            }
 
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
+            .empty-state i {
+                font-size: 4rem;
+                margin-bottom: 16px;
+                opacity: 0.5;
+            }
 
-        .btn-create {
-            background: var(--success-gradient);
-            border: none;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
+            .btn-create {
+                background: var(--success-gradient);
+                border: none;
+                color: #fff;
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+            }
 
-        .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            color: #fff;
-        }
+            .btn-create:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+                color: #fff;
+            }
 
-        /* Modal Styles */
-        .modal-content {
-            background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-        }
+            /* Modal Styles */
+            .modal-content {
+                background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+            }
 
-        .modal .form-control, .modal .form-select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            border-radius: 8px;
-        }
+            .modal .form-control, .modal .form-select {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                color: #fff;
+                border-radius: 8px;
+            }
 
-        .modal .form-control:focus, .modal .form-select:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(0, 220, 255, 0.5);
-            box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
-            color: #fff;
-        }
+            .modal .form-control:focus, .modal .form-select:focus {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(0, 220, 255, 0.5);
+                box-shadow: 0 0 0 3px rgba(0, 220, 255, 0.1);
+                color: #fff;
+            }
 
-        .modal .form-select option {
-            background: #1e1e32;
-            color: #fff;
-        }
+            .modal .form-select option {
+                background: #1e1e32;
+                color: #fff;
+            }
 
-        .modal .form-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
+            .modal .form-label {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
 
-        .word-selector {
-            max-height: 300px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 12px;
-        }
+            .word-selector {
+                max-height: 300px;
+                overflow-y: auto;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                padding: 12px;
+            }
 
-        .word-checkbox {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            margin-bottom: 4px;
-            border-radius: 6px;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
+            .word-checkbox {
+                display: flex;
+                align-items: center;
+                padding: 8px 12px;
+                margin-bottom: 4px;
+                border-radius: 6px;
+                transition: background 0.2s;
+                cursor: pointer;
+            }
 
-        .word-checkbox:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
+            .word-checkbox:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
 
-        .word-checkbox input {
-            margin-right: 10px;
-        }
+            .word-checkbox input {
+                margin-right: 10px;
+            }
 
-        .word-checkbox .word-text {
-            flex: 1;
-        }
+            .word-checkbox .word-text {
+                flex: 1;
+            }
 
-        .word-checkbox .word-en {
-            font-weight: 600;
-            color: #fff;
-        }
+            .word-checkbox .word-en {
+                font-weight: 600;
+                color: #fff;
+            }
 
-        .word-checkbox .word-tr {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85rem;
-            margin-left: 8px;
-        }
-    </style>
+            .word-checkbox .word-tr {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.85rem;
+                margin-left: 8px;
+            }
+        </style>
 }
 
 @* Toast Container *@
-<div class="toast-container position-fixed end-0 p-3" style="bottom: 20px; z-index: 9999;">
+<div class="toast-container position-fixed start-0 p-3" style="bottom: 20px; z-index: 9999;">
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
-            <strong><i class="bi bi-exclamation-triangle-fill"></i> Hata!</strong> @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            <div class="alert alert-danger alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
+                <strong><i class="bi bi-exclamation-triangle-fill"></i> Hata!</strong> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
     }
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
-            <strong><i class="bi bi-check-circle-fill"></i> Başarılı!</strong> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            <div class="alert alert-success alert-dismissible fade show auto-close mb-2 shadow-lg" role="alert">
+                <strong><i class="bi bi-check-circle-fill"></i> Başarılı!</strong> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
     }
 </div>
 
@@ -266,83 +266,90 @@
 
     @if (Model != null && Model.Any())
     {
-        <div class="row">
+            <div class="row">
             @foreach (var group in Model)
             {
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="group-card">
-                        <div class="group-header">
-                            <h5 class="group-name">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="group-card">
+                                <div class="group-header">
+                                    <h5 class="group-name">
                                 @(group.Name ?? $"Grup #{group.Id}")
-                            </h5>
-                            <div class="group-actions dropdown">
-                                <button class="btn btn-sm btn-outline-secondary" type="button" 
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                                    <li>
-                                        <button type="button" class="dropdown-item"
-                                                data-bs-toggle="modal" data-bs-target="#addWordModal" 
-                                                data-group-id="@group.Id" data-group-name="@group.Name"
-                                                data-existing-word-ids='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => sw.WordId) ?? new List<int>()))'>
-                                            <i class="bi bi-plus-lg me-2"></i>Kelime Ekle
+                                    </h5>
+                                    <div class="group-actions dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
                                         </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item"
-                                                data-bs-toggle="modal" data-bs-target="#removeWordModal" 
-                                                data-group-id="@group.Id" data-group-name="@group.Name"
-                                                data-group-words='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => new { sw.WordId, WordEn = sw.Word?.En })))'>
-                                            <i class="bi bi-dash-lg me-2"></i>Kelime Çıkar
-                                        </button>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form asp-action="Delete" method="post">
+                                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                                            <li>
+                                                <button type="button" class="dropdown-item"
+                                                        data-bs-toggle="modal" data-bs-target="#addWordModal" 
+                                                        data-group-id="@group.Id" data-group-name="@group.Name"
+                                                        data-existing-word-ids='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => sw.WordId) ?? new List<int>()))'>
+                                                    <i class="bi bi-plus-lg me-2"></i>Kelime Ekle
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="dropdown-item"
+                                                        data-bs-toggle="modal" data-bs-target="#removeWordModal" 
+                                                        data-group-id="@group.Id" data-group-name="@group.Name"
+                                                        data-group-words='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => new { sw.WordId, WordEn = sw.Word?.En })))'>
+                                                    <i class="bi bi-dash-lg me-2"></i>Kelime Çıkar
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button type="button" class="dropdown-item"
+                                                        data-bs-toggle="modal" data-bs-target="#renameGroupModal" 
+                                                        data-group-id="@group.Id" data-group-name="@group.Name">
+                                                    <i class="bi bi-pencil me-2"></i>Grup Adını Değiştir
+                                                </button>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form asp-action="Delete" method="post">
                                             @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@group.Id" />
-                                            <button type="submit" class="dropdown-item text-danger" 
-                                                    onclick="return confirm('Bu grubu silmek istediğinize emin misiniz?')">
-                                                <i class="bi bi-trash me-2"></i>Grubu Sil
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="word-badges">
+                                                    <input type="hidden" name="id" value="@group.Id" />
+                                                    <button type="submit" class="dropdown-item text-danger" 
+                                                            onclick="return confirm('Bu grubu silmek istediğinize emin misiniz?')">
+                                                        <i class="bi bi-trash me-2"></i>Grubu Sil
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="word-badges">
                             @if (group.SynonymWords != null && group.SynonymWords.Any())
                             {
                                 @foreach (var sw in group.SynonymWords)
                                 {
-                                    <span class="word-badge" 
-                                          data-en="@sw.Word?.En" 
-                                          data-tr="@sw.Word?.Tr"
-                                          data-example="@sw.Word?.Example"
-                                          onclick="showWordDetailFromElement(this)" 
-                                          style="cursor: pointer;">
+                                                    <span class="word-badge" 
+                                                          data-en="@sw.Word?.En" 
+                                                          data-tr="@sw.Word?.Tr"
+                                                          data-example="@sw.Word?.Example"
+                                                          onclick="showWordDetailFromElement(this)" 
+                                                          style="cursor: pointer;">
                                         @(sw.Word?.En ?? $"Kelime #{sw.WordId}")
-                                    </span>
+                                                    </span>
                                 }
                             }
                             else
                             {
-                                <span class="text-white-50">Henüz kelime yok</span>
+                                            <span class="text-white-50">Henüz kelime yok</span>
                             }
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
             }
-        </div>
+            </div>
     }
     else
     {
-        <div class="empty-state">
-            <i class="bi bi-diagram-3"></i>
-            <h4>Henüz eş anlam grubu yok</h4>
-            <p class="text-white-50">Yeni bir grup oluşturarak başlayın.</p>
-        </div>
+            <div class="empty-state">
+                <i class="bi bi-diagram-3"></i>
+                <h4>Henüz eş anlam grubu yok</h4>
+                <p class="text-white-50">Yeni bir grup oluşturarak başlayın.</p>
+            </div>
     }
 </div>
 
@@ -361,14 +368,14 @@
                         <label class="form-label">Grup Adı (Opsiyonel)</label>
                         <input type="text" name="name" class="form-control" placeholder="Örn: Reddetme Kelimeleri" />
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Liste Seçin</label>
                         <select id="createListSelector" class="form-select">
                             <option value="">-- Liste Seçin --</option>
                             @foreach (var list in listNames)
                             {
-                                <option value="@list">@list</option>
+                                    <option value="@list">@list</option>
                             }
                         </select>
                     </div>
@@ -408,7 +415,7 @@
                             <option value="">-- Liste Seçin --</option>
                             @foreach (var list in listNames)
                             {
-                                <option value="@list">@list</option>
+                                    <option value="@list">@list</option>
                             }
                         </select>
                     </div>
@@ -456,249 +463,289 @@
     </div>
 </div>
 
+@* Rename Group Modal *@
+<div class="modal fade" id="renameGroupModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="UpdateName" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="renameGroupId" />
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Grup Adını Değiştir</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Yeni Grup Adı</label>
+                        <input type="text" name="name" id="renameGroupNameInput" class="form-control" placeholder="Örn: Reddetme Kelimeleri" />
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-close alerts
-            document.querySelectorAll('.alert.auto-close').forEach(alert => {
-                setTimeout(() => {
-                    try { bootstrap.Alert.getOrCreateInstance(alert).close(); } 
-                    catch(e) { alert.classList.remove('show'); }
-                }, 3000);
-            });
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Auto-close alerts
+                document.querySelectorAll('.alert.auto-close').forEach(alert => {
+                    setTimeout(() => {
+                        try { bootstrap.Alert.getOrCreateInstance(alert).close(); } 
+                        catch(e) { alert.classList.remove('show'); }
+                    }, 3000);
+                });
 
-            // Setup Modals
-            setupWordSelection('createListSelector', 'createWordSelector', 'createSearchInput', 'createBtn', 2);
-            setupWordSelection('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1);
+                // Setup Modals
+                setupWordSelection('createListSelector', 'createWordSelector', 'createSearchInput', 'createBtn', 2);
+                setupWordSelection('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1);
 
-            // Handle Add Word Modal Data
-            document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var groupId = button.getAttribute('data-group-id');
-                var groupName = button.getAttribute('data-group-name');
-                
-                this.querySelector('#addWordGroupId').value = groupId;
-                this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
-            });
+                // Handle Add Word Modal Data
+                document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var groupId = button.getAttribute('data-group-id');
+                    var groupName = button.getAttribute('data-group-name');
 
-            // Reusable function
-            function setupWordSelection(listId, selectorId, searchId, btnId, minCount) {
-                const listSelector = document.getElementById(listId);
-                const wordSelector = document.getElementById(selectorId);
-                const searchInput = document.getElementById(searchId);
-                const submitBtn = document.getElementById(btnId);
+                    this.querySelector('#addWordGroupId').value = groupId;
+                    this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
+                });
 
-                listSelector.addEventListener('change', async function() {
-                    const listName = this.value;
-                    searchInput.value = '';
-                    
-                    if (!listName) {
-                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                        submitBtn.disabled = true;
-                        searchInput.disabled = true;
-                        return;
-                    }
+                // Reusable function
+                function setupWordSelection(listId, selectorId, searchId, btnId, minCount) {
+                    const listSelector = document.getElementById(listId);
+                    const wordSelector = document.getElementById(selectorId);
+                    const searchInput = document.getElementById(searchId);
+                    const submitBtn = document.getElementById(btnId);
 
-                    wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
-                    searchInput.disabled = true;
+                    listSelector.addEventListener('change', async function() {
+                        const listName = this.value;
+                        searchInput.value = '';
 
-                    try {
-                        const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
-                        const words = await response.json();
-
-                        if (words.length === 0) {
-                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
+                        if (!listName) {
+                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+                            submitBtn.disabled = true;
+                            searchInput.disabled = true;
                             return;
                         }
 
-                        let html = '';
-                        words.forEach(w => {
-                            html += `
-                                <label class="word-checkbox" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
-                                    <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" />
-                                    <span class="word-text">
-                                        <span class="word-en">${w.en}</span>
-                                        <span class="word-tr">- ${w.tr}</span>
-                                    </span>
-                                </label>
-                            `;
-                        });
-                        wordSelector.innerHTML = html;
-                        searchInput.disabled = false;
-
-                        // Checkbox listeners
-                        wordSelector.querySelectorAll('.word-cb').forEach(cb => {
-                            cb.addEventListener('change', updateState);
-                        });
-                    } catch (err) {
-                        wordSelector.innerHTML = '<p class="text-danger text-center py-4">Yüklenirken hata oluştu</p>';
+                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
                         searchInput.disabled = true;
-                    }
-                });
 
-                // Search
-                searchInput.addEventListener('input', function() {
-                    const filter = this.value.toLowerCase();
-                    const items = wordSelector.querySelectorAll('.word-checkbox');
-                    items.forEach(item => {
-                        const en = item.dataset.en;
-                        const tr = item.dataset.tr;
-                        if (en.includes(filter) || tr.includes(filter)) {
-                            item.classList.remove('d-none');
-                            item.style.display = "flex"; 
-                        } else {
-                            item.classList.add('d-none');
-                            item.style.display = "none";
+                        try {
+                            const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
+                            const words = await response.json();
+
+                            if (words.length === 0) {
+                                wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
+                                return;
+                            }
+
+                            let html = '';
+                            words.forEach(w => {
+                                html += `
+                                    <label class="word-checkbox" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
+                                        <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" />
+                                        <span class="word-text">
+                                            <span class="word-en">${w.en}</span>
+                                            <span class="word-tr">- ${w.tr}</span>
+                                        </span>
+                                    </label>
+                                `;
+                            });
+                            wordSelector.innerHTML = html;
+                            searchInput.disabled = false;
+
+                            // Checkbox listeners
+                            wordSelector.querySelectorAll('.word-cb').forEach(cb => {
+                                cb.addEventListener('change', updateState);
+                            });
+                        } catch (err) {
+                            wordSelector.innerHTML = '<p class="text-danger text-center py-4">Yüklenirken hata oluştu</p>';
+                            searchInput.disabled = true;
                         }
                     });
-                });
 
-                function updateState() {
-                    const checked = wordSelector.querySelectorAll('.word-cb:checked').length;
-                    submitBtn.disabled = checked < minCount;
-                }
-            }
-
-            // Handle Remove Word Modal
-            document.getElementById('removeWordModal').addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var groupId = button.getAttribute('data-group-id');
-                var groupName = button.getAttribute('data-group-name');
-                var words = JSON.parse(button.getAttribute('data-group-words') || '[]');
-                
-                document.getElementById('removeGroupId').value = groupId;
-                document.getElementById('removeGroupNameTitle').textContent = groupName || ('Grup #' + groupId);
-                document.getElementById('removeBtn').disabled = true;
-                
-                const wordList = document.getElementById('removeWordList');
-                if (words.length === 0) {
-                    wordList.innerHTML = '<p class="text-white-50 text-center py-4">Bu grupta kelime yok</p>';
-                    return;
-                }
-                
-                let html = '';
-                words.forEach(w => {
-                    html += `
-                        <label class="word-checkbox">
-                            <input type="checkbox" name="wordIds" value="${w.wordId}" class="form-check-input remove-cb" />
-                            <span class="word-text">
-                                <span class="word-en">${w.wordEn || 'Kelime #' + w.wordId}</span>
-                            </span>
-                        </label>
-                    `;
-                });
-                wordList.innerHTML = html;
-                
-                // Add event listeners to checkboxes
-                wordList.querySelectorAll('.remove-cb').forEach(cb => {
-                    cb.addEventListener('change', function() {
-                        const checked = wordList.querySelectorAll('.remove-cb:checked').length;
-                        document.getElementById('removeBtn').disabled = checked === 0;
+                    // Search
+                    searchInput.addEventListener('input', function() {
+                        const filter = this.value.toLowerCase();
+                        const items = wordSelector.querySelectorAll('.word-checkbox');
+                        items.forEach(item => {
+                            const en = item.dataset.en;
+                            const tr = item.dataset.tr;
+                            if (en.includes(filter) || tr.includes(filter)) {
+                                item.classList.remove('d-none');
+                                item.style.display = "flex"; 
+                            } else {
+                                item.classList.add('d-none');
+                                item.style.display = "none";
+                            }
+                        });
                     });
-                });
-            });
 
-            // Store existing word IDs for Add Word Modal
-            let addModalExistingWordIds = [];
-            
-            document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var groupId = button.getAttribute('data-group-id');
-                var groupName = button.getAttribute('data-group-name');
-                var existingIds = JSON.parse(button.getAttribute('data-existing-word-ids') || '[]');
-                
-                addModalExistingWordIds = existingIds;
-                this.querySelector('#addWordGroupId').value = groupId;
-                this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
-                
-                // Reset list selector and word selector
-                document.getElementById('addListSelector').value = '';
-                document.getElementById('addWordSelector').innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                document.getElementById('addSearchInput').disabled = true;
-                document.getElementById('addBtn').disabled = true;
-            });
+                    function updateState() {
+                        const checked = wordSelector.querySelectorAll('.word-cb:checked').length;
+                        submitBtn.disabled = checked < minCount;
+                    }
+                }
 
-            // Override the setupWordSelection for Add modal to mark existing words
-            const originalSetup = setupWordSelection;
-            function setupWordSelectionWithExisting(listId, selectorId, searchId, btnId, minCount, getExistingIds) {
-                const listSelector = document.getElementById(listId);
-                const wordSelector = document.getElementById(selectorId);
-                const searchInput = document.getElementById(searchId);
-                const submitBtn = document.getElementById(btnId);
+                // Handle Remove Word Modal
+                document.getElementById('removeWordModal').addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var groupId = button.getAttribute('data-group-id');
+                    var groupName = button.getAttribute('data-group-name');
+                    var words = JSON.parse(button.getAttribute('data-group-words') || '[]');
 
-                listSelector.addEventListener('change', async function() {
-                    const listName = this.value;
-                    searchInput.value = '';
-                    
-                    if (!listName) {
-                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                        submitBtn.disabled = true;
-                        searchInput.disabled = true;
+                    document.getElementById('removeGroupId').value = groupId;
+                    document.getElementById('removeGroupNameTitle').textContent = groupName || ('Grup #' + groupId);
+                    document.getElementById('removeBtn').disabled = true;
+
+                    const wordList = document.getElementById('removeWordList');
+                    if (words.length === 0) {
+                        wordList.innerHTML = '<p class="text-white-50 text-center py-4">Bu grupta kelime yok</p>';
                         return;
                     }
 
-                    wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
-                    searchInput.disabled = true;
+                    let html = '';
+                    words.forEach(w => {
+                        html += `
+                            <label class="word-checkbox">
+                                <input type="checkbox" name="wordIds" value="${w.wordId}" class="form-check-input remove-cb" />
+                                <span class="word-text">
+                                    <span class="word-en">${w.wordEn || 'Kelime #' + w.wordId}</span>
+                                </span>
+                            </label>
+                        `;
+                    });
+                    wordList.innerHTML = html;
 
-                    try {
-                        const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
-                        const words = await response.json();
-
-                        if (words.length === 0) {
-                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
-                            return;
-                        }
-
-                        const existingIds = getExistingIds ? getExistingIds() : [];
-                        
-                        let html = '';
-                        words.forEach(w => {
-                            const isExisting = existingIds.includes(w.id);
-                            html += `
-                                <label class="word-checkbox ${isExisting ? 'existing-word' : ''}" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
-                                    <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" ${isExisting ? 'checked disabled' : ''} />
-                                    <span class="word-text">
-                                        <span class="word-en">${w.en}${isExisting ? ' <i class="bi bi-check-circle-fill text-success ms-1"></i>' : ''}</span>
-                                        <span class="word-tr">- ${w.tr}</span>
-                                    </span>
-                                </label>
-                            `;
+                    // Add event listeners to checkboxes
+                    wordList.querySelectorAll('.remove-cb').forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const checked = wordList.querySelectorAll('.remove-cb:checked').length;
+                            document.getElementById('removeBtn').disabled = checked === 0;
                         });
-                        wordSelector.innerHTML = html;
-                        searchInput.disabled = false;
-
-                        wordSelector.querySelectorAll('.word-cb:not(:disabled)').forEach(cb => {
-                            cb.addEventListener('change', updateState);
-                        });
-
-                    } catch (err) {
-                        wordSelector.innerHTML = '<p class="text-danger text-center py-4">Hata oluştu</p>';
-                    }
-                });
-
-                searchInput.addEventListener('input', function() {
-                    const filter = this.value.toLowerCase();
-                    wordSelector.querySelectorAll('.word-checkbox').forEach(item => {
-                        const en = item.dataset.en;
-                        const tr = item.dataset.tr;
-                        if (en.includes(filter) || tr.includes(filter)) {
-                            item.classList.remove('d-none');
-                            item.style.display = "flex"; 
-                        } else {
-                            item.classList.add('d-none');
-                            item.style.display = "none";
-                        }
                     });
                 });
 
-                function updateState() {
-                    const checked = wordSelector.querySelectorAll('.word-cb:checked:not(:disabled)').length;
-                    submitBtn.disabled = checked < minCount;
+                // Store existing word IDs for Add Word Modal
+                let addModalExistingWordIds = [];
+
+                document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var groupId = button.getAttribute('data-group-id');
+                    var groupName = button.getAttribute('data-group-name');
+                    var existingIds = JSON.parse(button.getAttribute('data-existing-word-ids') || '[]');
+
+                    addModalExistingWordIds = existingIds;
+                    this.querySelector('#addWordGroupId').value = groupId;
+                    this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
+
+                    // Reset list selector and word selector
+                    document.getElementById('addListSelector').value = '';
+                    document.getElementById('addWordSelector').innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+                    document.getElementById('addSearchInput').disabled = true;
+                    document.getElementById('addBtn').disabled = true;
+                });
+
+                // Override the setupWordSelection for Add modal to mark existing words
+                const originalSetup = setupWordSelection;
+                function setupWordSelectionWithExisting(listId, selectorId, searchId, btnId, minCount, getExistingIds) {
+                    const listSelector = document.getElementById(listId);
+                    const wordSelector = document.getElementById(selectorId);
+                    const searchInput = document.getElementById(searchId);
+                    const submitBtn = document.getElementById(btnId);
+
+                    listSelector.addEventListener('change', async function() {
+                        const listName = this.value;
+                        searchInput.value = '';
+
+                        if (!listName) {
+                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+                            submitBtn.disabled = true;
+                            searchInput.disabled = true;
+                            return;
+                        }
+
+                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
+                        searchInput.disabled = true;
+
+                        try {
+                            const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
+                            const words = await response.json();
+
+                            if (words.length === 0) {
+                                wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
+                                return;
+                            }
+
+                            const existingIds = getExistingIds ? getExistingIds() : [];
+
+                            let html = '';
+                            words.forEach(w => {
+                                const isExisting = existingIds.includes(w.id);
+                                html += `
+                                    <label class="word-checkbox ${isExisting ? 'existing-word' : ''}" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
+                                        <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" ${isExisting ? 'checked disabled' : ''} />
+                                        <span class="word-text">
+                                            <span class="word-en">${w.en}${isExisting ? ' <i class="bi bi-check-circle-fill text-success ms-1"></i>' : ''}</span>
+                                            <span class="word-tr">- ${w.tr}</span>
+                                        </span>
+                                    </label>
+                                `;
+                            });
+                            wordSelector.innerHTML = html;
+                            searchInput.disabled = false;
+
+                            wordSelector.querySelectorAll('.word-cb:not(:disabled)').forEach(cb => {
+                                cb.addEventListener('change', updateState);
+                            });
+
+                        } catch (err) {
+                            wordSelector.innerHTML = '<p class="text-danger text-center py-4">Hata oluştu</p>';
+                        }
+                    });
+
+                    searchInput.addEventListener('input', function() {
+                        const filter = this.value.toLowerCase();
+                        wordSelector.querySelectorAll('.word-checkbox').forEach(item => {
+                            const en = item.dataset.en;
+                            const tr = item.dataset.tr;
+                            if (en.includes(filter) || tr.includes(filter)) {
+                                item.classList.remove('d-none');
+                                item.style.display = "flex"; 
+                            } else {
+                                item.classList.add('d-none');
+                                item.style.display = "none";
+                            }
+                        });
+                    });
+
+                    function updateState() {
+                        const checked = wordSelector.querySelectorAll('.word-cb:checked:not(:disabled)').length;
+                        submitBtn.disabled = checked < minCount;
+                    }
                 }
-            }
-            
-            // Re-setup Add modal with existing word support
-            setupWordSelectionWithExisting('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1, () => addModalExistingWordIds);
-        });
-    </script>
+
+                // Re-setup Add modal with existing word support
+                setupWordSelectionWithExisting('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1, () => addModalExistingWordIds);
+
+                // Handle Rename Group Modal
+                document.getElementById('renameGroupModal').addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var groupId = button.getAttribute('data-group-id');
+                    var groupName = button.getAttribute('data-group-name');
+                    
+                    this.querySelector('#renameGroupId').value = groupId;
+                    this.querySelector('#renameGroupNameInput').value = groupName || '';
+                    
+                    setTimeout(() => {
+                        this.querySelector('#renameGroupNameInput').focus();
+                    }, 500);
+                });
+            });
+        </script>
 }

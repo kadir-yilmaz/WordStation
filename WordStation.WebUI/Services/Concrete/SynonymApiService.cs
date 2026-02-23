@@ -1,3 +1,4 @@
+#nullable enable
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -30,7 +31,7 @@ namespace WordStation.WebUI.Services.Concrete
                 return Enumerable.Empty<SynonymGroup>();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<IEnumerable<SynonymGroup>>(json, _jsonOptions) 
+            return JsonSerializer.Deserialize<IEnumerable<SynonymGroup>>(json, _jsonOptions)
                    ?? Enumerable.Empty<SynonymGroup>();
         }
 
@@ -43,7 +44,7 @@ namespace WordStation.WebUI.Services.Concrete
                 return Enumerable.Empty<Word>();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<IEnumerable<Word>>(json, _jsonOptions) 
+            return JsonSerializer.Deserialize<IEnumerable<Word>>(json, _jsonOptions)
                    ?? Enumerable.Empty<Word>();
         }
 
@@ -56,17 +57,17 @@ namespace WordStation.WebUI.Services.Concrete
                 return new Dictionary<int, IEnumerable<Word>>();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Dictionary<int, IEnumerable<Word>>>(json, _jsonOptions) 
+            return JsonSerializer.Deserialize<Dictionary<int, IEnumerable<Word>>>(json, _jsonOptions)
                    ?? new Dictionary<int, IEnumerable<Word>>();
         }
 
         public async Task<SynonymGroup?> CreateGroupAsync(string? name, List<int> wordIds, string userId, string token)
         {
             SetAuthHeader(token);
-            
+
             var request = new { Name = name, WordIds = wordIds, UserId = userId };
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.PostAsync("synonymgroups", content);
 
             if (!response.IsSuccessStatusCode)
@@ -79,10 +80,10 @@ namespace WordStation.WebUI.Services.Concrete
         public async Task<bool> AddWordToGroupAsync(int groupId, int wordId, string userId, string token)
         {
             SetAuthHeader(token);
-            
+
             var request = new { WordId = wordId, UserId = userId };
             var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.PostAsync($"synonymgroups/{groupId}/words", content);
             return response.IsSuccessStatusCode;
         }
@@ -98,6 +99,17 @@ namespace WordStation.WebUI.Services.Concrete
         {
             SetAuthHeader(token);
             var response = await _httpClient.DeleteAsync($"synonymgroups/{groupId}?userId={userId}");
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateGroupNameAsync(int groupId, string? newName, string userId, string token)
+        {
+            SetAuthHeader(token);
+
+            var request = new { Name = newName, UserId = userId };
+            var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PatchAsync($"synonymgroups/{groupId}", content);
             return response.IsSuccessStatusCode;
         }
     }

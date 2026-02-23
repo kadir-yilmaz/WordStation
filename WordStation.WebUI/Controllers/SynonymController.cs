@@ -1,3 +1,4 @@
+#nullable enable
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +34,7 @@ namespace WordStation.WebUI.Controllers
                 return RedirectToAction("Login", "Account");
 
             var groups = await _synonymService.GetAllGroupsAsync(userId, token);
-            
+
             // Kelime listelerini de al (yeni grup oluşturma için)
             var listNames = await _wordService.GetListNamesAsync(userId, token);
             ViewBag.ListNames = listNames.ToList();
@@ -93,7 +94,7 @@ namespace WordStation.WebUI.Controllers
             }
 
             var group = await _synonymService.CreateGroupAsync(name, wordIds, userId, token);
-            
+
             if (group != null)
             {
                 TempData["Success"] = $"Eş anlam grubu \"{group.Name ?? $"Grup #{group.Id}"}\" oluşturuldu!";
@@ -126,6 +127,31 @@ namespace WordStation.WebUI.Controllers
             else
             {
                 TempData["Error"] = "Grup silinirken bir hata oluştu.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// Grup adını günceller
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateName(int id, string? name)
+        {
+            var userId = GetUserId();
+            var token = GetToken();
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            if (await _synonymService.UpdateGroupNameAsync(id, name, userId, token))
+            {
+                TempData["Success"] = "Grup adı güncellendi.";
+            }
+            else
+            {
+                TempData["Error"] = "Grup adı güncellenirken bir hata oluştu.";
             }
 
             return RedirectToAction("Index");
