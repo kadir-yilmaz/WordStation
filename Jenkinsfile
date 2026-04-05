@@ -1,41 +1,39 @@
 pipeline {
-    agent any
+    agent none
 
     environment {
-        // Jenkins içindeki .NET çalışma alanı
-        DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
-        
-        // Sunucu Adresleri (Şifre içermez, kodda durabilir)
+        // Sunucu Adresleri
         WEBAPI_SERVER   = 'site7885.siteasp.net'
         WEBUI_SERVER    = 'site40040.siteasp.net'
-        
-        // Uzak Dizinler
-        REMOTE_DIR      = 'wwwroot/' 
     }
 
     stages {
         stage('Restore') {
+            agent { label 'master' }
             steps {
-                echo '📦 Paketler geri yükleniyor...'
+                echo '📦 Paketler geri yükleniyor (Linux Master)...'
                 sh 'dotnet restore WordStation.sln'
             }
         }
 
         stage('Test') {
+            agent { label 'master' }
             steps {
-                echo '🧪 Testler çalıştırılıyor...'
+                echo '🧪 Testler çalıştırılıyor (Linux Master)...'
                 sh 'dotnet test WordStation.Tests --no-restore -c Release'
             }
         }
 
         stage('Build') {
+            agent { label 'master' }
             steps {
-                echo '🏗️ Proje derleniyor...'
+                echo '🏗️ Proje derleniyor (Linux Master)...'
                 sh 'dotnet build WordStation.sln -c Release --no-restore'
             }
         }
 
         stage('Deploy WebAPI') {
+            agent { label 'windows' }
             when {
                 anyOf {
                     changeset "WordStation.WebAPI/**"
@@ -46,31 +44,14 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'webapi-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebAPI yayınlanıyor (Portable Mode)...'
-                    sh 'dotnet publish WordStation.WebAPI -c Release -o ./publish/WebAPI'
-                    
-                    echo '📤 WebAPI dosyaları FTPS (Secure) ile aktarılıyor...'
-                    script {
-                        def API_REMOTE_DIR = 'wwwroot/'
-                        sh """
-                            lftp <<EOF || true
-                            debug 10
-                            set ftp:ssl-force yes
-                            set ssl:verify-certificate no
-                            set ftp:passive-mode on
-                            set ftp:charset utf-8
-                            open $WEBAPI_SERVER
-                            user $FTP_USER $FTP_PASS
-                            mirror -R ./publish/WebAPI/ ${API_REMOTE_DIR} --no-perms --delete --verbose
-                            quit
-EOF
-                        """
-                    }
+                    echo '🚀 WebAPI yayınlanıyor (Windows WebDeploy)...'
+                    bat "dotnet publish WordStation.WebAPI -c Release /p:PublishProfile=site7885-WebDeploy /p:Password=${FTP_PASS} /p:AllowUntrustedCertificate=true"
                 }
             }
         }
 
         stage('Deploy WebUI') {
+            agent { label 'windows' }
             when {
                 anyOf {
                     changeset "WordStation.WebUI/**"
@@ -81,26 +62,8 @@ EOF
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'webui-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebUI yayınlanıyor (Portable Mode)...'
-                    sh 'dotnet publish WordStation.WebUI -c Release -o ./publish/WebUI'
-                    
-                    echo '📤 WebUI dosyaları FTPS (Secure) ile aktarılıyor...'
-                    script {
-                        def UI_REMOTE_DIR = '/'
-                        sh """
-                            lftp <<EOF || true
-                            debug 10
-                            set ftp:ssl-force yes
-                            set ssl:verify-certificate no
-                            set ftp:passive-mode on
-                            set ftp:charset utf-8
-                            open $WEBUI_SERVER
-                            user $FTP_USER $FTP_PASS
-                            mirror -R ./publish/WebUI/ ${UI_REMOTE_DIR} --no-perms --delete --verbose
-                            quit
-EOF
-                        """
-                    }
+                    echo '🚀 WebUI yayınlanıyor (Windows WebDeploy)...'
+                    bat "dotnet publish WordStation.WebUI -c Release /p:PublishProfile=site40040-WebDeploy /p:Password=${FTP_PASS} /p:AllowUntrustedCertificate=true"
                 }
             }
         }
@@ -111,10 +74,10 @@ EOF
             echo 'İşlem tamamlandı (Jenkins CI).'
         }
         success {
-            echo '✅ Tebrikler! Tüm aşamalar başarıyla geçti.'
+            echo '✅ Tebrikler! Tüm aşamalar WebDeploy ile başarıyla geçti.'
         }
         failure {
-            echo '❌ Hata! Lütfen logları kontrol edin.'
+            echo '❌ Hata! Lütfen logları ve Windows Agent bağlantısını kontrol edin.'
         }
     }
 }
