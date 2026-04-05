@@ -10,7 +10,7 @@ pipeline {
         WEBUI_SERVER    = 'site40040.siteasp.net'
         
         // Uzak Dizinler
-        REMOTE_DIR      = '/' 
+        REMOTE_DIR      = 'wwwroot/' 
     }
 
     stages {
