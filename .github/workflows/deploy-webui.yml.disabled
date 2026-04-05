@@ -1,0 +1,53 @@
+name: Deploy WebUI
+
+run-name: Deploy WebUI - ${{ github.event.head_commit.message }} - ${{ github.sha }}
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebUI/**'
+      - 'WordStation.BLL/**'
+      - 'WordStation.DAL/**'
+      - 'WordStation.EL/**'
+      - '.github/workflows/deploy-webui.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-webui
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore WordStation.sln
+
+    - name: Run Tests
+      run: dotnet test WordStation.Tests --no-restore -c Release
+
+    - name: Build
+      run: dotnet build WordStation.WebUI -c Release --no-restore
+
+    - name: Deploy WebUI with Web Deploy
+      run: |
+        dotnet publish WordStation.WebUI -c Release `
+          /p:WebPublishMethod=MSDeploy `
+          /p:MSDeployPublishMethod=WMSVC `
+          /p:MsDeployServiceUrl=${{ secrets.WEBDEPLOY_SERVER }} `
+          /p:DeployIisAppPath=${{ secrets.WEBDEPLOY_SITENAME }} `
+          /p:UserName=${{ secrets.WEBDEPLOY_USERNAME }} `
+          /p:Password=${{ secrets.WEBDEPLOY_PASSWORD }} `
+          /p:AllowUntrustedCertificate=true `
+          /p:EnableMsDeployAppOffline=true `
+          /p:SkipExtraFilesOnServer=true
