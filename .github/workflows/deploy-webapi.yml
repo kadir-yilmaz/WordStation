@@ -31,7 +31,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore WordStation.WebAPI
+      run: dotnet restore WordStation.sln
+
+    - name: Run Tests
+      run: dotnet test WordStation.Tests --no-restore -c Release
 
     - name: Build
       run: dotnet build WordStation.WebAPI -c Release --no-restore
