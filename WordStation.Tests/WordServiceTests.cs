@@ -83,12 +83,5 @@ namespace WordStation.Tests
             // Assert
             _mockRepo.Verify(x => x.GetWordsByConditionAsync(It.IsAny<Expression<Func<Word, bool>>>(), false), Times.Once);
         }
-
-        [Fact]
-        public void FailingTest_ShouldFail()
-        {
-            // Bilerek hata alması için: 1 asıl 2'ye eşit mi?
-            Assert.Equal(1, 2);
-        }
     }
 }
