@@ -4,6 +4,11 @@ pipeline {
     environment {
         // Jenkins içindeki .NET çalışma alanı
         DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
+        
+        // Tüm hassas bilgiler Jenkins arayüzünden (Credentials ve Parameters) yönetilmelidir.
+        FTP_AUTH = credentials('ftp-credentials')
+        
+        // WEBAPI_FTP_SERVER ve WEBAPI_REMOTE_DIR artık Jenkins Job ayarlarından atanmalıdır.
     }
 
     stages {
@@ -28,13 +33,19 @@ pipeline {
             }
         }
 
-        stage('Publish (Simulated Deploy)') {
+        stage('Deploy to Production (FTP)') {
             steps {
-                echo '🚀 Yayınlanacak paketler oluşturuluyor...'
-                sh 'dotnet publish WordStation.WebUI -c Release -o ./publish/WebUI'
+                echo '🚀 WebAPI yayınlanıyor...'
                 sh 'dotnet publish WordStation.WebAPI -c Release -o ./publish/WebAPI'
                 
-                echo 'Bilgi: Jenkins konteynerı Linux olduğu için IIS deploy bu aşamada simüle edilmiştir.'
+                echo '📤 Dosyalar FTP sunucusuna aktarılıyor...'
+                sh '''
+                    lftp -c "set ftp:ssl-allow no; \
+                    open -u ${FTP_AUTH_USR},${FTP_AUTH_PSW} ftp://${WEBAPI_FTP_SERVER}; \
+                    mirror -R ./publish/WebAPI ${WEBAPI_REMOTE_DIR} --delete --verbose"
+                '''
+                
+                echo '✅ Yayınlama tamamlandı.'
             }
         }
     }

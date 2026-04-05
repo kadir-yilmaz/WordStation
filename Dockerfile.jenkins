@@ -6,6 +6,15 @@ FROM jenkins/jenkins:lts
 
 USER root
 
+# .NET için gerekli kütüphaneleri (ICU) ve deploy için lftp/zip araçlarını kuruyoruz
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    curl \
+    lftp \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 # .NET SDK dosyalarını ilk aşamadan Jenkins'e kopyalıyoruz
 COPY --from=dotnet-sdk /usr/share/dotnet /usr/share/dotnet
 # Dotnet komutunu global olarak erişilebilir yapıyoruz
