@@ -13,11 +13,6 @@ on:
       - '.github/workflows/deploy-webui.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  actions: read
-  checks: write
-
 concurrency:
   group: deploy-webui
   cancel-in-progress: true
@@ -39,15 +34,7 @@ jobs:
       run: dotnet restore WordStation.sln
 
     - name: Run Tests
-      run: dotnet test WordStation.Tests --no-restore -c Release --logger "trx;LogFileName=test-results.trx"
-
-    - name: Test Report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: .NET Test Results
-        path: "**/test-results.trx"
-        reporter: dotnet-trx
+      run: dotnet test WordStation.Tests --no-restore -c Release
 
     - name: Build
       run: dotnet build WordStation.WebUI -c Release --no-restore
