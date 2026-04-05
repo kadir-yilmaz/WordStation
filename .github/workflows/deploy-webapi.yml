@@ -34,7 +34,13 @@ jobs:
       run: dotnet restore WordStation.sln
 
     - name: Run Tests
-      run: dotnet test WordStation.Tests --no-restore -c Release
+      run: dotnet test WordStation.Tests --no-restore -c Release --logger "trx;LogFileName=test-results.trx"
+
+    - name: Test Report
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: "**/TestResults/*.trx"
 
     - name: Build
       run: dotnet build WordStation.WebAPI -c Release --no-restore
