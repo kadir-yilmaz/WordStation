@@ -5,7 +5,7 @@ using WordStation.EL.Models;
 
 namespace WordStation.WebAPI.Controllers
 {
-    // Added a comment for Jenkins CI/CD Multi-Deploy test: 2026-04-06
+    // Test: Multi-Deploy WebDeploy 1.0.8 (Automated)
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]  // JWT token kontrolü - Expired veya geçersiz token 401 döner
