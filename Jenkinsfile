@@ -5,10 +5,12 @@ pipeline {
         // Jenkins içindeki .NET çalışma alanı
         DOTNET_CLI_HOME = "${WORKSPACE}/.dotnet"
         
-        // Tüm hassas bilgiler Jenkins arayüzünden (Credentials ve Parameters) yönetilmelidir.
-        FTP_AUTH = credentials('ftp-credentials')
+        // Sunucu Adresleri (Şifre içermez, kodda durabilir)
+        WEBAPI_SERVER   = 'site7885.siteasp.net'
+        WEBUI_SERVER    = 'site40040.siteasp.net'
         
-        // WEBAPI_FTP_SERVER ve WEBAPI_REMOTE_DIR artık Jenkins Job ayarlarından atanmalıdır.
+        // Uzak Dizinler
+        REMOTE_DIR      = '/' 
     }
 
     stages {
@@ -29,23 +31,71 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🏗️ Proje derleniyor...'
-                sh 'dotnet build WordStation.WebAPI -c Release --no-restore'
+                sh 'dotnet build WordStation.sln -c Release --no-restore'
             }
         }
 
-        stage('Deploy to Production (FTP)') {
+        stage('Deploy WebAPI') {
+            when {
+                anyOf {
+                    changeset "WordStation.WebAPI/**"
+                    changeset "WordStation.EL/**"
+                    changeset "WordStation.DAL/**"
+                    changeset "WordStation.BLL/**"
+                }
+            }
             steps {
-                echo '🚀 WebAPI yayınlanıyor...'
-                sh 'dotnet publish WordStation.WebAPI -c Release -o ./publish/WebAPI'
-                
-                echo '📤 Dosyalar FTP sunucusuna aktarılıyor...'
-                sh '''
-                    lftp -c "set ftp:ssl-allow no; \
-                    open -u ${FTP_AUTH_USR},${FTP_AUTH_PSW} ftp://${WEBAPI_FTP_SERVER}; \
-                    mirror -R ./publish/WebAPI ${WEBAPI_REMOTE_DIR} --delete --verbose"
-                '''
-                
-                echo '✅ Yayınlama tamamlandı.'
+                withCredentials([usernamePassword(credentialsId: 'webapi-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
+                    echo '🚀 WebAPI yayınlanıyor...'
+                    sh 'dotnet publish WordStation.WebAPI -c Release -o ./publish/WebAPI'
+                    
+                    echo '📤 WebAPI dosyaları FTPS (Secure) ile aktarılıyor...'
+                    sh '''
+                        lftp <<EOF || true
+                        debug 10
+                        set ftp:ssl-force yes
+                        set ssl:verify-certificate no
+                        set ftp:passive-mode on
+                        set ftp:charset utf-8
+                        open $WEBAPI_SERVER
+                        user $FTP_USER $FTP_PASS
+                        mirror -R ./publish/WebAPI $REMOTE_DIR --no-perms --delete --verbose
+                        quit
+EOF
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy WebUI') {
+            when {
+                anyOf {
+                    changeset "WordStation.WebUI/**"
+                    changeset "WordStation.EL/**"
+                    changeset "WordStation.DAL/**"
+                    changeset "WordStation.BLL/**"
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'webui-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
+                    echo '🚀 WebUI yayınlanıyor...'
+                    sh 'dotnet publish WordStation.WebUI -c Release -o ./publish/WebUI'
+                    
+                    echo '📤 WebUI dosyaları FTPS (Secure) ile aktarılıyor...'
+                    sh '''
+                        lftp <<EOF || true
+                        debug 10
+                        set ftp:ssl-force yes
+                        set ssl:verify-certificate no
+                        set ftp:passive-mode on
+                        set ftp:charset utf-8
+                        open $WEBUI_SERVER
+                        user $FTP_USER $FTP_PASS
+                        mirror -R ./publish/WebUI $REMOTE_DIR --no-perms --delete --verbose
+                        quit
+EOF
+                    '''
+                }
             }
         }
     }
