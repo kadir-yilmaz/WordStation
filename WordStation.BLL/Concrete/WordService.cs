@@ -1,4 +1,4 @@
-﻿using WordStation.BLL.Abstract;
+using WordStation.BLL.Abstract;
 using WordStation.DAL.Abstract;
 using WordStation.EL.Models;
 
@@ -8,6 +8,7 @@ namespace WordStation.BLL.Concrete
     {
         private readonly IWordRepository _wordRepository;
 
+        // WordRepository bağımlılığı ile servis başlatılıyor
         public WordService(IWordRepository wordRepository)
         {
             _wordRepository = wordRepository;
