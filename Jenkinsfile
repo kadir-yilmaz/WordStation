@@ -46,23 +46,26 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'webapi-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebAPI yayınlanıyor...'
+                    echo '🚀 WebAPI yayınlanıyor (Portable Mode)...'
                     sh 'dotnet publish WordStation.WebAPI -c Release -o ./publish/WebAPI'
                     
                     echo '📤 WebAPI dosyaları FTPS (Secure) ile aktarılıyor...'
-                    sh '''
-                        lftp <<EOF || true
-                        debug 10
-                        set ftp:ssl-force yes
-                        set ssl:verify-certificate no
-                        set ftp:passive-mode on
-                        set ftp:charset utf-8
-                        open $WEBAPI_SERVER
-                        user $FTP_USER $FTP_PASS
-                        mirror -R ./publish/WebAPI $REMOTE_DIR --no-perms --delete --verbose
-                        quit
+                    script {
+                        def API_REMOTE_DIR = 'wwwroot/'
+                        sh """
+                            lftp <<EOF || true
+                            debug 10
+                            set ftp:ssl-force yes
+                            set ssl:verify-certificate no
+                            set ftp:passive-mode on
+                            set ftp:charset utf-8
+                            open $WEBAPI_SERVER
+                            user $FTP_USER $FTP_PASS
+                            mirror -R ./publish/WebAPI/ ${API_REMOTE_DIR} --no-perms --delete --verbose
+                            quit
 EOF
-                    '''
+                        """
+                    }
                 }
             }
         }
@@ -78,23 +81,26 @@ EOF
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'webui-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebUI yayınlanıyor...'
+                    echo '🚀 WebUI yayınlanıyor (Portable Mode)...'
                     sh 'dotnet publish WordStation.WebUI -c Release -o ./publish/WebUI'
                     
                     echo '📤 WebUI dosyaları FTPS (Secure) ile aktarılıyor...'
-                    sh '''
-                        lftp <<EOF || true
-                        debug 10
-                        set ftp:ssl-force yes
-                        set ssl:verify-certificate no
-                        set ftp:passive-mode on
-                        set ftp:charset utf-8
-                        open $WEBUI_SERVER
-                        user $FTP_USER $FTP_PASS
-                        mirror -R ./publish/WebUI $REMOTE_DIR --no-perms --delete --verbose
-                        quit
+                    script {
+                        def UI_REMOTE_DIR = '/'
+                        sh """
+                            lftp <<EOF || true
+                            debug 10
+                            set ftp:ssl-force yes
+                            set ssl:verify-certificate no
+                            set ftp:passive-mode on
+                            set ftp:charset utf-8
+                            open $WEBUI_SERVER
+                            user $FTP_USER $FTP_PASS
+                            mirror -R ./publish/WebUI/ ${UI_REMOTE_DIR} --no-perms --delete --verbose
+                            quit
 EOF
-                    '''
+                        """
+                    }
                 }
             }
         }
