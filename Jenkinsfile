@@ -2,7 +2,7 @@ pipeline {
     agent none
 
     environment {
-        // Teknik Parametreler (Git'e girmesinde sakınca olmayanlar)
+        // Teknik Parametreler
         WEBAPI_SERVICE_URL = 'site7885.siteasp.net'
         WEBAPI_SITE_NAME   = 'site7885'
         
@@ -46,15 +46,15 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'webapi-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebAPI yayınlanıyor (Fileless WebDeploy)...'
+                withCredentials([usernamePassword(credentialsId: 'webapi-webdeploy', passwordVariable: 'WD_PASS', usernameVariable: 'WD_USER')]) {
+                    echo '🚀 WebAPI yayınlanıyor (Secure WebDeploy)...'
                     bat """
                         dotnet publish WordStation.WebAPI -c Release ^
                         /p:WebPublishMethod=MSDeploy ^
                         /p:MSDeployServiceURL=${WEBAPI_SERVICE_URL} ^
                         /p:DeployIisAppPath=${WEBAPI_SITE_NAME} ^
-                        /p:UserName=${FTP_USER} ^
-                        /p:Password=${FTP_PASS} ^
+                        /p:UserName=%WD_USER% ^
+                        /p:Password=%WD_PASS% ^
                         /p:MSDeployPublishMethod=WMSVC ^
                         /p:EnableMsDeployAppOffline=true ^
                         /p:AllowUntrustedCertificate=true
@@ -74,15 +74,15 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'webui-ftp', passwordVariable: 'FTP_PASS', usernameVariable: 'FTP_USER')]) {
-                    echo '🚀 WebUI yayınlanıyor (Fileless WebDeploy)...'
+                withCredentials([usernamePassword(credentialsId: 'webui-webdeploy', passwordVariable: 'WD_PASS', usernameVariable: 'WD_USER')]) {
+                    echo '🚀 WebUI yayınlanıyor (Secure WebDeploy)...'
                     bat """
                         dotnet publish WordStation.WebUI -c Release ^
                         /p:WebPublishMethod=MSDeploy ^
                         /p:MSDeployServiceURL=${WEBUI_SERVICE_URL} ^
                         /p:DeployIisAppPath=${WEBUI_SITE_NAME} ^
-                        /p:UserName=${FTP_USER} ^
-                        /p:Password=${FTP_PASS} ^
+                        /p:UserName=%WD_USER% ^
+                        /p:Password=%WD_PASS% ^
                         /p:MSDeployPublishMethod=WMSVC ^
                         /p:EnableMsDeployAppOffline=true ^
                         /p:AllowUntrustedCertificate=true
@@ -97,7 +97,7 @@ pipeline {
             echo 'İşlem tamamlandı (Jenkins CI).'
         }
         success {
-            echo '✅ Tebrikler! Tüm aşamalar "Fileless WebDeploy" ile başarıyla geçti.'
+            echo '✅ Tebrikler! Tüm aşamalar yeni WebDeploy şifreleri ile başarıyla geçti.'
         }
         failure {
             echo '❌ Hata! Lütfen logları ve Windows Agent bağlantısını kontrol edin.'
