@@ -43,10 +43,17 @@ pipeline {
                     changeset "WordStation.EL/**"
                     changeset "WordStation.DAL/**"
                     changeset "WordStation.BLL/**"
+                    changeset "Jenkinsfile"
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'webapi-webdeploy', passwordVariable: 'WD_PASS', usernameVariable: 'WD_USER')]) {
+                withCredentials([
+                    usernamePassword(credentialsId: 'webapi-webdeploy', passwordVariable: 'WD_PASS', usernameVariable: 'WD_USER'),
+                    file(credentialsId: 'webapi-appsettings.json', variable: 'SECRET_APPSETTINGS')
+                ]) {
+                    echo '🔧 Canlı ortam ayarları yapılandırılıyor (Secret File)...'
+                    powershell 'Copy-Item $env:SECRET_APPSETTINGS -Destination "WordStation.WebAPI/appsettings.json" -Force'
+
                     echo '🚀 WebAPI yayınlanıyor (Secure WebDeploy)...'
                     bat """
                         dotnet publish WordStation.WebAPI -c Release ^
@@ -71,10 +78,28 @@ pipeline {
                     changeset "WordStation.EL/**"
                     changeset "WordStation.DAL/**"
                     changeset "WordStation.BLL/**"
+                    changeset "Jenkinsfile"
                 }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'webui-webdeploy', passwordVariable: 'WD_PASS', usernameVariable: 'WD_USER')]) {
+                    echo '🔧 Canlı ortam ayarları yapılandırılıyor (appsettings.json)...'
+                    powershell '''
+                        $config = @{
+                            Logging = @{
+                                LogLevel = @{
+                                    Default = "Information"
+                                    "Microsoft.AspNetCore" = "Warning"
+                                }
+                            }
+                            AllowedHosts = "*"
+                            ApiSettings = @{
+                                BaseUrl = "https://wsapi.runasp.net/api/"
+                            }
+                        }
+                        $config | ConvertTo-Json -Depth 10 | Set-Content -Path "WordStation.WebUI/appsettings.json" -Encoding utf8
+                    '''
+
                     echo '🚀 WebUI yayınlanıyor (Secure WebDeploy)...'
                     bat """
                         dotnet publish WordStation.WebUI -c Release ^
