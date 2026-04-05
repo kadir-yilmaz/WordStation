@@ -38,6 +38,14 @@ WordStation.WebAPI/appsettings.Production.json
 # User Secrets
 secrets.json
 
+# ASP.NET Core Data Protection keys
+**/Keys/*.xml
+
+# WebUI secrets
+WordStation.WebUI/appsettings.json
+WordStation.WebUI/appsettings.Development.json
+WordStation.WebUI/appsettings.Production.json
+
 # ════════════════════════════════════════════════════════════════
 #  Logs & Temporary Files  
 # ════════════════════════════════════════════════════════════════
