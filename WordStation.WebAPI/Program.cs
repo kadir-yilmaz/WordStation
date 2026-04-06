@@ -12,7 +12,6 @@ using WordStation.DAL.EFCore;
 using WordStation.WebAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration["ASPNETCORE_DETAILEDERRORS"] = "true";
 
 // Controllers
 builder.Services.AddControllers()
@@ -65,9 +64,8 @@ builder.Services.AddRouting(options =>
 var app = builder.Build();
 
 // Middleware
-if (app.Environment.IsDevelopment() || true) // Temporarily forced for debugging
+if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
