@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using WordStation.BLL.Abstract;
 using WordStation.EL.Models;
@@ -8,7 +9,7 @@ namespace WordStation.WebAPI.Controllers
     // Test: Multi-Deploy WebDeploy 1.0.9 (Automated)
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]  // JWT token kontrolü - Expired veya geçersiz token 401 döner
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class WordsController : ControllerBase
     {
         private readonly IWordService _wordService;

@@ -1,4 +1,4 @@
-﻿@model LoginModel
+@model LoginModel
 @{
     ViewData["Title"] = "Giriş Yap";
 }
@@ -213,15 +213,15 @@
 </style>
 
 <div class="container">
-
-    <div class="login-container">
-        <div class="tab-container">
-            <button class="tab active" id="loginTab" onclick="showTab('login')">Giriş yap</button>
-            <button class="tab" id="registerTab" onclick="showTab('register')">Üye ol</button>
+    <div class="login-container">
+        <div class="header-logo">
+            <a href="/" class="logo">WordStation</a>
         </div>
-
-        <div id="loginForm" class="form-container">
-            <div class="text-danger" asp-validation-summary="All"></div>
+        
+        <div class="form-container">
+            <h3 class="text-center mb-4" style="color: var(--primary-color)">Giriş Yap</h3>
+            
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 
             <form method="post" asp-action="Login">
                 <input type="hidden" asp-for="ReturnUrl" />
@@ -246,54 +246,18 @@
                     <a href="#" class="forgot-password">Şifremi unuttum</a>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary mb-3">
                     <i class="fa-solid fa-right-to-bracket me-2"></i>
                     Giriş yap
                 </button>
             </form>
 
-            <div class="social-login">
-                <p>Google ile giriş yap</p>
-                <button class="social-btn">
-                    <i class="fab fa-google"></i>
-                </button>
+            <div class="text-center mt-3">
+                <p style="color: #888">Hesabınız yok mu? <a asp-action="Register" class="forgot-password" style="font-weight: bold">Üye olun</a></p>
             </div>
-        </div>
-
-        <div id="registerForm" class="form-container" style="display: none;">
-            <form method="post" asp-action="Register" autocomplete="off">
-                <div class="mb-3">
-                    <label class="form-label">E-posta adresi</label>
-                    <input name="Email" class="form-control" type="email" placeholder="E-posta adresinizi girin" required autocomplete="new-email" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Şifre</label>
-                    <div class="password-wrapper">
-                        <input name="Password" class="form-control" type="password" id="registerPassword" placeholder="Şifrenizi oluşturun" required autocomplete="new-password" />
-                        <button type="button" class="password-toggle-btn" onclick="togglePassword('registerPassword')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Şifre Tekrarı</label>
-                    <div class="password-wrapper">
-                        <input name="ConfirmPassword" class="form-control" type="password" id="confirmPassword" placeholder="Şifrenizi tekrar girin" required autocomplete="new-password" />
-                        <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmPassword')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    Devam et
-                </button>
-            </form>
 
             <div class="social-login">
-                <p>Google ile giriş yap</p>
+                <p>veya Google ile devam et</p>
                 <button class="social-btn">
                     <i class="fab fa-google"></i>
                 </button>
@@ -303,36 +267,9 @@
 </div>
 
 <script>
-    function showTab(tab) {
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-
-        if (tab === 'login') {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginForm.style.display = 'block';
-            registerForm.style.display = 'none';
-        } else {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerForm.style.display = 'block';
-            loginForm.style.display = 'none';
-
-            // Register formundaki tüm inputları temizle
-            registerForm.querySelectorAll('input').forEach(input => {
-                if (input.type !== 'hidden') {
-                    input.value = '';
-                }
-            });
-        }
-    }
-
     function togglePassword(inputId) {
         const input = document.getElementById(inputId);
-        const button = input.nextElementSibling;
-        const icon = button.querySelector('i');
+        const icon = event.currentTarget.querySelector('i');
 
         if (input.type === 'password') {
             input.type = 'text';

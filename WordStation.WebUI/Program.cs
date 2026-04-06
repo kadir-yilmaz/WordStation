@@ -21,7 +21,7 @@ builder.Services.ConfigureCustomApplicationCookie();
 // HttpClient Configuration
 builder.Services.AddHttpClient("WordStationApi", client => {
     // API URL - appsettings.json'dan okunabilir, fallback veriyoruz
-    var apiUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/api/"; 
+    var apiUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5032"; 
     client.BaseAddress = new Uri(apiUrl);
 });
 

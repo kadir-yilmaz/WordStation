@@ -16,16 +16,17 @@ namespace WordStation.WebUI.Services.Concrete
             _httpClient = httpClientFactory.CreateClient("WordStationApi");
         }
 
-        private void SetAuthHeader(string token)
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod method, string url, string token, HttpContent? content = null)
         {
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token);
+            var request = new HttpRequestMessage(method, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (content != null) request.Content = content;
+            return await _httpClient.SendAsync(request);
         }
 
         public async Task<IEnumerable<Word>> GetAllWordsAsync(string userId, string listName, string token)
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.GetAsync($"words?userId={userId}&listName={listName}");
+            var response = await SendRequestAsync(HttpMethod.Get, $"words?userId={userId}&listName={listName}", token);
             
             if (!response.IsSuccessStatusCode)
                 return Enumerable.Empty<Word>();
@@ -39,8 +40,7 @@ namespace WordStation.WebUI.Services.Concrete
 
         public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string token, string searchMode = "starts")
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.GetAsync($"words/search?en={en}&userId={userId}&listName={listName}&searchMode={searchMode}");
+            var response = await SendRequestAsync(HttpMethod.Get, $"words/search?en={en}&userId={userId}&listName={listName}&searchMode={searchMode}", token);
             
             if (!response.IsSuccessStatusCode)
                 return Enumerable.Empty<Word>();
@@ -54,8 +54,7 @@ namespace WordStation.WebUI.Services.Concrete
 
         public async Task<IEnumerable<string>> GetListNamesAsync(string userId, string token)
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.GetAsync($"words/lists?userId={userId}");
+            var response = await SendRequestAsync(HttpMethod.Get, $"words/lists?userId={userId}", token);
             
             if (!response.IsSuccessStatusCode)
                 return Enumerable.Empty<string>();
@@ -69,48 +68,43 @@ namespace WordStation.WebUI.Services.Concrete
 
         public async Task<bool> CreateWordAsync(Word word, string token)
         {
-            SetAuthHeader(token);
             var content = new StringContent(
                 JsonSerializer.Serialize(word),
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync("words", content);
+            var response = await SendRequestAsync(HttpMethod.Post, "words", token, content);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> UpdateWordAsync(Word word, string token)
         {
-            SetAuthHeader(token);
             var content = new StringContent(
                 JsonSerializer.Serialize(word),
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PutAsync("words", content);
+            var response = await SendRequestAsync(HttpMethod.Put, "words", token, content);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteWordAsync(int id, string token)
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.DeleteAsync($"words/{id}");
+            var response = await SendRequestAsync(HttpMethod.Delete, $"words/{id}", token);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> UpdateListNameAsync(string userId, string listName, string newListName, string token)
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.PutAsync(
-                $"words/lists/rename?userId={userId}&listName={listName}&newListName={newListName}",
-                null);
+            var response = await SendRequestAsync(HttpMethod.Put, 
+                $"words/lists/rename?userId={userId}&listName={listName}&newListName={newListName}", 
+                token);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteListAsync(string userId, string listName, string token)
         {
-            SetAuthHeader(token);
-            var response = await _httpClient.DeleteAsync($"words/lists?userId={userId}&listName={listName}");
+            var response = await SendRequestAsync(HttpMethod.Delete, $"words/lists?userId={userId}&listName={listName}", token);
             return response.IsSuccessStatusCode;
         }
     }

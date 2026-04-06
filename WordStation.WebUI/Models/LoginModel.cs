@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace WordStation.WebUI.Models
 {
@@ -6,9 +6,10 @@ namespace WordStation.WebUI.Models
     {
         private string? _returnurl;
 
-        [Required(ErrorMessage = "Email is required.")]
+        [Required(ErrorMessage = "E-posta adresi zorunludur.")]
+        [EmailAddress(ErrorMessage = "Geçersiz e-posta adresi.")]
         public string? Email { get; set; }
-        [Required(ErrorMessage = "Password is required.")]
+        [Required(ErrorMessage = "Şifre zorunludur.")]
         public string? Password { get; set; }
 
         public string ReturnUrl
