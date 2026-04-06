@@ -41,11 +41,14 @@ jobs:
 
     - name: Update Production secrets
       shell: pwsh
+      env:
+        SQL_CONN_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET_KEY }}
       run: |
         $appsettingsPath = "WordStation.WebAPI/appsettings.Production.json"
         $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
-        $json.ConnectionStrings.sqlConnection = "${{ secrets.SQL_CONNECTION_STRING }}"
-        $json.JwtSettings.SecretKey = "${{ secrets.JWT_SECRET_KEY }}"
+        $json.ConnectionStrings.sqlConnection = $env:SQL_CONN_STRING
+        $json.JwtSettings.SecretKey = $env:JWT_SECRET
         $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
 
     - name: Deploy API with Web Deploy

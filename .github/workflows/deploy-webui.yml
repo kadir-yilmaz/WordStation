@@ -41,10 +41,12 @@ jobs:
 
     - name: Update Production API URL
       shell: pwsh
+      env:
+        API_BASE: ${{ secrets.API_BASE_URL }}
       run: |
         $appsettingsPath = "WordStation.WebUI/appsettings.Production.json"
         $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
-        $json.ApiSettings.BaseUrl = "${{ secrets.API_BASE_URL }}"
+        $json.ApiSettings.BaseUrl = $env:API_BASE
         $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
 
     - name: Deploy WebUI with Web Deploy
