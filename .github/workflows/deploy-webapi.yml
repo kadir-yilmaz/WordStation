@@ -42,7 +42,7 @@ jobs:
     - name: Update Production secrets
       shell: pwsh
       run: |
-        $appsettingsPath = "WordStation.WebAPI/bin/Release/net8.0/appsettings.Production.json"
+        $appsettingsPath = "WordStation.WebAPI/appsettings.Production.json"
         $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
         $json.ConnectionStrings.sqlConnection = "${{ secrets.SQL_CONNECTION_STRING }}"
         $json.JwtSettings.SecretKey = "${{ secrets.JWT_SECRET_KEY }}"

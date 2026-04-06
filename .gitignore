@@ -34,6 +34,9 @@ out/
 WordStation.WebAPI/appsettings.json
 WordStation.WebUI/appsettings.json
 
+# Development appsettings
+**/appsettings.Development.json
+
 # User Secrets
 secrets.json
 
