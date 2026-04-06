@@ -39,6 +39,14 @@ jobs:
     - name: Build
       run: dotnet build WordStation.WebUI -c Release --no-restore
 
+    - name: Update Production API URL
+      shell: pwsh
+      run: |
+        $appsettingsPath = "WordStation.WebUI/bin/Release/net8.0/appsettings.Production.json"
+        $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
+        $json.ApiSettings.BaseUrl = "${{ secrets.API_BASE_URL }}"
+        $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
+
     - name: Deploy WebUI with Web Deploy
       run: |
         dotnet publish WordStation.WebUI -c Release `
