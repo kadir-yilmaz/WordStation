@@ -6,7 +6,7 @@ using WordStation.EL.Models;
 
 namespace WordStation.WebAPI.Controllers
 {
-    // Test: Multi-Deploy WebDeploy 1.0.9 (Automated)
+    // Test: Multi-Deploy WebDeploy 1.0.10 (Automated)
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
