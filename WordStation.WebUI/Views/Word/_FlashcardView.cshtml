@@ -213,8 +213,52 @@
         padding: 6px 16px;
         border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 16px;
         display: inline-block;
+    }
+
+    /* Speak Button */
+    .btn-speak {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.07);
+        color: rgba(255, 255, 255, 0.75);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .btn-speak:hover {
+        background: rgba(99, 179, 237, 0.2);
+        border-color: rgba(99, 179, 237, 0.5);
+        color: #63b3ed;
+        transform: scale(1.1);
+    }
+
+    .btn-speak.speaking {
+        background: rgba(99, 179, 237, 0.25);
+        border-color: #63b3ed;
+        color: #63b3ed;
+        animation: speakPulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @@keyframes speakPulse {
+        from { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0.4); }
+        to   { box-shadow: 0 0 0 7px rgba(99, 179, 237, 0); }
+    }
+
+    .progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 16px;
     }
 
     /* Custom Range Slider */
@@ -595,8 +639,11 @@
 
                 @* Controls (Slider & Buttons Only) *@
                 <div class="stage-controls w-100">
-                    <div class="text-center mb-2">
+                    <div class="progress-row">
                         <span id="flashcardProgress" class="index-label">1/0</span>
+                        <button id="speakBtn" class="btn-speak" title="Kelimeyi seslendir (S)">
+                            <i class="bi bi-volume-up-fill" style="font-size: 0.9rem;"></i>
+                        </button>
                     </div>
 
                     <input type="range" class="form-range custom-slider mb-4" id="interactiveSlider" min="0" value="0">

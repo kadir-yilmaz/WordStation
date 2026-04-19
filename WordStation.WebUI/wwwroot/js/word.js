@@ -1,4 +1,4 @@
-﻿// Global State
+// Global State
 let currentIndex = 0;
 let touchStartX = 0;
 let isDragging = false;
@@ -26,7 +26,8 @@ const els = {
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
     btnDelete: document.getElementById('flashcardDeleteBtn'),
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
-    synonymsList: document.getElementById('flashcardSynonyms')
+    synonymsList: document.getElementById('flashcardSynonyms'),
+    speakBtn: document.getElementById('speakBtn')
 };
 
 /* =====================================================
@@ -42,6 +43,66 @@ function getStorageKey(suffix, ignoreSearch = false) {
     }
     // wordIndex için arama bazlı key kullan
     return `ws_${listName}_search_${searchTerm}_${suffix}`;
+}
+
+/* =====================================================
+   Text-to-Speech (US English)
+   ===================================================== */
+
+// Chrome freeze fix: Speech API ~15sn sonra donabiliyor, bu interval onu uyanık tutar
+let _ttsKeepAlive = null;
+function _startTtsKeepAlive() {
+    _stopTtsKeepAlive();
+    _ttsKeepAlive = setInterval(() => {
+        if (!window.speechSynthesis.speaking) { _stopTtsKeepAlive(); return; }
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+    }, 10000);
+}
+function _stopTtsKeepAlive() {
+    if (_ttsKeepAlive) { clearInterval(_ttsKeepAlive); _ttsKeepAlive = null; }
+}
+
+function speakCurrentWord() {
+    if (!window.speechSynthesis) return;
+
+    const word = els.word?.textContent?.trim();
+    if (!word) return;
+
+    // Önce temizle
+    _stopTtsKeepAlive();
+    window.speechSynthesis.cancel();
+
+    // Chrome bug fix: cancel() sonrası hemen speak() çağrısı
+    // "outcast" → "cast" gibi bölme hatasına yol açar.
+    // Küçük bir setTimeout ile Chrome'un tamamen sıfırlanmasını bekliyoruz.
+    setTimeout(() => {
+        const voices = window.speechSynthesis.getVoices();
+        const usVoice =
+            voices.find(v => v.lang === 'en-US' && v.localService) ||
+            voices.find(v => v.lang === 'en-US') ||
+            voices.find(v => v.lang.startsWith('en'));
+
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.rate   = 0.85;
+        utterance.pitch  = 1;
+        utterance.volume = 1;
+        utterance.lang   = 'en-US';
+        if (usVoice) utterance.voice = usVoice;
+
+        if (els.speakBtn) els.speakBtn.classList.add('speaking');
+
+        utterance.onstart = () => _startTtsKeepAlive();
+        utterance.onend   = () => { _stopTtsKeepAlive(); if (els.speakBtn) els.speakBtn.classList.remove('speaking'); };
+        utterance.onerror  = () => { _stopTtsKeepAlive(); if (els.speakBtn) els.speakBtn.classList.remove('speaking'); };
+
+        window.speechSynthesis.speak(utterance);
+    }, 150);
+}
+
+// Sesler bazen geç yüklenir (özellikle ilk açılışta)
+if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
 /* =====================================================
@@ -424,6 +485,13 @@ document.addEventListener('keydown', (e) => {
         const nextIndex = getRandomUnusedIndex();
         if (nextIndex !== -1) showWord(nextIndex);
     }
+    else if (key === 's' || key === 'S') {
+        // Arama inputu aktifken tetiklenmesin
+        if (document.activeElement?.id !== 'searchInput') {
+            e.preventDefault();
+            speakCurrentWord();
+        }
+    }
 });
 
 /* =====================================================
@@ -431,6 +499,7 @@ document.addEventListener('keydown', (e) => {
    ===================================================== */
 els.prevBtn?.addEventListener('click', () => showWord(currentIndex - 1));
 els.nextBtn?.addEventListener('click', () => showWord(currentIndex + 1));
+els.speakBtn?.addEventListener('click', () => speakCurrentWord());
 
 window.findAndShowWord = function (wordEn) {
     if (!window.wordsData) return;
