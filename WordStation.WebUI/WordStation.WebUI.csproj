@@ -4,7 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-WordStation.WebUI-5a70cfd9-e6cc-4cbf-9e78-d7b82d879cdd</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
