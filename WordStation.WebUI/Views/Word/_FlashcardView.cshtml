@@ -256,9 +256,21 @@
     .progress-row {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 10px;
+        justify-content: space-between;
         margin-bottom: 16px;
+        width: 100%;
+    }
+
+    .progress-row-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none; /* label sadece gösterim */
+    }
+
+    .progress-row-left,
+    .progress-row-right {
+        flex: 0 0 auto;
     }
 
     /* Custom Range Slider */
@@ -592,38 +604,6 @@
 
             @* 2. Flashcard (Right) *@
             <div class="stage-col-flashcard">
-                
-                @* Flashcard Header: Menu (Right) *@
-                <div class="d-flex justify-content-end align-items-center w-100 mb-3 px-2">
-                    
-                    @* Action Menu (Right) *@
-                    <div class="dropdown">
-                        <button type="button"
-                                class="btn btn-link text-white-50 text-decoration-none p-0"
-                                data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots-vertical fs-5"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <button type="button"
-                                        class="dropdown-item"
-                                        id="flashcardUpdateBtn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#updateWordModal">
-                                    <i class="bi bi-pencil-fill me-2"></i>Update
-                                </button>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <button type="button"
-                                        class="dropdown-item text-danger"
-                                        id="flashcardDeleteBtn">
-                                    <i class="bi bi-trash-fill me-2"></i>Delete
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
 
                 @* Flashcard *@
                 <div class="flashcard-container mb-4" id="flashcardContainer">
@@ -639,11 +619,45 @@
 
                 @* Controls (Slider & Buttons Only) *@
                 <div class="stage-controls w-100">
-                    <div class="progress-row">
-                        <span id="flashcardProgress" class="index-label">1/0</span>
-                        <button id="speakBtn" class="btn-speak" title="Kelimeyi seslendir (S)">
-                            <i class="bi bi-volume-up-fill" style="font-size: 0.9rem;"></i>
-                        </button>
+                    @* Progress Row: Label (orta) | 3 Nokta (sag) *@
+                    <div class="progress-row position-relative">
+                        @* Sol: bos (denge icin) *@
+                        <div class="progress-row-left"></div>
+
+                        @* Orta: Index etiketi *@
+                        <div class="progress-row-center">
+                            <span id="flashcardProgress" class="index-label" style="pointer-events:auto;">1/0</span>
+                        </div>
+
+                        @* Sağ: 3 Nokta Menü *@
+                        <div class="progress-row-right">
+                            <div class="dropdown">
+                                <button type="button"
+                                        class="btn btn-link text-white-50 text-decoration-none p-0"
+                                        data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical fs-5"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <button type="button"
+                                                class="dropdown-item"
+                                                id="flashcardUpdateBtn"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#updateWordModal">
+                                            <i class="bi bi-pencil-fill me-2"></i>Update
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button type="button"
+                                                class="dropdown-item text-danger"
+                                                id="flashcardDeleteBtn">
+                                            <i class="bi bi-trash-fill me-2"></i>Delete
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <input type="range" class="form-range custom-slider mb-4" id="interactiveSlider" min="0" value="0">
@@ -659,6 +673,12 @@
                                 id="flashcardRandom"
                                 title="Random (Down Arrow)">
                             <i class="bi bi-shuffle"></i>
+                        </button>
+
+                        <button class="btn btn-success"
+                                id="speakBtn"
+                                title="Seslendir (S)">
+                            <i class="bi bi-volume-up-fill"></i>
                         </button>
 
                         <button class="btn btn-outline-light"

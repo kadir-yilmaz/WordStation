@@ -45,8 +45,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: rgba(30, 30, 50, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fs-2 fw-bold text-white ps-0" id="detailWordEn"></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <div class="d-flex align-items-center gap-3 flex-grow-1">
+                        <h5 class="modal-title fs-2 fw-bold text-white ps-0 mb-0" id="detailWordEn"></h5>
+                        <button id="detailSpeakBtn"
+                                onclick="window.speakWord(document.getElementById('detailWordEn').textContent)"
+                                style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;padding:0;"
+                                title="Seslendir">
+                            <i class="bi bi-volume-up-fill" style="font-size:0.85rem;"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4 pb-4 pt-2">
                     <h4 class="fw-bold mb-4" id="detailWordTr" style="color: #34d399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);"></h4>
@@ -84,6 +92,38 @@
             const tr = element.getAttribute('data-tr');
             const example = element.getAttribute('data-example');
             showWordDetail(en, tr, example);
+        };
+
+        // Global TTS: herhangi bir yerden çağrılabilir
+        let _wdKeepAlive = null;
+        window.speakWord = function(word) {
+            if (!window.speechSynthesis || !word || !word.trim()) return;
+            if (_wdKeepAlive) { clearInterval(_wdKeepAlive); _wdKeepAlive = null; }
+            window.speechSynthesis.cancel();
+            setTimeout(() => {
+                const voices = window.speechSynthesis.getVoices();
+                const usVoice =
+                    voices.find(v => v.lang === 'en-US' && v.localService) ||
+                    voices.find(v => v.lang === 'en-US') ||
+                    voices.find(v => v.lang.startsWith('en'));
+                const u = new SpeechSynthesisUtterance(word.trim());
+                u.rate = 0.85; u.pitch = 1; u.volume = 1; u.lang = 'en-US';
+                if (usVoice) u.voice = usVoice;
+                const btn = document.getElementById('detailSpeakBtn');
+                if (btn) btn.style.color = '#63b3ed';
+                u.onstart = () => {
+                    _wdKeepAlive = setInterval(() => {
+                        if (!window.speechSynthesis.speaking) { clearInterval(_wdKeepAlive); return; }
+                        window.speechSynthesis.pause(); window.speechSynthesis.resume();
+                    }, 10000);
+                };
+                u.onend = u.onerror = () => {
+                    clearInterval(_wdKeepAlive);
+                    const b = document.getElementById('detailSpeakBtn');
+                    if (b) b.style.color = 'rgba(255,255,255,0.75)';
+                };
+                window.speechSynthesis.speak(u);
+            }, 150);
         };
     </script>
 
