@@ -30,6 +30,41 @@
                 margin: 0;
             }
 
+            .group-search-wrap {
+                margin-bottom: 24px;
+            }
+
+            .group-search-input {
+                max-width: 420px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                color: #fff;
+                border-radius: 12px;
+                padding: 12px 16px;
+            }
+
+            .group-search-input:focus {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(102, 126, 234, 0.5);
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+                color: #fff;
+            }
+
+            .group-search-input::placeholder {
+                color: rgba(255, 255, 255, 0.45);
+            }
+
+            .search-empty-state {
+                display: none;
+                padding: 20px;
+                border-radius: 14px;
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px dashed rgba(255, 255, 255, 0.12);
+                color: rgba(255, 255, 255, 0.7);
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
             .group-card {
                 background: var(--glass-bg);
                 backdrop-filter: blur(12px);
@@ -233,6 +268,112 @@
                 font-size: 0.85rem;
                 margin-left: 8px;
             }
+
+            /* Unified Edit Modal Specifics */
+            .edit-word-badges {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 15px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                min-height: 50px;
+            }
+
+            .edit-badge {
+                padding: 6px 12px;
+                padding-right: 32px;
+                position: relative;
+                transition: all 0.2s ease;
+            }
+
+            .edit-badge.removed {
+                background: rgba(255, 255, 255, 0.05) !important;
+                color: rgba(255, 255, 255, 0.3) !important;
+                text-decoration: line-through;
+                border: 1px dashed rgba(255, 255, 255, 0.2);
+            }
+
+            .edit-badge.removed .badge-close-btn {
+                background: #667eea;
+                transform: translateY(-50%) rotate(45deg);
+            }
+
+            .badge-close-btn {
+                position: absolute;
+                right: 6px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: rgba(255, 255, 255, 0.15);
+                border: none;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 10px;
+                transition: all 0.2s;
+                padding: 0;
+            }
+
+            .badge-close-btn:hover {
+                background: #ff4d4d;
+            }
+
+            .input-group-glass {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .group-header-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            .action-btn {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: rgba(255, 255, 255, 0.7);
+                border-radius: 8px;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                cursor: pointer;
+                padding: 0;
+            }
+
+            .action-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                transform: translateY(-2px);
+            }
+
+            .action-btn.edit:hover {
+                color: #0dcaf0;
+                border-color: rgba(13, 202, 240, 0.4);
+            }
+
+            .action-btn.delete:hover {
+                color: #ff4d4d;
+                border-color: rgba(255, 77, 77, 0.4);
+            }
+
+            .modal-label {
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: rgba(255, 255, 255, 0.4);
+                margin-bottom: 12px;
+                font-weight: 700;
+                display: block;
+            }
         </style>
 }
 
@@ -248,56 +389,39 @@
 
     @if (Model != null && Model.Any())
     {
+            <div class="group-search-wrap">
+                <input type="text" id="groupSearchInput" class="form-control group-search-input" placeholder="Grup adıyla ara..." autocomplete="off" />
+            </div>
+            <div id="groupSearchEmptyState" class="search-empty-state">
+                Aramanıza uygun grup bulunamadı.
+            </div>
             <div class="row">
             @foreach (var group in Model)
             {
-                        <div class="col-12 col-md-6 col-lg-4">
+                        <div class="col-12 col-md-6 col-lg-4 synonym-group-item" data-group-name="@((group.Name ?? $"Grup #{group.Id}").ToLowerInvariant())">
                             <div class="group-card">
                                 <div class="group-header">
                                     <h5 class="group-name">
                                 @(group.Name ?? $"Grup #{group.Id}")
                                     </h5>
-                                    <div class="group-actions dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary" type="button" 
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-three-dots-vertical"></i>
+                                    <div class="group-header-actions">
+                                        <button class="action-btn edit" title="Düzenle"
+                                                data-group-id="@group.Id"
+                                                data-group-name="@(group.Name ?? $"Grup #{group.Id}")"
+                                                data-words='@Json.Serialize(group.SynonymWords?.Select(sw => new { WordId = sw.WordId, WordEn = sw.Word?.En }))'
+                                                onclick="openEditModal(this)">
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                                            <li>
-                                                <button type="button" class="dropdown-item"
-                                                        data-bs-toggle="modal" data-bs-target="#addWordModal" 
-                                                        data-group-id="@group.Id" data-group-name="@group.Name"
-                                                        data-existing-word-ids='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => sw.WordId) ?? new List<int>()))'>
-                                                    <i class="bi bi-plus-lg me-2"></i>Kelime Ekle
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <button type="button" class="dropdown-item"
-                                                        data-bs-toggle="modal" data-bs-target="#removeWordModal" 
-                                                        data-group-id="@group.Id" data-group-name="@group.Name"
-                                                        data-group-words='@Html.Raw(Json.Serialize(group.SynonymWords?.Select(sw => new { sw.WordId, WordEn = sw.Word?.En })))'>
-                                                    <i class="bi bi-dash-lg me-2"></i>Kelime Çıkar
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <button type="button" class="dropdown-item"
-                                                        data-bs-toggle="modal" data-bs-target="#renameGroupModal" 
-                                                        data-group-id="@group.Id" data-group-name="@group.Name">
-                                                    <i class="bi bi-pencil me-2"></i>Grup Adını Değiştir
-                                                </button>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form asp-action="Delete" method="post">
+                                        
+                                        <form asp-action="Delete" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@group.Id" />
-                                                    <button type="submit" class="dropdown-item text-danger" 
-                                                            onclick="return confirm('Bu grubu silmek istediğinize emin misiniz?')">
-                                                        <i class="bi bi-trash me-2"></i>Grubu Sil
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
+                                            <input type="hidden" name="id" value="@group.Id" />
+                                            <input type="hidden" name="groupName" value="@(group.Name ?? $"Grup #{group.Id}")" />
+                                            <button type="submit" class="action-btn delete" title="Sil"
+                                                    onclick="return confirm('Bu eş anlam grubunu silmek istediğinize emin misiniz?')">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                                 <div class="word-badges">
@@ -379,92 +503,75 @@
     </div>
 </div>
 
-@* Add Word Modal *@
-<div class="modal fade" id="addWordModal" tabindex="-1">
+@* Unified Edit Group Modal *@
+<div class="modal fade" id="editGroupModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <form asp-action="AddWords" method="post">
+            <form asp-action="Update" method="post" id="unifiedEditForm">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="groupId" id="addWordGroupId" />
+                <input type="hidden" name="id" id="editGroupId" />
+                
+                <!-- Container for tracked word IDs -->
+                <div id="editHiddenInputs" style="display:none;"></div>
+
                 <div class="modal-header border-0">
-                    <h5 class="modal-title">Gruba Kelime Ekle: <span id="addWordGroupName" class="fw-bold text-success"></span></h5>
+                    <h5 class="modal-title">Grubu Düzenle</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Liste Seçin</label>
-                        <select id="addListSelector" class="form-select">
-                            <option value="">-- Liste Seçin --</option>
-                            @foreach (var list in listNames)
-                            {
-                                    <option value="@list">@list</option>
-                            }
-                        </select>
+                <div class="modal-body pt-0">
+                    <!-- Name Section -->
+                    <div class="mb-4">
+                        <span class="modal-label">Grup Adı</span>
+                        <div class="input-group input-group-glass">
+                            <input type="text" name="name" id="editGroupNameInput" class="form-control" placeholder="Grup adı girin..." autocomplete="off" />
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Kelimeleri Seçin (En az 1)</label>
-                        <input type="text" id="addSearchInput" class="form-control mb-2" placeholder="Kelime ara..." disabled />
-                        <div id="addWordSelector" class="word-selector">
+                    <hr class="border-white-10 mb-4">
+
+                    <!-- Current Words Section -->
+                    <div class="mb-4">
+                        <span class="modal-label">Mevcut Kelimeler</span>
+                        <div id="editCurrentWordsList" class="edit-word-badges">
+                            <!-- Populated by JS -->
+                        </div>
+                        <p class="text-white-50 small mt-2 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>Kelimeleri çıkarmak için üzerlerindeki çarpıya basın.
+                        </p>
+                    </div>
+
+                    <hr class="border-white-10 mb-4">
+
+                    <!-- Add New Words Section -->
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="modal-label mb-0">Yeni Kelime Ekle</span>
+                            <span id="pendingAddCount" class="badge bg-primary d-none">0 kelime seçildi</span>
+                        </div>
+                        
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <select id="editListSelector" class="form-select form-select-sm">
+                                    <option value="">-- Liste Seçin --</option>
+                                    @foreach (var list in listNames)
+                                    {
+                                        <option value="@list">@list</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" id="editSearchInput" class="form-control form-control-sm" placeholder="Kelime ara..." disabled />
+                            </div>
+                        </div>
+
+                        <div id="editWordSelector" class="word-selector mb-0" style="max-height: 200px;">
                             <p class="text-white-50 text-center py-4">Önce bir liste seçin</p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-success" id="addBtn" disabled>Ekle</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@* Remove Word Modal *@
-<div class="modal fade" id="removeWordModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form asp-action="RemoveWords" method="post" id="removeWordForm">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="groupId" id="removeGroupId" />
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">Kelime Çıkar - <span id="removeGroupNameTitle"></span></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-white-50 mb-3">Gruptan çıkarmak istediğiniz kelimeleri seçin:</p>
-                    <div id="removeWordList" class="word-selector" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Words will be populated by JavaScript -->
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-danger" id="removeBtn" disabled>Seçilenleri Çıkar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@* Rename Group Modal *@
-<div class="modal fade" id="renameGroupModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form asp-action="UpdateName" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" id="renameGroupId" />
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">Grup Adını Değiştir</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Yeni Grup Adı</label>
-                        <input type="text" name="name" id="renameGroupNameInput" class="form-control" placeholder="Örn: Reddetme Kelimeleri" />
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-success">Güncelle</button>
+                    <button type="submit" class="btn btn-success px-4" id="unifiedSaveBtn">Değişiklikleri Kaydet</button>
                 </div>
             </form>
         </div>
@@ -473,254 +580,344 @@
 
 @section Scripts {
     <script>
+        // Global and State Variables
+        let editModalState = {
+            groupId: null,
+            removedWordIds: [], // Word IDs marked for removal
+            addedWords: []      // Word objects {id, en, tr} marked for addition
+        };
+
+        function confirmDeleteGroup(groupName) {
+            const displayName = groupName || 'Grup';
+            return confirm(`"${displayName}" eÅŸ anlam grubunu silmek istediÄŸinize emin misiniz?`);
+        }
+
+        // --- CORE FUNCTIONS ---
+
+        /**
+         * Initializes and opens the Unified Edit Modal
+         */
+        function openEditModal(btn) {
+            const data = btn.dataset;
+            editModalState.groupId = data.groupId;
+            editModalState.removedWordIds = [];
+            editModalState.addedWords = [];
+            
+            // Set Group ID and Name
+            document.getElementById('editGroupId').value = data.groupId;
+            document.getElementById('editGroupNameInput').value = data.groupName;
+
+            // Reset Selection UI
+            resetEditSelectionUI();
+
+            // Populate Current Words
+            try {
+                const words = JSON.parse(data.words || '[]');
+                renderCurrentWords(words);
+            } catch (e) {
+                console.error("Error parsing words data", e);
+                document.getElementById('editCurrentWordsList').innerHTML = '<p class="text-danger">Veri hatası</p>';
+            }
+
+            // Show Modal
+            const modal = new bootstrap.Modal(document.getElementById('editGroupModal'));
+            modal.show();
+        }
+
+        /**
+         * Renders the current words of the group as badges
+         */
+        function renderCurrentWords(words) {
+            const container = document.getElementById('editCurrentWordsList');
+            if (!words || words.length === 0) {
+                container.innerHTML = '<p class="text-white-50 text-center w-100 py-2">Grupta kelime yok</p>';
+                return;
+            }
+
+            container.innerHTML = words.map(w => {
+                const wordId = w.wordId ?? w.WordId;
+                const wordEn = w.wordEn ?? w.WordEn;
+
+                return `
+                <span class="word-badge edit-badge" id="badge-${wordId}">
+                    ${wordEn || 'Kelime #' + wordId}
+                    <button type="button" class="badge-close-btn" onclick="toggleWordRemoval(${wordId})">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </span>
+            `;
+            }).join('');
+        }
+
+        /**
+         * Toggles the removal state of a current word (UI only)
+         */
+        function toggleWordRemoval(wordId) {
+            const badge = document.getElementById(`badge-${wordId}`);
+            const index = editModalState.removedWordIds.indexOf(wordId);
+
+            if (index === -1) {
+                // Mark for removal
+                editModalState.removedWordIds.push(wordId);
+                badge.classList.add('removed');
+            } else {
+                // Undo removal
+                editModalState.removedWordIds.splice(index, 1);
+                badge.classList.remove('removed');
+            }
+        }
+
+        function resetEditSelectionUI() {
+            document.getElementById('editListSelector').value = '';
+            document.getElementById('editWordSelector').innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+            document.getElementById('editSearchInput').value = '';
+            document.getElementById('editSearchInput').disabled = true;
+            updatePendingCount();
+        }
+
+        function updatePendingCount() {
+            const countLabel = document.getElementById('pendingAddCount');
+            const count = editModalState.addedWords.length;
+            if (count > 0) {
+                countLabel.textContent = `${count} yeni kelime seçildi`;
+                countLabel.classList.remove('d-none');
+            } else {
+                countLabel.classList.add('d-none');
+            }
+        }
+
+        function confirmDeleteGroup(groupName) {
+            const displayName = groupName || 'Grup';
+            return confirm(`"${displayName}" eş anlam grubunu silmek istediğinize emin misiniz?`);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            const groupSearchInput = document.getElementById('groupSearchInput');
+            const groupItems = document.querySelectorAll('.synonym-group-item');
+            const groupSearchEmptyState = document.getElementById('groupSearchEmptyState');
 
-                // Setup Modals
-                setupWordSelection('createListSelector', 'createWordSelector', 'createSearchInput', 'createBtn', 2);
-                setupWordSelection('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1);
+            document.querySelectorAll('form[asp-action="Delete"], form[action*="/Synonym/Delete"]').forEach(form => {
+                const submitButton = form.querySelector('.action-btn.delete');
+                const groupNameInput = form.querySelector('input[name="groupName"]');
 
-                // Handle Add Word Modal Data
-                document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget;
-                    var groupId = button.getAttribute('data-group-id');
-                    var groupName = button.getAttribute('data-group-name');
-
-                    this.querySelector('#addWordGroupId').value = groupId;
-                    this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
-                });
-
-                // Reusable function
-                function setupWordSelection(listId, selectorId, searchId, btnId, minCount) {
-                    const listSelector = document.getElementById(listId);
-                    const wordSelector = document.getElementById(selectorId);
-                    const searchInput = document.getElementById(searchId);
-                    const submitBtn = document.getElementById(btnId);
-
-                    listSelector.addEventListener('change', async function() {
-                        const listName = this.value;
-                        searchInput.value = '';
-
-                        if (!listName) {
-                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                            submitBtn.disabled = true;
-                            searchInput.disabled = true;
-                            return;
-                        }
-
-                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
-                        searchInput.disabled = true;
-
-                        try {
-                            const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
-                            const words = await response.json();
-
-                            if (words.length === 0) {
-                                wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
-                                return;
-                            }
-
-                            let html = '';
-                            words.forEach(w => {
-                                html += `
-                                    <label class="word-checkbox" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
-                                        <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" />
-                                        <span class="word-text">
-                                            <span class="word-en">${w.en}</span>
-                                            <span class="word-tr">- ${w.tr}</span>
-                                        </span>
-                                    </label>
-                                `;
-                            });
-                            wordSelector.innerHTML = html;
-                            searchInput.disabled = false;
-
-                            // Checkbox listeners
-                            wordSelector.querySelectorAll('.word-cb').forEach(cb => {
-                                cb.addEventListener('change', updateState);
-                            });
-                        } catch (err) {
-                            wordSelector.innerHTML = '<p class="text-danger text-center py-4">Yüklenirken hata oluştu</p>';
-                            searchInput.disabled = true;
-                        }
-                    });
-
-                    // Search
-                    searchInput.addEventListener('input', function() {
-                        const filter = this.value.toLowerCase();
-                        const items = wordSelector.querySelectorAll('.word-checkbox');
-                        items.forEach(item => {
-                            const en = item.dataset.en;
-                            const tr = item.dataset.tr;
-                            if (en.includes(filter) || tr.includes(filter)) {
-                                item.classList.remove('d-none');
-                                item.style.display = "flex"; 
-                            } else {
-                                item.classList.add('d-none');
-                                item.style.display = "none";
-                            }
-                        });
-                    });
-
-                    function updateState() {
-                        const checked = wordSelector.querySelectorAll('.word-cb:checked').length;
-                        submitBtn.disabled = checked < minCount;
-                    }
+                if (!submitButton) {
+                    return;
                 }
 
-                // Handle Remove Word Modal
-                document.getElementById('removeWordModal').addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget;
-                    var groupId = button.getAttribute('data-group-id');
-                    var groupName = button.getAttribute('data-group-name');
-                    var words = JSON.parse(button.getAttribute('data-group-words') || '[]');
+                submitButton.onclick = null;
+                submitButton.addEventListener('click', function(e) {
+                    const groupName = groupNameInput ? groupNameInput.value : '';
+                    if (!confirmDeleteGroup(groupName)) {
+                        e.preventDefault();
+                    }
+                });
+            });
 
-                    document.getElementById('removeGroupId').value = groupId;
-                    document.getElementById('removeGroupNameTitle').textContent = groupName || ('Grup #' + groupId);
-                    document.getElementById('removeBtn').disabled = true;
+            if (groupSearchInput && groupItems.length > 0) {
+                groupSearchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase().trim();
+                    let visibleCount = 0;
 
-                    const wordList = document.getElementById('removeWordList');
+                    groupItems.forEach(item => {
+                        const groupName = item.dataset.groupName || '';
+                        const isMatch = !filter || groupName.includes(filter);
+
+                        item.style.display = isMatch ? '' : 'none';
+
+                        if (isMatch) {
+                            visibleCount++;
+                        }
+                    });
+
+                    if (groupSearchEmptyState) {
+                        groupSearchEmptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                    }
+                });
+            }
+
+            // --- CREATE MODAL LOGIC ---
+            setupWordSelection('createListSelector', 'createWordSelector', 'createSearchInput', 'createBtn', 2);
+
+            // --- UNIFIED EDIT MODAL SELECTION LOGIC ---
+            const editListSelector = document.getElementById('editListSelector');
+            const editWordSelector = document.getElementById('editWordSelector');
+            const editSearchInput = document.getElementById('editSearchInput');
+
+            editListSelector.addEventListener('change', async function() {
+                const listName = this.value;
+                editSearchInput.value = '';
+
+                if (!listName) {
+                    editWordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+                    editSearchInput.disabled = true;
+                    return;
+                }
+
+                editWordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
+                editSearchInput.disabled = true;
+
+                try {
+                    const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
+                    const words = await response.json();
+
                     if (words.length === 0) {
-                        wordList.innerHTML = '<p class="text-white-50 text-center py-4">Bu grupta kelime yok</p>';
+                        editWordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
                         return;
                     }
 
+                    // Get currently active IDs in this group to disable them in selector
+                    const activeIds = Array.from(document.querySelectorAll('.edit-word-badges .word-badge'))
+                        .map(b => parseInt(b.id.replace('badge-', '')));
+
                     let html = '';
                     words.forEach(w => {
+                        const isAlreadyInGroup = activeIds.includes(w.id);
+                        const isPendingAdd = editModalState.addedWords.some(aw => aw.id === w.id);
+                        
                         html += `
-                            <label class="word-checkbox">
-                                <input type="checkbox" name="wordIds" value="${w.wordId}" class="form-check-input remove-cb" />
+                            <label class="word-checkbox ${isAlreadyInGroup ? 'opacity-50' : ''}" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
+                                <input type="checkbox" value="${w.id}" class="form-check-input edit-word-cb" 
+                                    ${isAlreadyInGroup ? 'disabled' : ''} 
+                                    ${isPendingAdd ? 'checked' : ''} 
+                                    data-en="${w.en}" data-tr="${w.tr}" />
                                 <span class="word-text">
-                                    <span class="word-en">${w.wordEn || 'Kelime #' + w.wordId}</span>
+                                    <span class="word-en">${w.en}</span>
+                                    <span class="word-tr">- ${w.tr}</span>
+                                    ${isAlreadyInGroup ? ' <span class="badge bg-secondary ms-1" style="font-size:0.6rem">Zaten Grupta</span>' : ''}
                                 </span>
                             </label>
                         `;
                     });
-                    wordList.innerHTML = html;
+                    editWordSelector.innerHTML = html;
+                    editSearchInput.disabled = false;
 
-                    // Add event listeners to checkboxes
-                    wordList.querySelectorAll('.remove-cb').forEach(cb => {
+                    // Checkbox listeners
+                    editWordSelector.querySelectorAll('.edit-word-cb').forEach(cb => {
                         cb.addEventListener('change', function() {
-                            const checked = wordList.querySelectorAll('.remove-cb:checked').length;
-                            document.getElementById('removeBtn').disabled = checked === 0;
+                            const wordId = parseInt(this.value);
+                            const en = this.dataset.en;
+                            const tr = this.dataset.tr;
+
+                            if (this.checked) {
+                                if (!editModalState.addedWords.some(aw => aw.id === wordId)) {
+                                    editModalState.addedWords.push({ id: wordId, en, tr });
+                                }
+                            } else {
+                                editModalState.addedWords = editModalState.addedWords.filter(aw => aw.id !== wordId);
+                            }
+                            updatePendingCount();
                         });
                     });
+                } catch (err) {
+                    editWordSelector.innerHTML = '<p class="text-danger text-center py-4">Yüklenirken hata oluştu</p>';
+                }
+            });
+
+            // Edit Search
+            editSearchInput.addEventListener('input', function() {
+                const filter = this.value.toLowerCase();
+                editWordSelector.querySelectorAll('.word-checkbox').forEach(item => {
+                    const en = item.dataset.en;
+                    const tr = item.dataset.tr;
+                    if (en.includes(filter) || tr.includes(filter)) {
+                        item.style.display = "flex"; 
+                    } else {
+                        item.style.display = "none";
+                    }
+                });
+            });
+
+            // --- FORM SUBMISSION ---
+            document.getElementById('unifiedEditForm').addEventListener('submit', function(e) {
+                const hiddenContainer = document.getElementById('editHiddenInputs');
+                hiddenContainer.innerHTML = ''; // Clear previous
+
+                // Inject Added IDs
+                editModalState.addedWords.forEach(w => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'addedWordIds';
+                    input.value = w.id;
+                    hiddenContainer.appendChild(input);
                 });
 
-                // Store existing word IDs for Add Word Modal
-                let addModalExistingWordIds = [];
-
-                document.getElementById('addWordModal').addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget;
-                    var groupId = button.getAttribute('data-group-id');
-                    var groupName = button.getAttribute('data-group-name');
-                    var existingIds = JSON.parse(button.getAttribute('data-existing-word-ids') || '[]');
-
-                    addModalExistingWordIds = existingIds;
-                    this.querySelector('#addWordGroupId').value = groupId;
-                    this.querySelector('#addWordGroupName').textContent = groupName || ('#' + groupId);
-
-                    // Reset list selector and word selector
-                    document.getElementById('addListSelector').value = '';
-                    document.getElementById('addWordSelector').innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                    document.getElementById('addSearchInput').disabled = true;
-                    document.getElementById('addBtn').disabled = true;
+                // Inject Removed IDs
+                editModalState.removedWordIds.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'removedWordIds';
+                    input.value = id;
+                    hiddenContainer.appendChild(input);
                 });
+            });
 
-                // Override the setupWordSelection for Add modal to mark existing words
-                const originalSetup = setupWordSelection;
-                function setupWordSelectionWithExisting(listId, selectorId, searchId, btnId, minCount, getExistingIds) {
-                    const listSelector = document.getElementById(listId);
-                    const wordSelector = document.getElementById(selectorId);
-                    const searchInput = document.getElementById(searchId);
-                    const submitBtn = document.getElementById(btnId);
+            // Reusable function for Create Modal
+            function setupWordSelection(listId, selectorId, searchId, btnId, minCount) {
+                const listSelector = document.getElementById(listId);
+                const wordSelector = document.getElementById(selectorId);
+                const searchInput = document.getElementById(searchId);
+                const submitBtn = document.getElementById(btnId);
 
-                    listSelector.addEventListener('change', async function() {
-                        const listName = this.value;
-                        searchInput.value = '';
+                listSelector.addEventListener('change', async function() {
+                    const listName = this.value;
+                    searchInput.value = '';
+                    if (!listName) {
+                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
+                        submitBtn.disabled = true;
+                        searchInput.disabled = true;
+                        return;
+                    }
 
-                        if (!listName) {
-                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Önce bir liste seçin</p>';
-                            submitBtn.disabled = true;
-                            searchInput.disabled = true;
+                    wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
+                    searchInput.disabled = true;
+
+                    try {
+                        const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
+                        const words = await response.json();
+                        if (words.length === 0) {
+                            wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
                             return;
                         }
 
-                        wordSelector.innerHTML = '<p class="text-white-50 text-center py-4"><i class="bi bi-hourglass-split"></i> Yükleniyor...</p>';
-                        searchInput.disabled = true;
+                        let html = '';
+                        words.forEach(w => {
+                            html += `
+                                <label class="word-checkbox" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
+                                    <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" />
+                                    <span class="word-text">
+                                        <span class="word-en">${w.en}</span>
+                                        <span class="word-tr">- ${w.tr}</span>
+                                    </span>
+                                </label>
+                            `;
+                        });
+                        wordSelector.innerHTML = html;
+                        searchInput.disabled = false;
 
-                        try {
-                            const response = await fetch(`/Synonym/GetWordsForList?listName=${encodeURIComponent(listName)}`);
-                            const words = await response.json();
-
-                            if (words.length === 0) {
-                                wordSelector.innerHTML = '<p class="text-white-50 text-center py-4">Bu listede kelime yok</p>';
-                                return;
-                            }
-
-                            const existingIds = getExistingIds ? getExistingIds() : [];
-
-                            let html = '';
-                            words.forEach(w => {
-                                const isExisting = existingIds.includes(w.id);
-                                html += `
-                                    <label class="word-checkbox ${isExisting ? 'existing-word' : ''}" data-en="${w.en.toLowerCase()}" data-tr="${w.tr.toLowerCase()}">
-                                        <input type="checkbox" name="wordIds" value="${w.id}" class="form-check-input word-cb" ${isExisting ? 'checked disabled' : ''} />
-                                        <span class="word-text">
-                                            <span class="word-en">${w.en}${isExisting ? ' <i class="bi bi-check-circle-fill text-success ms-1"></i>' : ''}</span>
-                                            <span class="word-tr">- ${w.tr}</span>
-                                        </span>
-                                    </label>
-                                `;
+                        wordSelector.querySelectorAll('.word-cb').forEach(cb => {
+                            cb.addEventListener('change', () => {
+                                const checked = wordSelector.querySelectorAll('.word-cb:checked').length;
+                                submitBtn.disabled = checked < minCount;
                             });
-                            wordSelector.innerHTML = html;
-                            searchInput.disabled = false;
+                        });
+                    } catch (err) {
+                        wordSelector.innerHTML = '<p class="text-danger text-center py-4">Hata oluştu</p>';
+                    }
+                });
 
-                            wordSelector.querySelectorAll('.word-cb:not(:disabled)').forEach(cb => {
-                                cb.addEventListener('change', updateState);
-                            });
-
-                        } catch (err) {
-                            wordSelector.innerHTML = '<p class="text-danger text-center py-4">Hata oluştu</p>';
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    wordSelector.querySelectorAll('.word-checkbox').forEach(item => {
+                        const en = item.dataset.en;
+                        const tr = item.dataset.tr;
+                        if (en.includes(filter) || tr.includes(filter)) {
+                            item.style.display = "flex"; 
+                        } else {
+                            item.style.display = "none";
                         }
                     });
-
-                    searchInput.addEventListener('input', function() {
-                        const filter = this.value.toLowerCase();
-                        wordSelector.querySelectorAll('.word-checkbox').forEach(item => {
-                            const en = item.dataset.en;
-                            const tr = item.dataset.tr;
-                            if (en.includes(filter) || tr.includes(filter)) {
-                                item.classList.remove('d-none');
-                                item.style.display = "flex"; 
-                            } else {
-                                item.classList.add('d-none');
-                                item.style.display = "none";
-                            }
-                        });
-                    });
-
-                    function updateState() {
-                        const checked = wordSelector.querySelectorAll('.word-cb:checked:not(:disabled)').length;
-                        submitBtn.disabled = checked < minCount;
-                    }
-                }
-
-                // Re-setup Add modal with existing word support
-                setupWordSelectionWithExisting('addListSelector', 'addWordSelector', 'addSearchInput', 'addBtn', 1, () => addModalExistingWordIds);
-
-                // Handle Rename Group Modal
-                document.getElementById('renameGroupModal').addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget;
-                    var groupId = button.getAttribute('data-group-id');
-                    var groupName = button.getAttribute('data-group-name');
-                    
-                    this.querySelector('#renameGroupId').value = groupId;
-                    this.querySelector('#renameGroupNameInput').value = groupName || '';
-                    
-                    setTimeout(() => {
-                        this.querySelector('#renameGroupNameInput').focus();
-                    }, 500);
                 });
-            });
-        </script>
+            }
+        });
+    </script>
 }

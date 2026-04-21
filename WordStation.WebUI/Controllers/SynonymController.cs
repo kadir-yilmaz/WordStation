@@ -24,7 +24,7 @@ namespace WordStation.WebUI.Controllers
         private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         /// <summary>
-        /// Tüm eş anlam gruplarını listeler
+        /// Tum es anlam gruplarini listeler
         /// </summary>
         public async Task<IActionResult> Index()
         {
@@ -36,7 +36,7 @@ namespace WordStation.WebUI.Controllers
 
             var groups = await _synonymService.GetAllGroupsAsync(userId, token);
 
-            // Kelime listelerini de al (yeni grup oluşturma için)
+            // Kelime listelerini de al (yeni grup olusturma icin)
             var listNames = await _wordService.GetListNamesAsync(userId, token);
             ViewBag.ListNames = listNames.ToList();
 
@@ -44,7 +44,7 @@ namespace WordStation.WebUI.Controllers
         }
 
         /// <summary>
-        /// Belirli bir liste için kelimeleri JSON olarak döner (AJAX)
+        /// Belirli bir liste icin kelimeleri JSON olarak doner (AJAX)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetWordsForList(string listName)
@@ -60,7 +60,7 @@ namespace WordStation.WebUI.Controllers
         }
 
         /// <summary>
-        /// Bir kelimenin eş anlamlılarını JSON olarak döner (AJAX - Cross-List)
+        /// Bir kelimenin es anlamlilarini JSON olarak doner (AJAX - Cross-List)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetSynonymsForWord(int wordId)
@@ -76,7 +76,7 @@ namespace WordStation.WebUI.Controllers
         }
 
         /// <summary>
-        /// Yeni eş anlam grubu oluşturur
+        /// Yeni es anlam grubu olusturur
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -90,7 +90,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || wordIds.Count < 2)
             {
-                this.NotifyError("Hata", "En az 2 kelime seçmelisiniz.");
+                this.NotifyError("Hata", "En az 2 kelime secmelisiniz.");
                 return RedirectToAction("Index");
             }
 
@@ -98,11 +98,11 @@ namespace WordStation.WebUI.Controllers
 
             if (group != null)
             {
-                this.NotifySuccess("Başarılı", $"Eş anlam grubu \"{group.Name ?? $"Grup #{group.Id}"}\" oluşturuldu!");
+                this.NotifySuccess("Basarili", $"Es anlam grubu \"{group.Name ?? $"Grup #{group.Id}"}\" olusturuldu!");
             }
             else
             {
-                this.NotifyError("Hata", "Grup oluşturulurken bir hata oluştu.");
+                this.NotifyError("Hata", "Grup olusturulurken bir hata olustu.");
             }
 
             return RedirectToAction("Index");
@@ -113,7 +113,7 @@ namespace WordStation.WebUI.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string? groupName)
         {
             var userId = GetUserId();
             var token = GetToken();
@@ -121,20 +121,85 @@ namespace WordStation.WebUI.Controllers
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
+            var displayName = string.IsNullOrWhiteSpace(groupName)
+                ? $"Grup #{id}"
+                : groupName;
+
             if (await _synonymService.DeleteGroupAsync(id, userId, token))
             {
-                this.NotifySuccess("Başarılı", "Grup silindi.");
+                this.NotifySuccess("Basarili", $"\"{displayName}\" grubu silindi.");
             }
             else
             {
-                this.NotifyError("Hata", "Grup silinirken bir hata oluştu.");
+                this.NotifyError("Hata", $"\"{displayName}\" grubu silinirken bir hata olustu.");
             }
 
             return RedirectToAction("Index");
         }
 
         /// <summary>
-        /// Grup adını günceller
+        /// Grubu toplu olarak gunceller (Ad, Kelime Ekleme, Kelime Cikarma)
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(int id, string? name, List<int> addedWordIds, List<int> removedWordIds)
+        {
+            var userId = GetUserId();
+            var token = GetToken();
+
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            bool nameUpdated = false;
+            int addedCount = 0;
+            int removedCount = 0;
+
+            // 1. Isim Guncelleme
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                if (await _synonymService.UpdateGroupNameAsync(id, name, userId, token))
+                    nameUpdated = true;
+            }
+
+            // 2. Kelime Ekleme
+            if (addedWordIds != null && addedWordIds.Any())
+            {
+                foreach (var wordId in addedWordIds)
+                {
+                    if (await _synonymService.AddWordToGroupAsync(id, wordId, userId, token))
+                        addedCount++;
+                }
+            }
+
+            // 3. Kelime Cikarma
+            if (removedWordIds != null && removedWordIds.Any())
+            {
+                foreach (var wordId in removedWordIds)
+                {
+                    if (await _synonymService.RemoveWordFromGroupAsync(id, wordId, userId, token))
+                        removedCount++;
+                }
+            }
+
+            if (nameUpdated || addedCount > 0 || removedCount > 0)
+            {
+                var message = "Grup guncellendi.";
+                if (nameUpdated) message += " Ad guncellendi.";
+                if (addedCount > 0) message += $" {addedCount} yeni kelime eklendi.";
+                if (removedCount > 0) message += $" {removedCount} kelime cikarildi.";
+
+                this.NotifySuccess("Basarili", message);
+            }
+            else
+            {
+                this.NotifyInfo("Bilgi", "Herhangi bir degisiklik yapilmadi.");
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        /// <summary>
+        /// Grup adini gunceller
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -148,11 +213,11 @@ namespace WordStation.WebUI.Controllers
 
             if (await _synonymService.UpdateGroupNameAsync(id, name, userId, token))
             {
-                TempData["Success"] = "Grup adı güncellendi.";
+                TempData["Success"] = "Grup adi guncellendi.";
             }
             else
             {
-                TempData["Error"] = "Grup adı güncellenirken bir hata oluştu.";
+                TempData["Error"] = "Grup adi guncellenirken bir hata olustu.";
             }
 
             return RedirectToAction("Index");
@@ -173,7 +238,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || !wordIds.Any())
             {
-                this.NotifyError("Hata", "Seçili kelime yok.");
+                this.NotifyError("Hata", "Secili kelime yok.");
                 return RedirectToAction("Index");
             }
 
@@ -185,15 +250,15 @@ namespace WordStation.WebUI.Controllers
             }
 
             if (successCount > 0)
-                this.NotifySuccess("Başarılı", $"{successCount} kelime gruba eklendi.");
+                this.NotifySuccess("Basarili", $"{successCount} kelime gruba eklendi.");
             else
-                this.NotifyError("Hata", "Kelimeler eklenirken hata oluştu.");
+                this.NotifyError("Hata", "Kelimeler eklenirken hata olustu.");
 
             return RedirectToAction("Index");
         }
 
         /// <summary>
-        /// Gruptan kelime çıkarır
+        /// Gruptan kelime cikarir
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -207,18 +272,18 @@ namespace WordStation.WebUI.Controllers
 
             if (await _synonymService.RemoveWordFromGroupAsync(groupId, wordId, userId, token))
             {
-                this.NotifySuccess("Başarılı", "Kelime gruptan çıkarıldı.");
+                this.NotifySuccess("Basarili", "Kelime gruptan cikarildi.");
             }
             else
             {
-                this.NotifyError("Hata", "Kelime çıkarılırken bir hata oluştu.");
+                this.NotifyError("Hata", "Kelime cikarilirken bir hata olustu.");
             }
 
             return RedirectToAction("Index");
         }
 
         /// <summary>
-        /// Gruptan birden fazla kelime çıkarır (toplu)
+        /// Gruptan birden fazla kelime cikarir (toplu)
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -232,7 +297,7 @@ namespace WordStation.WebUI.Controllers
 
             if (wordIds == null || wordIds.Count == 0)
             {
-                this.NotifyError("Hata", "Çıkarılacak kelime seçilmedi.");
+                this.NotifyError("Hata", "Cikarilacak kelime secilmedi.");
                 return RedirectToAction("Index");
             }
 
@@ -244,9 +309,9 @@ namespace WordStation.WebUI.Controllers
             }
 
             if (successCount > 0)
-                this.NotifySuccess("Başarılı", $"{successCount} kelime gruptan çıkarıldı.");
+                this.NotifySuccess("Basarili", $"{successCount} kelime gruptan cikarildi.");
             else
-                this.NotifyError("Hata", "Kelimeler çıkarılırken hata oluştu.");
+                this.NotifyError("Hata", "Kelimeler cikarilirken hata olustu.");
 
             return RedirectToAction("Index");
         }
