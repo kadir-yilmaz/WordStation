@@ -16,28 +16,20 @@ namespace WordStation.DAL.Abstract.EFCore
 
         public async Task<List<Word>> GetAllWordsAsync(bool trackChanges)
         {
-            var query = _context.Words
-                .Include(w => w.SynonymWords)
-                .ThenInclude(sw => sw.SynonymGroup)
-                .ThenInclude(sg => sg.SynonymWords)
-                .ThenInclude(sw => sw.Word);
+            var query = _context.Words.AsQueryable();
 
             return trackChanges
                 ? await query.ToListAsync()
-                : await query.AsNoTrackingWithIdentityResolution().ToListAsync();
+                : await query.AsNoTracking().ToListAsync();
         }
 
         public async Task<List<Word>> GetWordsByConditionAsync(Expression<Func<Word, bool>> expression, bool trackChanges)
         {
-            var query = _context.Words.Where(expression)
-                .Include(w => w.SynonymWords)
-                .ThenInclude(sw => sw.SynonymGroup)
-                .ThenInclude(sg => sg.SynonymWords)
-                .ThenInclude(sw => sw.Word);
+            var query = _context.Words.Where(expression);
 
             return trackChanges
                 ? await query.ToListAsync()
-                : await query.AsNoTrackingWithIdentityResolution().ToListAsync();
+                : await query.AsNoTracking().ToListAsync();
         }
 
         public void CreateWord(Word entity) => _context.Words.Add(entity);

@@ -348,7 +348,7 @@
                             <button type="button"
                                 class="btn @(Model.SearchMode == "contains" ? "btn-info" : "btn-outline-light")"
                                 id="searchModeToggle"
-                                title="Mod: @(Model.SearchMode == "contains" ? "İçeren" : "İle Başlayan")"
+                                title="Mode: @(Model.SearchMode == "contains" ? "Contains" : "Starts with")"
                                 style="border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-right: none;">
                                 <i class="bi @(Model.SearchMode == "contains" ? "bi-text-center" : "bi-text-left")"></i>
                             </button>
@@ -357,13 +357,16 @@
                                     class="form-control modern-input border-start-0 @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "has-clear")"
                                     value="@Model.SearchTerm"
                                     placeholder="Search..." autocomplete="off"
-                                    style="border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; border-radius: 0 10px 10px 0 !important;" />
+                                    style="border-radius: 0 !important;" />
                                 <button type="button" id="searchClearBtn"
                                         class="search-clear-btn @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "visible")"
-                                        title="Temizle">
+                                        title="Clear">
                                     <i class="bi bi-x"></i>
                                 </button>
                             </div>
+                            <button type="submit" class="btn btn-outline-light" title="Search" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 16px;">
+                                <i class="bi bi-search"></i>
+                            </button>
                         </div>
                     </form>
 
@@ -474,7 +477,6 @@
     <script>
         window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
         window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
-        window.synonymCache = @Html.Raw(Json.Serialize(ViewBag.SynonymsData ?? new Dictionary<int, IEnumerable<WordStation.WebUI.Models.Word>>()));
         window.searchTermValue = '@Model.SearchTerm';
         window.searchModeValue = '@Model.SearchMode';
         window.selectedList = '@Model.SelectedList';
@@ -501,13 +503,13 @@
                         modeBtn.classList.add('btn-info');
                         modeIcon.classList.remove('bi-text-left');
                         modeIcon.classList.add('bi-text-center');
-                        modeBtn.title = "Mod: İçeren";
+                        modeBtn.title = "Mode: Contains";
                     } else {
                         modeBtn.classList.remove('btn-info');
                         modeBtn.classList.add('btn-outline-light');
                         modeIcon.classList.remove('bi-text-center');
                         modeIcon.classList.add('bi-text-left');
-                        modeBtn.title = "Mod: İle Başlayan";
+                        modeBtn.title = "Mode: Starts with";
                     }
 
                     // Sadece imleci input'a odakla, submit etme

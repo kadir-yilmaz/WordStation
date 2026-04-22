@@ -1,7 +1,7 @@
 
 @* _Layout.cshtml *@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,8 +38,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @* Sayfalara özel scriptler *@
-    @await RenderSectionAsync("Scripts", required: false)
     @* Word Detail Global Modal *@
     <div class="modal fade" id="wordDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -50,7 +48,7 @@
                         <button id="detailSpeakBtn"
                                 onclick="window.speakWord(document.getElementById('detailWordEn').textContent)"
                                 style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;padding:0;"
-                                title="Seslendir">
+                                title="Speak">
                             <i class="bi bi-volume-up-fill" style="font-size:0.85rem;"></i>
                         </button>
                     </div>
@@ -126,6 +124,9 @@
             }, 150);
         };
     </script>
+
+    @* Sayfalara özel scriptler *@
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

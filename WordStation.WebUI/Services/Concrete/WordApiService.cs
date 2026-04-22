@@ -107,5 +107,33 @@ namespace WordStation.WebUI.Services.Concrete
             var response = await SendRequestAsync(HttpMethod.Delete, $"words/lists?userId={userId}&listName={listName}", token);
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<IEnumerable<WordGroupDto>> GetSynonymGroupsAsync(string userId, string token)
+        {
+            var response = await SendRequestAsync(HttpMethod.Get, $"words/synonym-groups?userId={userId}", token);
+
+            if (!response.IsSuccessStatusCode)
+                return Enumerable.Empty<WordGroupDto>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<IEnumerable<WordGroupDto>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? Enumerable.Empty<WordGroupDto>();
+        }
+
+        public async Task<IEnumerable<Word>> GetAllWordsForUserAsync(string userId, string token)
+        {
+            var response = await SendRequestAsync(HttpMethod.Get, $"words/user/{userId}", token);
+
+            if (!response.IsSuccessStatusCode)
+                return Enumerable.Empty<Word>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<IEnumerable<Word>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            }) ?? Enumerable.Empty<Word>();
+        }
     }
 }

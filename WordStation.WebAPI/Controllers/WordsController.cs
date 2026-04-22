@@ -106,6 +106,28 @@ namespace WordStation.WebAPI.Controllers
             await _wordService.DeleteListAsync(listName, userId);
             return NoContent();
         }
+
+        // GET: api/words/synonym-groups?userId=xxx
+        [HttpGet("synonym-groups")]
+        public async Task<IActionResult> GetSynonymGroups([FromQuery] string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest("Kullanıcı ID gereklidir.");
+
+            var groups = await _wordService.GetSynonymGroupsAsync(userId);
+            return Ok(groups);
+        }
+
+        // GET: api/words/user/{userId}
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllWordsForUser(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest("Kullanıcı ID gereklidir.");
+
+            var words = await _wordService.GetAllWordsForUserAsync(userId);
+            return Ok(words);
+        }
     }
 }
 

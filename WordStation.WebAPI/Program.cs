@@ -50,10 +50,8 @@ builder.Services.AddCustomJwtAuthentication(builder.Configuration);
 // Scoped Repositories & Services
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-builder.Services.AddScoped<ISynonymGroupRepository, SynonymGroupRepository>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ISynonymGroupService, SynonymGroupService>();
 
 builder.Services.AddRouting(options =>
 {

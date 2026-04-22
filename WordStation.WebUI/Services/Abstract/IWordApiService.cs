@@ -12,5 +12,7 @@ namespace WordStation.WebUI.Services.Abstract
         Task<bool> DeleteWordAsync(int id, string token);
         Task<bool> UpdateListNameAsync(string userId, string listName, string newListName, string token);
         Task<bool> DeleteListAsync(string userId, string listName, string token);
+        Task<IEnumerable<WordGroupDto>> GetSynonymGroupsAsync(string userId, string token);
+        Task<IEnumerable<Word>> GetAllWordsForUserAsync(string userId, string token);
     }
 }

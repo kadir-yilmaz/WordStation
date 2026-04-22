@@ -1,4 +1,4 @@
-﻿using WordStation.EL.Models;
+using WordStation.EL.Models;
 
 namespace WordStation.BLL.Abstract
 {
@@ -8,6 +8,7 @@ namespace WordStation.BLL.Abstract
         Task<IEnumerable<Word>> GetAllWordsAsync(string userId, string listName);
         Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts");
         Task<IEnumerable<string>> GetListNamesAsync(string userId);
+        Task<IEnumerable<Word>> GetAllWordsForUserAsync(string userId);
 
         // CRUD metodları
         Task CreateWordAsync(Word word);
@@ -17,5 +18,8 @@ namespace WordStation.BLL.Abstract
         // List operasyonları
         Task UpdateListNameAsync(string listName, string newListName, string userId);
         Task DeleteListAsync(string listName, string userId);
+        
+        // Auto Synonym Groups
+        Task<IEnumerable<WordGroupDto>> GetSynonymGroupsAsync(string userId);
     }
 }

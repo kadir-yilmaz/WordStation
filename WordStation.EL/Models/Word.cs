@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +15,5 @@ namespace WordStation.EL.Models
         public string UserId { get; set; } = string.Empty;
         public string ListName { get; set; } = string.Empty;
         
-        /// <summary>
-        /// Bu kelimenin dahil olduğu eş anlam grupları
-        /// </summary>
-        public List<SynonymWord> SynonymWords { get; set; } = new();
     }
 }

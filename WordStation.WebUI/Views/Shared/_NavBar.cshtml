@@ -20,8 +20,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Synonym" asp-action="Index">
-                            <i class="bi bi-diagram-3 me-1"></i>Thesaurus
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Synonym" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Synonym" asp-action="Index">
+                            <i class="bi bi-diagram-3 me-1"></i>Synonyms
                         </a>
                     </li>
                 </ul>

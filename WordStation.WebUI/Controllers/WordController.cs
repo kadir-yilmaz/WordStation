@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WordStation.WebUI.Models;
@@ -11,12 +11,10 @@ namespace WordStation.WebUI.Controllers
     public class WordController : Controller
     {
         private readonly IWordApiService _wordService;
-        private readonly ISynonymApiService _synonymService;
 
-        public WordController(IWordApiService wordService, ISynonymApiService synonymService)
+        public WordController(IWordApiService wordService)
         {
             _wordService = wordService;
-            _synonymService = synonymService;
         }
 
         private string? GetToken() => User.FindFirstValue("Token");
@@ -46,6 +44,10 @@ namespace WordStation.WebUI.Controllers
                     listName = allLists.First();
                 }
 
+                // Eke özellik: Tüm listelerdeki kelimeleri de al (Auto Synonym cross-list için)
+                var allWordsForUser = await _wordService.GetAllWordsForUserAsync(userId, token);
+                ViewBag.AllWords = allWordsForUser.ToList();
+
                 // Liste varsa kelimeleri al
                 if (!string.IsNullOrEmpty(listName))
                 {
@@ -53,9 +55,6 @@ namespace WordStation.WebUI.Controllers
                     if (!string.IsNullOrEmpty(SearchTerm))
                     {
                         wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
-                        // Synonym aramaları için tüm kelimeleri de al
-                        var allWordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
-                        ViewBag.AllWords = allWordsEnumerable.ToList();
                     }
                     else
                     {
@@ -66,9 +65,6 @@ namespace WordStation.WebUI.Controllers
 
                 ViewBag.WordsCount = words.Count;
 
-                // Get all synonyms for the user to optimize client performance
-                var synonymsMap = await _synonymService.GetAllSynonymsForUserAsync(userId, token);
-                ViewBag.SynonymsData = synonymsMap;
             }
             catch (Exception ex)
             {

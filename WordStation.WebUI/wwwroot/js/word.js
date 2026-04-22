@@ -25,6 +25,7 @@ const els = {
     searchInput: document.getElementById('searchInput'),
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
     btnDelete: document.getElementById('flashcardDeleteBtn'),
+
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
     synonymsList: document.getElementById('flashcardSynonyms'),
     speakBtn: document.getElementById('speakBtn')
@@ -117,7 +118,7 @@ function getAntiForgeryToken() {
    Delete Word
    ===================================================== */
 function deleteWord(id, listName, wordEn, searchTerm, searchMode) {
-    if (confirm(`"${wordEn}" kelimesini silmek istediğinize emin misiniz?`)) {
+    if (confirm(`Are you sure you want to delete the word "${wordEn}"?`)) {
         const isCardView = !els.flashcardView.classList.contains('d-none');
         const form = document.createElement('form');
         form.method = 'POST';
@@ -273,80 +274,54 @@ function showWord(index, opts = {}) {
                 );
         }
 
-        // Synonyms Render (API-Based - Cross-List)
+
+
+        // Synonyms Render (Logic-Based - Client Side)
         if (els.synonymsContainer && els.synonymsList) {
-            const wordId = data.id || data.Id;
+            const currentEn = (data.en || data.En || '').trim().toLowerCase();
+            const pool = window.allWordsData || window.wordsData || [];
 
-            // Initializing cache object globally if not exists
-            window.synonymCache = window.synonymCache || {};
+            // Türkçe anlamları virgüllere göre bölüp bir küme haline getiriyoruz
+            const currentMeanings = (data.tr || data.Tr || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
 
-            const renderSynonyms = (synonyms) => {
-                if (synonyms && synonyms.length > 0) {
-                    let html = '';
-                    synonyms.forEach(relatedWord => {
-                        // Escape special characters for inline onclick
-                        const escapeForJs = (str) => (str || '')
-                            .replace(/\\/g, '\\\\')      // Backslash first
-                            .replace(/'/g, "\\'")        // Single quotes
-                            .replace(/"/g, '&quot;')     // Double quotes
-                            .replace(/\n/g, '\\n')       // Newlines
-                            .replace(/\r/g, '\\r');      // Carriage returns
+            const synonyms = pool.filter(w => {
+                const en = (w.en || w.En || '').trim().toLowerCase();
+                if (en === currentEn) return false; // Kendisini dahil etme
+                
+                const targetTr = (w.tr || w.Tr || '').toLowerCase();
+                const targetMeanings = targetTr.split(',').map(s => s.trim()).filter(s => s);
+                
+                // Herhangi bir Türkçe anlam uyuşuyor mu?
+                return targetMeanings.some(m => currentMeanings.includes(m));
+            });
 
-                        const wordEn = escapeForJs(relatedWord.en || relatedWord.En);
-                        const wordTr = escapeForJs(relatedWord.tr || relatedWord.Tr);
-                        const wordEx = escapeForJs(relatedWord.example || relatedWord.Example);
-                        // Call showWordDetail directly with all data
-                        html += `<a href="#" class="flashcard-synonym-badge" onclick="if(window.showWordDetail) window.showWordDetail('${wordEn}', '${wordTr}', '${wordEx}'); return false;">
-                                    ${relatedWord.en || relatedWord.En}
-                                 </a>`;
-                    });
-                    els.synonymsList.innerHTML = html;
-                } else {
-                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
-                }
-            };
+            if (synonyms.length > 0) {
+                let html = '';
+                synonyms.forEach(relatedWord => {
+                    const wordEn = relatedWord.en || relatedWord.En || '';
+                    const wordTr = relatedWord.tr || relatedWord.Tr || '';
+                    const wordEx = relatedWord.example || relatedWord.Example || '';
+                    const listName = relatedWord.listName || relatedWord.ListName || 'Default';
+                    // Sadece farklı listeden geldiyse etiket göster
+                    const isDifferentList = window.selectedList && listName.toLowerCase() !== window.selectedList.toLowerCase();
 
-            els.synonymsContainer.classList.remove('d-none');
+                    const esc = (str) => (str || '')
+                        .replace(/\\/g, '\\\\')
+                        .replace(/'/g, "\\'")
+                        .replace(/"/g, '&quot;')
+                        .replace(/\n/g, '\\n')
+                        .replace(/\r/g, '\\r');
 
-            // If the global cache is loaded from the backend (i.e. not undefined)
-            if (typeof window.synonymCache !== 'undefined') {
-                if (window.synonymCache[wordId]) {
-                    renderSynonyms(window.synonymCache[wordId]);
-                } else {
-                    // Cache is loaded, but this word has no synonyms
-                    renderSynonyms([]);
-                }
+                    html += `<div class="synonym-stacked-badge">
+                                <a href="#" class="flashcard-synonym-badge mb-0" onclick="window.showWordDetail('${esc(wordEn)}', '${esc(wordTr)}', '${esc(wordEx)}'); return false;">
+                                    ${wordEn}
+                                </a>
+                                ${isDifferentList ? `<span class="badge-list-name mt-1">${listName}</span>` : ''}
+                             </div>`;
+                });
+                els.synonymsList.innerHTML = html;
             } else {
-                // Initializing cache object globally if not exists for fallback
-                window.synonymCacheFallback = window.synonymCacheFallback || {};
-
-                if (window.synonymCacheFallback[wordId]) {
-                    renderSynonyms(window.synonymCacheFallback[wordId]);
-                } else {
-                    // Cancel previous request to prevent race condition
-                    if (window.synonymFetchController) {
-                        window.synonymFetchController.abort();
-                    }
-                    window.synonymFetchController = new AbortController();
-
-                    els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">Loading...</span>';
-
-                    // Fetch synonyms from API (cross-list)
-                    fetch(`/Synonym/GetSynonymsForWord?wordId=${wordId}`, { signal: window.synonymFetchController.signal })
-                        .then(response => {
-                            if (!response.ok) throw new Error('API error');
-                            return response.json();
-                        })
-                        .then(synonyms => {
-                            window.synonymCacheFallback[wordId] = synonyms; // Cache the result
-                            renderSynonyms(synonyms);
-                        })
-                        .catch(err => {
-                            if (err.name === 'AbortError') return; // Ignore aborted requests
-                            console.error('Synonym fetch error:', err);
-                            els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic px-2">No synonyms added.</span>';
-                        });
-                }
+                els.synonymsList.innerHTML = '<span class="text-white-50 small fst-italic opacity-50">No synonyms found.</span>';
             }
         }
     }
@@ -508,7 +483,7 @@ window.findAndShowWord = function (wordEn) {
         showWord(index);
     } else {
         // İsteğe bağlı: Toast veya alert
-        alert("Bu kelime mevcut listede bulunamadı.");
+        alert("This word was not found in the current list.");
     }
 };
 

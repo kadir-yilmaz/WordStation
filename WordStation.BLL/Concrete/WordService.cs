@@ -99,6 +99,26 @@ namespace WordStation.BLL.Concrete
             }
             await _wordRepository.SaveAsync();
         }
+        public async Task<IEnumerable<WordGroupDto>> GetSynonymGroupsAsync(string userId)
+        {
+            var allWords = await _wordRepository.GetWordsByConditionAsync(w => w.UserId == userId, trackChanges: false);
+
+            return allWords
+                .GroupBy(w => w.Tr.Trim().ToLowerInvariant())
+                .Where(g => g.Count() > 1)
+                .Select(g => new WordGroupDto
+                {
+                    Tr = g.First().Tr, // Original casing of the first word
+                    Words = g.ToList()
+                })
+                .OrderBy(g => g.Tr)
+                .ToList();
+        }
+
+        public async Task<IEnumerable<Word>> GetAllWordsForUserAsync(string userId)
+        {
+            return await _wordRepository.GetWordsByConditionAsync(w => w.UserId == userId, trackChanges: false);
+        }
     }
 }
 
