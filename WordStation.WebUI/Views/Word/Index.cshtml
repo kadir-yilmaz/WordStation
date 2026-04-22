@@ -475,8 +475,9 @@
 
 @section Scripts {
     <script>
-        window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
-        window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<WordStation.WebUI.Models.Word>()));
+        window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<Word>()));
+        window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<Word>()));
+        window.synonymGroups = @Html.Raw(Json.Serialize(ViewBag.SynonymGroups ?? new List<WordGroupDto>()));
         window.searchTermValue = '@Model.SearchTerm';
         window.searchModeValue = '@Model.SearchMode';
         window.selectedList = '@Model.SelectedList';

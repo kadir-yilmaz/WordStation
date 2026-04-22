@@ -276,24 +276,27 @@ function showWord(index, opts = {}) {
 
 
 
-        // Synonyms Render (Logic-Based - Client Side)
+        // Synonyms Render (Lookup from C# Pre-calculated groups)
         if (els.synonymsContainer && els.synonymsList) {
             const currentEn = (data.en || data.En || '').trim().toLowerCase();
-            const pool = window.allWordsData || window.wordsData || [];
+            const groups = window.synonymGroups || [];
 
-            // Türkçe anlamları virgüllere göre bölüp bir küme haline getiriyoruz
-            const currentMeanings = (data.tr || data.Tr || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
-
-            const synonyms = pool.filter(w => {
-                const en = (w.en || w.En || '').trim().toLowerCase();
-                if (en === currentEn) return false; // Kendisini dahil etme
-                
-                const targetTr = (w.tr || w.Tr || '').toLowerCase();
-                const targetMeanings = targetTr.split(',').map(s => s.trim()).filter(s => s);
-                
-                // Herhangi bir Türkçe anlam uyuşuyor mu?
-                return targetMeanings.some(m => currentMeanings.includes(m));
+            // Find all unique synonyms from groups containing currentEn
+            const synonymsMap = new Map();
+            
+            groups.forEach(group => {
+                const groupHasCurrent = group.words.some(w => (w.en || w.En || '').trim().toLowerCase() === currentEn);
+                if (groupHasCurrent) {
+                    group.words.forEach(w => {
+                        const wEn = (w.en || w.En || '').trim().toLowerCase();
+                        if (wEn !== currentEn && !synonymsMap.has(wEn)) {
+                            synonymsMap.set(wEn, w);
+                        }
+                    });
+                }
             });
+
+            const synonyms = Array.from(synonymsMap.values());
 
             if (synonyms.length > 0) {
                 let html = '';

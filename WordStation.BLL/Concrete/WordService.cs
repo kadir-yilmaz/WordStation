@@ -103,13 +103,24 @@ namespace WordStation.BLL.Concrete
         {
             var allWords = await _wordRepository.GetWordsByConditionAsync(w => w.UserId == userId, trackChanges: false);
 
-            return allWords
-                .GroupBy(w => w.Tr.Trim().ToLowerInvariant())
+            if (!allWords.Any())
+                return Enumerable.Empty<WordGroupDto>();
+
+            // 1. Split all words by comma-separated meanings into a flat list
+            var flatList = allWords
+                .SelectMany(w => (w.Tr ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(meaning => new { Meaning = meaning.ToLowerInvariant(), Word = w }))
+                .ToList();
+
+            // 2. Group by atomic meaning and filter for groups with more than one word
+            return flatList
+                .GroupBy(x => x.Meaning)
                 .Where(g => g.Count() > 1)
                 .Select(g => new WordGroupDto
                 {
-                    Tr = g.First().Tr, // Original casing of the first word
-                    Words = g.ToList()
+                    Tr = char.ToUpper(g.Key[0]) + g.Key.Substring(1),
+                    Words = g.Select(x => x.Word).DistinctBy(x => x.Id).ToList()
                 })
                 .OrderBy(g => g.Tr)
                 .ToList();

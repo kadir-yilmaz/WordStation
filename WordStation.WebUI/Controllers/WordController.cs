@@ -48,6 +48,10 @@ namespace WordStation.WebUI.Controllers
                 var allWordsForUser = await _wordService.GetAllWordsForUserAsync(userId, token);
                 ViewBag.AllWords = allWordsForUser.ToList();
 
+                // Akıllı gruplandırılmış eş anlamlıları al
+                var synonymGroups = await _wordService.GetSynonymGroupsAsync(userId, token);
+                ViewBag.SynonymGroups = synonymGroups.ToList();
+
                 // Liste varsa kelimeleri al
                 if (!string.IsNullOrEmpty(listName))
                 {
