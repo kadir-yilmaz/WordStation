@@ -1,4 +1,4 @@
-@model WordStation.WebUI.Models.HomeViewModel
+@model HomeViewModel
 
 @{
     ViewData["Title"] = $"{Model.SelectedList} List";
@@ -27,10 +27,9 @@
             background-color: rgba(13, 13, 20, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding-top: calc(var(--section-gap) * 2);
-            padding-bottom: calc(var(--section-gap) * 2);
-            border-bottom: none;
-            margin-bottom: 0;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin: 0;
         }
 
         .top-bar-fixed .dropdown-menu {
@@ -44,7 +43,7 @@
             border-radius: 14px;
             padding: 1px;
             background: linear-gradient(140deg, rgba(0, 220, 255, 0.25), rgba(140, 92, 255, 0.15) 40%, rgba(255, 255, 255, 0.04) 70%);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
             margin-bottom: 0;
             /* Margin handled by top-bar-fixed */
             transition: transform 0.2s ease;
@@ -65,68 +64,141 @@
         }
 
         .modern-input {
-            height: 38px;
-            /* Butonlarla eşitlendi */
-            background: var(--glass-bg);
-            border: 1.5px solid var(--glass-border);
+            height: 42px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            border-radius: 10px !important;
-            padding: 0 14px;
-            font-size: 0.9rem;
+            border-radius: 12px !important;
+            padding: 0 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .modern-input:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(0, 220, 255, 0.6);
-            box-shadow: none;
-            /* Focus shadow kaldırıldı, temiz görünüm */
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
             color: #fff;
             outline: none;
         }
 
-        /* Input group içindeki border fix */
-        .input-group .btn {
-            border: 1.5px solid var(--glass-border);
-            border-right: none;
-            height: 38px;
-            z-index: 2;
+        /* Input group modernizasyonu */
+        .search-group {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 4px;
+            transition: all 0.3s ease;
+            width: 100%;
         }
 
-        .input-group .form-control {
-            z-index: 1;
+        .search-group:focus-within {
+            border-color: rgba(102, 126, 234, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        .input-group .form-control:focus {
-            z-index: 3;
-            border-color: rgba(0, 220, 255, 0.6);
-        }
-
-        .banner-btn {
-            height: 38px;
-            min-width: 38px;
+        .search-mode-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 0 12px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px !important;
-            padding: 0 14px;
-            border: 1.5px solid var(--glass-border);
-            transition: all 0.2s ease;
+        }
+
+        .search-mode-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .search-mode-btn.active {
+            color: #8c9eff;
+            background: rgba(140, 158, 255, 0.1);
+        }
+
+        .search-main-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            flex-grow: 1;
+            padding: 0 12px;
+            height: 34px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .search-submit-btn {
+            background: var(--primary-gradient);
+            border: none;
+            color: #fff;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .banner-btn {
+            height: 40px;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px !important;
+            padding: 0 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .banner-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .banner-btn:focus,
+        .banner-btn:active {
+            outline: none !important;
+            box-shadow: none !important;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .banner-btn.btn-success {
-            background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+            background: var(--success-gradient);
             border: none;
-            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.2);
         }
 
         .banner-btn.btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .banner-btn.btn-success:focus,
+        .banner-btn.btn-success:active {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
+            transform: translateY(-1px);
         }
 
         /* ===== MOBILE TWEAKS ===== */
@@ -305,19 +377,19 @@
     @* ===== BANNER ===== *@
         <div class="banner-shell">
             <div class="banner-card">
-                <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
                     @* 1. Liste Seçimi *@
-                    <div class="dropdown flex-shrink-0">
-                        <button class="btn btn-outline-light banner-btn dropdown-toggle d-flex align-items-center gap-2"
+                    <div class="dropdown flex-shrink-0 m-0">
+                        <button class="btn banner-btn dropdown-toggle d-flex align-items-center gap-2"
                             type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Select List"
                             style="min-width: 140px; justify-content: space-between;">
                             <div class="d-flex align-items-center gap-2">
-                                <i class="bi bi-journal-text"></i>
+                                <i class="bi bi-collection-play"></i>
                                 <span class="text-truncate" style="max-width: 120px;">@Model.SelectedList</span>
                             </div>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-dark shadow-lg">
+                        <ul class="dropdown-menu shadow-lg">
                             @if (ViewBag.AllLists != null)
                             {
                                 @foreach (var list in ViewBag.AllLists)
@@ -337,49 +409,50 @@
                         </ul>
                     </div>
 
-                    @* 2. Arama Formu (Esnek Genişlik) *@
-                    <form method="get" asp-controller="Word" asp-action="Index" class="d-flex gap-2 flex-grow-1"
-                        style="min-width: 250px;">
+                    @* 2. Arama Formu (Yeniden Tasarlandı) *@
+                    <form method="get" asp-controller="Word" asp-action="Index" class="d-flex"
+                        style="min-width: 250px; flex: 1; max-width: 800px;">
                         <input type="hidden" name="listName" value="@Model.SelectedList" />
                         <input type="hidden" name="searchMode" id="searchModeInput"
                             value="@((Model.SearchMode ?? "starts").ToLower())" />
 
-                        <div class="input-group">
+                        <div class="search-group">
                             <button type="button"
-                                class="btn @(Model.SearchMode == "contains" ? "btn-info" : "btn-outline-light")"
+                                class="search-mode-btn @(Model.SearchMode == "contains" ? "active" : "")"
                                 id="searchModeToggle"
-                                title="Mode: @(Model.SearchMode == "contains" ? "Contains" : "Starts with")"
-                                style="border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-right: none;">
+                                title="Mode: @(Model.SearchMode == "contains" ? "Contains" : "Starts with")">
                                 <i class="bi @(Model.SearchMode == "contains" ? "bi-text-center" : "bi-text-left")"></i>
                             </button>
-                            <div class="search-wrapper">
+                            
+                            <div class="search-wrapper d-flex flex-grow-1 align-items-center">
                                 <input type="text" name="SearchTerm" id="searchInput"
-                                    class="form-control modern-input border-start-0 @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "has-clear")"
+                                    class="search-main-input @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "has-clear")"
                                     value="@Model.SearchTerm"
-                                    placeholder="Search..." autocomplete="off"
-                                    style="border-radius: 0 !important;" />
+                                    placeholder="Search words..." autocomplete="off" />
+                                
                                 <button type="button" id="searchClearBtn"
                                         class="search-clear-btn @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "visible")"
-                                        title="Clear">
-                                    <i class="bi bi-x"></i>
+                                        title="Clear" style="position: relative; right: 8px; transform: none; top: auto;">
+                                    <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>
-                            <button type="submit" class="btn btn-outline-light" title="Search" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 16px;">
+
+                            <button type="submit" class="search-submit-btn" title="Search">
                                 <i class="bi bi-search"></i>
                             </button>
                         </div>
                     </form>
 
-                    @* 3. Butonlar (Sağda Sabit) *@
+                    @* 3. Butonlar (Yeniden Tasarlandı) *@
                     <div class="d-flex align-items-center gap-2 flex-shrink-0">
                         <button type="button" class="btn btn-success banner-btn" data-bs-toggle="modal"
                             data-bs-target="#createWordModal" title="Add Word">
                             <i class="bi bi-plus-lg"></i>
                         </button>
 
-                        <button type="button" class="btn btn-outline-light banner-btn" id="toggleViewBtn"
+                        <button type="button" class="btn banner-btn" id="toggleViewBtn"
                             title="Switch View">
-                            <i class="bi bi-table" id="toggleViewIcon"></i>
+                            <i class="bi bi-grid-3x3-gap-fill" id="toggleViewIcon"></i>
                         </button>
                     </div>
 
@@ -500,14 +573,12 @@
 
                     // Update UI
                     if (newMode === 'contains') {
-                        modeBtn.classList.remove('btn-outline-light');
-                        modeBtn.classList.add('btn-info');
+                        modeBtn.classList.add('active');
                         modeIcon.classList.remove('bi-text-left');
                         modeIcon.classList.add('bi-text-center');
                         modeBtn.title = "Mode: Contains";
                     } else {
-                        modeBtn.classList.remove('btn-info');
-                        modeBtn.classList.add('btn-outline-light');
+                        modeBtn.classList.remove('active');
                         modeIcon.classList.remove('bi-text-center');
                         modeIcon.classList.add('bi-text-left');
                         modeBtn.title = "Mode: Starts with";
