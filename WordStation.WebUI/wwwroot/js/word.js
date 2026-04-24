@@ -3,6 +3,7 @@ let currentIndex = 0;
 let touchStartX = 0;
 let isDragging = false;
 let usedRandomIndices = new Set(); // Kullanılmış random indexleri takip et
+let synonymIndexMap = new Map(); // O(1) lookup için eş anlamlı indeksi
 
 // DOM Elements
 const els = {
@@ -276,27 +277,10 @@ function showWord(index, opts = {}) {
 
 
 
-        // Synonyms Render (Lookup from C# Pre-calculated groups)
+        // Synonyms Render (Lookup from Indexed Map)
         if (els.synonymsContainer && els.synonymsList) {
             const currentEn = (data.en || data.En || '').trim().toLowerCase();
-            const groups = window.synonymGroups || [];
-
-            // Find all unique synonyms from groups containing currentEn
-            const synonymsMap = new Map();
-            
-            groups.forEach(group => {
-                const groupHasCurrent = group.words.some(w => (w.en || w.En || '').trim().toLowerCase() === currentEn);
-                if (groupHasCurrent) {
-                    group.words.forEach(w => {
-                        const wEn = (w.en || w.En || '').trim().toLowerCase();
-                        if (wEn !== currentEn && !synonymsMap.has(wEn)) {
-                            synonymsMap.set(wEn, w);
-                        }
-                    });
-                }
-            });
-
-            const synonyms = Array.from(synonymsMap.values());
+            const synonyms = synonymIndexMap.get(currentEn) || [];
 
             if (synonyms.length > 0) {
                 let html = '';
@@ -572,10 +556,27 @@ document.getElementById('updateWordModal')?.addEventListener('show.bs.modal', fu
 
 
 
-/* =====================================================
-   Init
-   ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+    // Eş anlamlı gruplarını O(1) erişim için indeksle
+    if (window.synonymGroups) {
+        window.synonymGroups.forEach(group => {
+            group.words.forEach(word => {
+                const en = (word.en || word.En || '').trim().toLowerCase();
+                if (!synonymIndexMap.has(en)) synonymIndexMap.set(en, []);
+                
+                // Bu gruptaki diğer kelimeleri ekle
+                group.words.forEach(other => {
+                    const otherEn = (other.en || other.En || '').trim().toLowerCase();
+                    if (otherEn !== en) {
+                        const existing = synonymIndexMap.get(en);
+                        if (!existing.some(x => (x.en || x.En || '').toLowerCase() === otherEn)) {
+                            existing.push(other);
+                        }
+                    }
+                });
+            });
+        });
+    }
 
     const savedView = sessionStorage.getItem(getStorageKey('viewMode', true));
     let savedIndex = parseInt(sessionStorage.getItem(getStorageKey('wordIndex'))) || 0;

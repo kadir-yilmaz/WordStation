@@ -46,7 +46,8 @@
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
             margin-bottom: 0;
             /* Margin handled by top-bar-fixed */
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            will-change: transform, box-shadow;
         }
 
         .banner-card {
@@ -101,14 +102,14 @@
         }
 
         .search-mode-btn {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.05);
             border: none;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.7);
             padding: 0 12px;
             height: 34px;
             border-radius: 10px;
             font-size: 1.1rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -116,12 +117,13 @@
 
         .search-mode-btn:hover {
             color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .search-mode-btn.active {
-            color: #8c9eff;
-            background: rgba(140, 158, 255, 0.1);
+            color: #fff;
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
 
         .search-main-input {
@@ -390,9 +392,9 @@
                             </div>
                         </button>
                         <ul class="dropdown-menu shadow-lg">
-                            @if (ViewBag.AllLists != null)
+                            @if (Model.AllLists != null && Model.AllLists.Any())
                             {
-                                @foreach (var list in ViewBag.AllLists)
+                                @foreach (var list in Model.AllLists)
                                 {
                                     <li>
                                         <a class="dropdown-item @(list == Model.SelectedList ? "active" : "")"
@@ -548,9 +550,9 @@
 
 @section Scripts {
     <script>
-        window.wordsData = @Html.Raw(Json.Serialize(Model.Words ?? new List<Word>()));
-        window.allWordsData = @Html.Raw(Json.Serialize(ViewBag.AllWords ?? Model.Words ?? new List<Word>()));
-        window.synonymGroups = @Html.Raw(Json.Serialize(ViewBag.SynonymGroups ?? new List<WordGroupDto>()));
+        window.wordsData = @Html.Raw(Json.Serialize(Model.Words));
+        window.allWordsData = @Html.Raw(Json.Serialize(Model.AllWords));
+        window.synonymGroups = @Html.Raw(Json.Serialize(Model.SynonymGroups));
         window.searchTermValue = '@Model.SearchTerm';
         window.searchModeValue = '@Model.SearchMode';
         window.selectedList = '@Model.SelectedList';

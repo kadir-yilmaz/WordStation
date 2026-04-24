@@ -17,72 +17,55 @@ namespace WordStation.WebUI.Controllers
             _wordService = wordService;
         }
 
-        private string? GetToken() => User.FindFirstValue("Token");
-        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        #region Properties (Auth Context)
+
+        private string? AccessToken => User.FindFirstValue("Token");
+        private string? CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        private bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUserId) && !string.IsNullOrEmpty(AccessToken);
+
+        #endregion
 
         public async Task<IActionResult> Index(string listName, string SearchTerm = null, string searchMode = "starts")
         {
-            var userId = GetUserId();
-            var token = GetToken();
-
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
-
-            List<string> allLists = new();
-            List<Word> words = new();
-
-            try
-            {
-                // Listeleri Al
-                var listsEnumerable = await _wordService.GetListNamesAsync(userId, token);
-                allLists = listsEnumerable.ToList();
-                ViewBag.AllLists = allLists;
-
-                // listName yoksa ilk listeyi seç
-                if (string.IsNullOrEmpty(listName) && allLists.Any())
-                {
-                    listName = allLists.First();
-                }
-
-                // Eke özellik: Tüm listelerdeki kelimeleri de al (Auto Synonym cross-list için)
-                var allWordsForUser = await _wordService.GetAllWordsForUserAsync(userId, token);
-                ViewBag.AllWords = allWordsForUser.ToList();
-
-                // Akıllı gruplandırılmış eş anlamlıları al
-                var synonymGroups = await _wordService.GetSynonymGroupsAsync(userId, token);
-                ViewBag.SynonymGroups = synonymGroups.ToList();
-
-                // Liste varsa kelimeleri al
-                if (!string.IsNullOrEmpty(listName))
-                {
-                    IEnumerable<Word> wordsEnumerable;
-                    if (!string.IsNullOrEmpty(SearchTerm))
-                    {
-                        wordsEnumerable = await _wordService.SearchWordAsync(SearchTerm, userId, listName, token, searchMode);
-                    }
-                    else
-                    {
-                        wordsEnumerable = await _wordService.GetAllWordsAsync(userId, listName, token);
-                    }
-                    words = wordsEnumerable.ToList();
-                }
-
-                ViewBag.WordsCount = words.Count;
-
-            }
-            catch (Exception ex)
-            {
-                this.NotifyError("System Error", $"Error loading data: {ex.Message}");
-            }
+            if (!IsAuthenticated) return RedirectToLogin();
 
             var vm = new HomeViewModel
             {
-                Words = words,
-                ListNames = allLists,
-                SelectedList = listName,
-                SearchTerm = SearchTerm,
+                SearchTerm = SearchTerm ?? string.Empty,
                 SearchMode = searchMode
             };
+
+            try
+            {
+                // Parallel Fetching (Senior Optimization)
+                var listsTask = _wordService.GetListNamesAsync(CurrentUserId!, AccessToken!);
+                var allWordsTask = _wordService.GetAllWordsForUserAsync(CurrentUserId!, AccessToken!);
+                var synonymsTask = _wordService.GetSynonymGroupsAsync(CurrentUserId!, AccessToken!);
+
+                await Task.WhenAll(listsTask, allWordsTask, synonymsTask);
+
+                vm.AllLists = (await listsTask).ToList();
+                vm.AllWords = (await allWordsTask).ToList();
+                vm.SynonymGroups = (await synonymsTask).ToList();
+
+                // List Selection Logic
+                vm.SelectedList = string.IsNullOrEmpty(listName) && vm.AllLists.Any() 
+                    ? vm.AllLists.First() 
+                    : listName;
+
+                // Conditional Fetching for the main grid
+                if (!string.IsNullOrEmpty(vm.SelectedList))
+                {
+                    vm.Words = !string.IsNullOrEmpty(SearchTerm)
+                        ? await _wordService.SearchWordAsync(SearchTerm, CurrentUserId!, vm.SelectedList, AccessToken!, searchMode)
+                        : await _wordService.GetAllWordsAsync(CurrentUserId!, vm.SelectedList, AccessToken!);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.NotifyError("System Error", "An error occurred while loading your words.");
+            }
 
             return View(vm);
         }
@@ -91,112 +74,93 @@ namespace WordStation.WebUI.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateWord(Word word, string SearchTerm, string searchMode)
         {
-            var userId = GetUserId();
-            var token = GetToken();
+            if (!IsAuthenticated) return RedirectToLogin();
+            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, "Invalid data.");
 
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
+            word.UserId = CurrentUserId!;
 
-            word.UserId = userId; // Ensure userId is set
-
-            if (await _wordService.CreateWordAsync(word, token))
-            {
-                this.NotifySuccess("Success", $"Word \"{word.En}\" added successfully!");
-            }
+            if (await _wordService.CreateWordAsync(word, AccessToken!))
+                this.NotifySuccess("Success", $"Word \"{word.En}\" added!");
             else
-            {
-                this.NotifyError("Failure", $"Error adding \"{word.En}\".");
-            }
+                this.NotifyError("Failure", "Could not add the word.");
 
-            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
+            return RedirectToIndex(word.ListName, SearchTerm, searchMode);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateWord(Word word, string SearchTerm, string searchMode)
         {
-            var userId = GetUserId();
-            var token = GetToken();
+            if (!IsAuthenticated) return RedirectToLogin();
+            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, "Invalid data.");
 
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
+            word.UserId = CurrentUserId!;
 
-            word.UserId = userId;
-
-            if (await _wordService.UpdateWordAsync(word, token))
-            {
-                this.NotifySuccess("Success", $"Word \"{word.En}\" updated successfully!");
-            }
+            if (await _wordService.UpdateWordAsync(word, AccessToken!))
+                this.NotifySuccess("Success", "Word updated!");
             else
-            {
-                this.NotifyError("Failure", $"Error updating \"{word.En}\".");
-            }
+                this.NotifyError("Failure", "Update failed.");
 
-            return RedirectToAction("Index", new { listName = word.ListName, SearchTerm, searchMode });
+            return RedirectToIndex(word.ListName, SearchTerm, searchMode);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteWord(int id, string listName, string SearchTerm, string searchMode, string wordEn)
         {
-            var token = GetToken();
-            if (string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
+            if (!IsAuthenticated) return RedirectToLogin();
 
-            if (await _wordService.DeleteWordAsync(id, token))
-            {
-                this.NotifySuccess("Success", $"Word \"{wordEn}\" deleted successfully!");
-            }
+            if (await _wordService.DeleteWordAsync(id, AccessToken!))
+                this.NotifySuccess("Deleted", $"\"{wordEn}\" has been removed.");
             else
-            {
-                this.NotifyError("Failure", $"Error deleting \"{wordEn}\".");
-            }
+                this.NotifyError("Failure", "Delete operation failed.");
 
-            return RedirectToAction("Index", new { listName, SearchTerm, searchMode });
+            return RedirectToIndex(listName, SearchTerm, searchMode);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RenameList(string listName, string newListName)
         {
-            var userId = GetUserId();
-            var token = GetToken();
+            if (!IsAuthenticated) return RedirectToLogin();
+            if (string.IsNullOrWhiteSpace(newListName)) return RedirectToIndex(listName);
 
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
+            if (await _wordService.UpdateListNameAsync(CurrentUserId!, listName, newListName, AccessToken!))
+            {
+                this.NotifySuccess("Renamed", "List name updated successfully.");
+                return RedirectToIndex(newListName);
+            }
 
-            if (await _wordService.UpdateListNameAsync(userId, listName, newListName, token))
-            {
-                this.NotifySuccess("Success", "List renamed successfully!");
-                return RedirectToAction("Index", new { listName = newListName });
-            }
-            else
-            {
-                this.NotifyError("Failure", "Error renaming list.");
-                return RedirectToAction("Index", new { listName });
-            }
+            this.NotifyError("Failure", "Rename failed.");
+            return RedirectToIndex(listName);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteList(string listName)
         {
-            var userId = GetUserId();
-            var token = GetToken();
+            if (!IsAuthenticated) return RedirectToLogin();
 
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-                return RedirectToAction("Login", "Account");
+            if (await _wordService.DeleteListAsync(CurrentUserId!, listName, AccessToken!))
+            {
+                this.NotifySuccess("Deleted", "List removed.");
+                return RedirectToAction("Index", "Home");
+            }
 
-            if (await _wordService.DeleteListAsync(userId, listName, token))
-            {
-                this.NotifySuccess("Success", "List deleted successfully!");
-                return RedirectToAction("Index", "Home"); // Or wherever appropriate
-            }
-            else
-            {
-                this.NotifyError("Failure", "Error deleting list.");
-                return RedirectToAction("Index", new { listName });
-            }
+            this.NotifyError("Failure", "Could not delete list.");
+            return RedirectToIndex(listName);
         }
+
+        #region Helper Methods
+
+        private IActionResult RedirectToLogin() => RedirectToAction("Login", "Account");
+
+        private IActionResult RedirectToIndex(string? listName = null, string? searchTerm = null, string? mode = null, string? error = null)
+        {
+            if (error != null) this.NotifyError("Error", error);
+            return RedirectToAction("Index", new { listName, SearchTerm = searchTerm, searchMode = mode });
+        }
+
+        #endregion
     }
 }
