@@ -259,3 +259,57 @@
     font-weight: 500;
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
+
+/* List Card Specific Styles (Moved from site.css) */
+.list-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--card-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: 15px;
+}
+
+.list-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.list-card-link {
+    display: block;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.list-card-link h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.list-card-icon {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.list-card-dropdown {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 2;
+}
+
+.list-card-dropdown .dropdown-toggle {
+    color: var(--text-secondary);
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.list-card-dropdown .dropdown-toggle::after {
+    display: none;
+}

@@ -7,30 +7,49 @@ let synonymIndexMap = new Map(); // O(1) lookup için eş anlamlı indeksi
 
 // DOM Elements
 const els = {
+    // Layout & Views
     tableView: document.getElementById('tableView'),
     flashcardView: document.getElementById('flashcardView'),
     toggleBtn: document.getElementById('toggleViewBtn'),
     toggleIcon: document.getElementById('toggleViewIcon'),
+    scrollTopBtn: document.getElementById("scrollTopBtn"),
+
+    // Flashcard Elements
     flashcard: document.getElementById('flashcard'),
     container: document.getElementById('flashcardContainer'),
     word: document.getElementById('flashcardWord'),
     translation: document.getElementById('flashcardTranslation'),
     progress: document.getElementById('flashcardProgress'),
     exampleText: document.getElementById('flashcardExampleText'),
+
+    // Slider
+    // Slider
     slider: document.getElementById('interactiveSlider'),
-    sliderTrack: document.getElementById('sliderTrack'),
-    sliderHandle: document.getElementById('sliderHandle'),
+
+    // Controls
     prevBtn: document.getElementById('flashcardPrev'),
     nextBtn: document.getElementById('flashcardNext'),
     randomBtn: document.getElementById('flashcardRandom'),
-    searchInput: document.getElementById('searchInput'),
+    speakBtn: document.getElementById('speakBtn'),
     btnUpdate: document.getElementById('flashcardUpdateBtn'),
     btnDelete: document.getElementById('flashcardDeleteBtn'),
 
+    // Search
+    searchInput: document.getElementById('searchInput'),
+    searchClearBtn: document.getElementById('searchClearBtn'),
+    searchModeInput: document.getElementById('searchModeInput'),
+    searchModeBtn: document.getElementById('searchModeToggle'),
+
+    // Synonyms
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
     synonymsList: document.getElementById('flashcardSynonyms'),
-    speakBtn: document.getElementById('speakBtn')
+
+    // Modals
+    createWordForm: document.querySelector('#createWordModal form'),
+    updateWordForm: document.querySelector('#updateWordModal form'),
+    updateWordModal: document.getElementById('updateWordModal')
 };
+
 
 /* =====================================================
    Storage Key Generator (Liste bazlı kayıt)
@@ -65,19 +84,14 @@ function _stopTtsKeepAlive() {
     if (_ttsKeepAlive) { clearInterval(_ttsKeepAlive); _ttsKeepAlive = null; }
 }
 
-function speakCurrentWord() {
-    if (!window.speechSynthesis) return;
-
-    const word = els.word?.textContent?.trim();
-    if (!word) return;
+function speakWord(text) {
+    if (!window.speechSynthesis || !text) return;
 
     // Önce temizle
     _stopTtsKeepAlive();
     window.speechSynthesis.cancel();
 
-    // Chrome bug fix: cancel() sonrası hemen speak() çağrısı
-    // "outcast" → "cast" gibi bölme hatasına yol açar.
-    // Küçük bir setTimeout ile Chrome'un tamamen sıfırlanmasını bekliyoruz.
+    // Chrome bug fix
     setTimeout(() => {
         const voices = window.speechSynthesis.getVoices();
         const usVoice =
@@ -85,22 +99,39 @@ function speakCurrentWord() {
             voices.find(v => v.lang === 'en-US') ||
             voices.find(v => v.lang.startsWith('en'));
 
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.rate   = 0.85;
-        utterance.pitch  = 1;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.85;
+        utterance.pitch = 1;
         utterance.volume = 1;
-        utterance.lang   = 'en-US';
+        utterance.lang = 'en-US';
         if (usVoice) utterance.voice = usVoice;
 
+        const detailSpeakBtn = document.getElementById('detailSpeakBtn');
         if (els.speakBtn) els.speakBtn.classList.add('speaking');
+        if (detailSpeakBtn) detailSpeakBtn.classList.add('speaking');
 
         utterance.onstart = () => _startTtsKeepAlive();
-        utterance.onend   = () => { _stopTtsKeepAlive(); if (els.speakBtn) els.speakBtn.classList.remove('speaking'); };
-        utterance.onerror  = () => { _stopTtsKeepAlive(); if (els.speakBtn) els.speakBtn.classList.remove('speaking'); };
+        utterance.onend = () => {
+            _stopTtsKeepAlive();
+            if (els.speakBtn) els.speakBtn.classList.remove('speaking');
+            if (detailSpeakBtn) detailSpeakBtn.classList.remove('speaking');
+        };
+        utterance.onerror = () => {
+            _stopTtsKeepAlive();
+            if (els.speakBtn) els.speakBtn.classList.remove('speaking');
+            if (detailSpeakBtn) detailSpeakBtn.classList.remove('speaking');
+        };
 
         window.speechSynthesis.speak(utterance);
     }, 150);
 }
+window.speakWord = speakWord;
+
+function speakCurrentWord() {
+    const word = els.word?.textContent?.trim();
+    if (word) speakWord(word);
+}
+
 
 // Sesler bazen geç yüklenir (özellikle ilk açılışta)
 if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
@@ -314,18 +345,13 @@ function showWord(index, opts = {}) {
     }
 
     const total = window.wordsData.length;
-    const percent = total > 1 ? (index / (total - 1)) * 100 : 0;
-
     if (els.progress) els.progress.textContent = `${index + 1} / ${total}`;
-
-    if (!opts.skipSliderUpdate) {
-        if (els.sliderTrack) els.sliderTrack.style.width = `${percent}%`;
-        if (els.sliderHandle) els.sliderHandle.style.left = `calc(${percent}% - 10px)`;
-    }
 
     if (els.prevBtn) els.prevBtn.disabled = (index === 0);
     if (els.nextBtn) els.nextBtn.disabled = (index === total - 1);
 }
+
+
 
 // Slider Background Update (Gradient for Webkit)
 window.updateSliderTrack = (val, max) => {
@@ -359,20 +385,19 @@ function scheduleDragUpdate(clientX) {
         const idx = Math.round(p * (total - 1));
         dragIndex = idx;
 
-        if (els.sliderTrack) els.sliderTrack.style.width = `${p * 100}%`;
-        if (els.sliderHandle) els.sliderHandle.style.left = `calc(${p * 100}% - 10px)`;
         if (els.progress) els.progress.textContent = `${idx + 1} / ${total}`;
 
         if (idx !== currentIndex) {
             showWord(idx, {
                 light: true,
                 skipStorage: true,
-                skipSliderUpdate: true,
+                skipSliderUpdate: false, // Update track visually while dragging
                 keepFlip: true
             });
         }
     });
 }
+
 
 function commitSlider() {
     showWord(dragIndex);
@@ -387,7 +412,7 @@ if (els.slider) {
         if (max <= 0) max = 1;
         const percent = (val / max) * 100;
         // Green active, Dark gray inactive
-        els.slider.style.background = `linear-gradient(to right, #10b981 ${percent}%, rgba(30, 40, 55, 0.9) ${percent}%)`;
+        els.slider.style.background = `linear-gradient(to right, #10b981 ${percent}%, rgba(30, 40, 55, 0.95) ${percent}%)`;
     };
     window.updateSliderTrack = updateSliderTrack;
 
@@ -533,26 +558,86 @@ els.randomBtn?.addEventListener('click', () => {
 });
 
 /* =====================================================
-   Search Logic
+   Search UI Logic
    ===================================================== */
-// Enter tuşu ile form submit
-els.searchInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        e.target.closest('form').submit();
+function initSearchUI() {
+    if (els.searchModeBtn && els.searchModeInput) {
+        const modeIcon = els.searchModeBtn.querySelector('i');
+
+        els.searchModeBtn.addEventListener('click', function () {
+            const currentMode = els.searchModeInput.value;
+            const newMode = currentMode === 'starts' ? 'contains' : 'starts';
+            els.searchModeInput.value = newMode;
+
+            if (newMode === 'contains') {
+                els.searchModeBtn.classList.add('active');
+                modeIcon?.classList.replace('bi-text-left', 'bi-text-center');
+                els.searchModeBtn.title = "Mode: Contains";
+            } else {
+                els.searchModeBtn.classList.remove('active');
+                modeIcon?.classList.replace('bi-text-center', 'bi-text-left');
+                els.searchModeBtn.title = "Mode: Starts with";
+            }
+            els.searchInput?.focus();
+        });
     }
-});
+
+    function updateClearBtn() {
+        if (!els.searchInput || !els.searchClearBtn) return;
+        const hasText = els.searchInput.value.length > 0;
+        els.searchClearBtn.classList.toggle('visible', hasText);
+        els.searchInput.classList.toggle('has-clear', hasText);
+    }
+
+    if (els.searchInput) {
+        els.searchInput.addEventListener('input', updateClearBtn);
+        // Enter tuşu ile form submit
+        els.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.target.closest('form').submit();
+            }
+        });
+        updateClearBtn();
+    }
+
+    if (els.searchClearBtn) {
+        els.searchClearBtn.addEventListener('click', () => {
+            els.searchInput.value = '';
+            updateClearBtn();
+            els.searchInput.focus();
+        });
+    }
+}
 
 /* =====================================================
    Modal Data Fillers
    ===================================================== */
-document.getElementById('updateWordModal')?.addEventListener('show.bs.modal', function (e) {
-    const btn = e.relatedTarget;
-    this.querySelector('#updateId').value = btn.dataset.id;
-    this.querySelector('#updateEn').value = btn.dataset.en;
-    this.querySelector('#updateTr').value = btn.dataset.tr;
-    this.querySelector('#updateExample').value = btn.dataset.example;
-    this.querySelector('#updateListNameHidden').value = btn.dataset.listname;
-});
+function initModalHandlers() {
+    els.updateWordModal?.addEventListener('show.bs.modal', function (e) {
+        const btn = e.relatedTarget;
+        if (!btn) return;
+        this.querySelector('#updateId').value = btn.dataset.id;
+        this.querySelector('#updateEn').value = btn.dataset.en;
+        this.querySelector('#updateTr').value = btn.dataset.tr;
+        this.querySelector('#updateExample').value = btn.dataset.example;
+        this.querySelector('#updateListNameHidden').value = btn.dataset.listname;
+    });
+
+    els.createWordForm?.addEventListener('submit', () => {
+        if (!els.tableView.classList.contains('d-none')) {
+            sessionStorage.setItem('scrollTarget', 'preserve');
+            sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+        }
+    });
+
+    els.updateWordForm?.addEventListener('submit', () => {
+        if (!els.tableView.classList.contains('d-none')) {
+            sessionStorage.setItem('scrollTarget', 'preserve');
+            sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+        }
+    });
+}
+
 
 
 
@@ -563,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
             group.words.forEach(word => {
                 const en = (word.en || word.En || '').trim().toLowerCase();
                 if (!synonymIndexMap.has(en)) synonymIndexMap.set(en, []);
-                
+
                 // Bu gruptaki diğer kelimeleri ekle
                 group.words.forEach(other => {
                     const otherEn = (other.en || other.En || '').trim().toLowerCase();
@@ -577,6 +662,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    initSearchUI();
+    initModalHandlers();
+
+    // Scroll To Top
+    window.addEventListener("scroll", () => {
+        if (els.scrollTopBtn) {
+            els.scrollTopBtn.style.display = window.scrollY > 300 ? "block" : "none";
+        }
+    });
+    els.scrollTopBtn?.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
     const savedView = sessionStorage.getItem(getStorageKey('viewMode', true));
     let savedIndex = parseInt(sessionStorage.getItem(getStorageKey('wordIndex'))) || 0;
@@ -594,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('flashcard-active');
 
         if (window.wordsData?.length > 0) {
-            els.flashcard.dataset.init = 'true';
+            if (els.flashcard) els.flashcard.dataset.init = 'true';
             showWord(savedIndex);
         }
 
@@ -622,33 +720,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* =====================================================
-   Form Submit Handlers (Scroll Target)
-   ===================================================== */
-document.querySelector('#createWordModal form')?.addEventListener('submit', () => {
-    if (!els.tableView.classList.contains('d-none')) {
-        // Mevcut scroll pozisyonunu kaydet, sayfayı olduğu yerde tut
-        sessionStorage.setItem('scrollTarget', 'preserve');
-        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
-    }
-});
 
-document.querySelector('#updateWordModal form')?.addEventListener('submit', () => {
-    if (!els.tableView.classList.contains('d-none')) {
-        // Mevcut scroll pozisyonunu kaydet, sayfayı olduğu yerde tut
-        sessionStorage.setItem('scrollTarget', 'preserve');
-        sessionStorage.setItem('scrollPosition', window.scrollY.toString());
-    }
-});
-
-/* =====================================================
-   Scroll To Top Button
-   ===================================================== */
-const scrollTopBtn = document.getElementById("scrollTopBtn");
-window.addEventListener("scroll", () => {
-    if (window.scrollY > 300) scrollTopBtn.style.display = "block";
-    else scrollTopBtn.style.display = "none";
-});
-scrollTopBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-});

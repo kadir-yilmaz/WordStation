@@ -1,210 +1,11 @@
-@model IEnumerable<WordStation.WebUI.Models.WordGroupDto>
+@model IEnumerable<WordGroupDto>
 
 @{
     ViewData["Title"] = "Synonyms";
 }
 
 @section Styles {
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --accent-color: #34d399;
-        }
-
-        .premium-container {
-            padding-top: 2rem;
-            padding-bottom: 4rem;
-        }
-
-        .header-section {
-            margin-bottom: 3rem;
-            text-align: center;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #fff, rgba(255,255,255,0.7));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-            letter-spacing: -1px;
-        }
-
-        .page-subtitle {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .search-wrap {
-            max-width: 500px;
-            margin: 0 auto 3rem;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 100px;
-            padding: 14px 24px;
-            padding-left: 50px;
-            color: #fff;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 25px rgba(102, 126, 234, 0.15);
-            outline: none;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 1.2rem;
-        }
-
-        .table-glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-        }
-
-        .premium-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            color: #fff;
-        }
-
-        .premium-table th {
-            background: rgba(255, 255, 255, 0.03);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 1.5px;
-            padding: 20px 30px;
-            color: rgba(255, 255, 255, 0.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .premium-table td {
-            padding: 24px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            vertical-align: middle;
-        }
-
-        .premium-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .premium-table tr {
-            transition: background 0.2s ease;
-        }
-
-        .premium-table tr:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .tr-word {
-            font-weight: 700;
-            font-size: 1.15rem;
-            color: var(--accent-color);
-            text-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
-        }
-
-        .synonym-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .synonym-badge {
-            background: rgba(102, 126, 234, 0.12);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            color: #a5b4fc;
-            padding: 6px 16px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .synonym-badge:hover {
-            background: var(--primary-gradient);
-            color: #fff;
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-            border-color: transparent;
-        }
-
-        .synonym-badge i {
-            opacity: 0;
-            font-size: 0.8rem;
-            transition: opacity 0.2s ease;
-        }
-
-        .synonym-badge:hover i {
-            opacity: 1;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 100px 40px;
-            opacity: 0.7;
-        }
-
-        .empty-state i {
-            font-size: 5rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
-            display: block;
-        }
-
-        .badge-list-name {
-            font-size: 0.7rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 4px;
-            display: block;
-            width: fit-content;
-        }
-
-        /* Micro-animations */
-        @@keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fade-up {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-    </style>
+    <link rel="stylesheet" href="~/css/synonym.css" asp-append-version="true" />
 }
 
 <div class="container premium-container">
@@ -275,7 +76,10 @@
     }
 </div>
 
+<partial name="_WordDetailModal" />
+
 @section Scripts {
+    <script src="~/js/word-detail.js" asp-append-version="true"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('synonymsSearchInput');
