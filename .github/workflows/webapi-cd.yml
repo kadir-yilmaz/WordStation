@@ -1,44 +1,25 @@
-name: Deploy WebAPI
-
-run-name: Deploy WebAPI - ${{ github.event.head_commit.message }} - ${{ github.sha }}
+name: WebAPI-CD
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'WordStation.WebAPI/**'
-      - 'WordStation.BLL/**'
-      - 'WordStation.DAL/**'
-      - 'WordStation.EL/**'
-      - '.github/workflows/deploy-webapi.yml'
-  workflow_dispatch:
-
-concurrency:
-  group: deploy-webapi
-  cancel-in-progress: true
+  workflow_run:
+    workflows: ["WebAPI-CI"]
+    types:
+      - completed
+    branches: [main]
 
 jobs:
-  build-and-deploy-api:
+  deploy:
+    name: Deploy WebAPI
     runs-on: windows-latest
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore WordStation.sln
-
-    - name: Run Tests
-      run: dotnet test WordStation.Tests --no-restore -c Release
-
-    - name: Build
-      run: dotnet build WordStation.WebAPI -c Release --no-restore
-
+    - name: Restore
+      run: dotnet restore
     - name: Update Production secrets
       shell: pwsh
       env:
@@ -50,8 +31,7 @@ jobs:
         $json.ConnectionStrings.sqlConnection = $env:SQL_CONN_STRING
         $json.JwtSettings.SecretKey = $env:JWT_SECRET
         $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
-
-    - name: Deploy API with Web Deploy
+    - name: Deploy API
       run: |
         dotnet publish WordStation.WebAPI -c Release `
           /p:WebPublishMethod=MSDeploy `

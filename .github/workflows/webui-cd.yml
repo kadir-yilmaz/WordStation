@@ -1,44 +1,25 @@
-name: Deploy WebUI
-
-run-name: Deploy WebUI - ${{ github.event.head_commit.message }} - ${{ github.sha }}
+name: WebUI-CD
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'WordStation.WebUI/**'
-      - 'WordStation.BLL/**'
-      - 'WordStation.DAL/**'
-      - 'WordStation.EL/**'
-      - '.github/workflows/deploy-webui.yml'
-  workflow_dispatch:
-
-concurrency:
-  group: deploy-webui
-  cancel-in-progress: true
+  workflow_run:
+    workflows: ["WebUI-CI"]
+    types:
+      - completed
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
+    name: Deploy WebUI
     runs-on: windows-latest
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
+    - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-
-    - name: Restore dependencies
-      run: dotnet restore WordStation.sln
-
-    - name: Run Tests
-      run: dotnet test WordStation.Tests --no-restore -c Release
-
-    - name: Build
-      run: dotnet build WordStation.WebUI -c Release --no-restore
-
+    - name: Restore
+      run: dotnet restore
     - name: Update Production API URL
       shell: pwsh
       env:
@@ -48,8 +29,7 @@ jobs:
         $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
         $json.ApiSettings.BaseUrl = $env:API_BASE
         $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
-
-    - name: Deploy WebUI with Web Deploy
+    - name: Deploy WebUI
       run: |
         dotnet publish WordStation.WebUI -c Release `
           /p:WebPublishMethod=MSDeploy `

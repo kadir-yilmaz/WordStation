@@ -1,4 +1,4 @@
-name: API Tests
+name: WebAPI-CI
 
 on:
   push:
@@ -9,7 +9,6 @@ on:
       - 'WordStation.DAL/**'
       - 'WordStation.EL/**'
       - 'WordStation.Tests/**'
-      - '.github/workflows/test-api.yml'
   pull_request:
     branches: [ main ]
     paths:
@@ -20,18 +19,16 @@ on:
       - 'WordStation.Tests/**'
 
 jobs:
-  run-api-tests:
+  test:
+    name: Build & Test API
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-        
-    - name: Restore dependencies
+    - name: Restore
       run: dotnet restore
-      
-    - name: Run Unit/API Tests
+    - name: Run API Tests
       run: dotnet test WordStation.Tests --no-restore -c Release
