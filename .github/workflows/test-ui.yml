@@ -1,0 +1,56 @@
+name: UI Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebUI/**'
+      - 'WordStation.UITests/**'
+      - 'WordStation.BLL/**'
+      - '.github/workflows/test-ui.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebUI/**'
+      - 'WordStation.UITests/**'
+      - 'WordStation.BLL/**'
+
+jobs:
+  run-ui-tests:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Build Solution
+      run: dotnet build WordStation.sln -c Debug
+      
+    - name: Install Playwright Browsers
+      run: |
+        $playwrightPath = Get-ChildItem -Path "WordStation.UITests/bin/Debug" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
+        if ($playwrightPath) {
+          powershell -ExecutionPolicy Bypass -File $playwrightPath.FullName install
+        } else {
+          Write-Error "Playwright script not found!"
+          exit 1
+        }
+
+    - name: Start WebUI in Background
+      shell: pwsh
+      run: |
+        # Uygulamayı arka planda başlat
+        $process = Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000" -PassThru
+        # Uygulamanın hazır olması için biraz bekle
+        Start-Sleep -Seconds 20
+        # PID'yi sakla (isteğe bağlı, iş bitince GitHub zaten temizler)
+        echo "APP_PID=$($process.Id)" >> $env:GITHUB_ENV
+
+    - name: Run UI Tests
+      env:
+        TEST_BASE_URL: http://localhost:5000
+        GITHUB_ACTIONS: "true"
+      run: dotnet test WordStation.UITests --no-build -c Debug

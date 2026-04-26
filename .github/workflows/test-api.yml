@@ -1,0 +1,37 @@
+name: API Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebAPI/**'
+      - 'WordStation.BLL/**'
+      - 'WordStation.DAL/**'
+      - 'WordStation.EL/**'
+      - 'WordStation.Tests/**'
+      - '.github/workflows/test-api.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebAPI/**'
+      - 'WordStation.BLL/**'
+      - 'WordStation.DAL/**'
+      - 'WordStation.EL/**'
+      - 'WordStation.Tests/**'
+
+jobs:
+  run-api-tests:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Run Unit/API Tests
+      run: dotnet test WordStation.Tests --no-restore -c Release
