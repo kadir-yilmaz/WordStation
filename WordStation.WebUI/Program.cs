@@ -5,8 +5,6 @@ using WordStation.WebUI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC
-// MVC
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -15,17 +13,13 @@ builder.Services.AddControllersWithViews()
 
 builder.Services.ConfigureDataProtection(builder.Environment);
 
-// Authentication - Cookie Based (Extension Metodu)
 builder.Services.ConfigureCustomApplicationCookie();
 
-// HttpClient Configuration
 builder.Services.AddHttpClient("WordStationApi", client => {
-    // API URL - appsettings.json'dan okunabilir, fallback veriyoruz
     var apiUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5032"; 
     client.BaseAddress = new Uri(apiUrl);
 });
 
-// Service Registrations
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IWordApiService, WordApiService>();
 
@@ -42,7 +36,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// app.UseSession(); // Session middleware (KALDIRILDI)
 app.UseAuthentication();
 app.UseAuthorization();
 
