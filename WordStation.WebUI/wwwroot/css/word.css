@@ -169,7 +169,9 @@
 
 /* ===== TABLE VIEW STYLES ===== */
 #tableView .table-responsive {
-    overflow: visible !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
 }
 
 #tableView .table {
@@ -579,10 +581,20 @@
 
 /* ===== MOBILE & RESPONSIVE ===== */
 @media (max-width: 991.98px) {
+    /* Mobile'da flashcard-active scroll'u engellemesin */
+    html.flashcard-active {
+        overflow: auto !important;
+    }
+
+    html.flashcard-active body {
+        overflow: auto !important;
+    }
+
     .main-stage {
         flex-direction: column;
         height: auto;
         max-height: none;
+        overflow: visible;
     }
 
     .stage-col-example {
@@ -613,6 +625,30 @@
         padding: 16px 24px 24px 24px;
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Table view mobile horizontal scroll */
+    #tableView .table-responsive {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+    }
+
+    #tableView .table {
+        min-width: 600px;
+    }
+
+    /* Banner responsive */
+    .banner-shell {
+        margin-left: -4px;
+        margin-right: -4px;
+    }
+
+    .search-group {
+        min-width: 0;
+    }
+
+    .top-bar-fixed {
+        padding: 12px 0;
     }
 }
 
