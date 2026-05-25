@@ -45,13 +45,13 @@
                     </div>
 
                     @* 2. Arama Formu *@
-                    <form method="get" asp-controller="Word" asp-action="Index" class="banner-search d-flex"
+                    <form method="get" asp-controller="Word" asp-action="Index" class="banner-search d-flex gap-2"
                         style="min-width: 250px; flex: 1; max-width: 800px;">
                         <input type="hidden" name="listName" value="@Model.SelectedList" />
                         <input type="hidden" name="searchMode" id="searchModeInput"
                             value="@((Model.SearchMode ?? "starts").ToLower())" />
 
-                        <div class="search-group">
+                        <div class="search-group flex-grow-1 m-0">
                             <button type="button"
                                 class="search-mode-btn @(Model.SearchMode == "contains" ? "active" : "")"
                                 id="searchModeToggle"
@@ -71,11 +71,11 @@
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>
-
-                            <button type="submit" class="search-submit-btn" title="Search">
-                                <i class="bi bi-search"></i>
-                            </button>
                         </div>
+
+                        <button type="submit" class="search-submit-btn flex-shrink-0" style="height: 44px; width: 44px; border-radius: 14px;" title="Search">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </form>
 
                     @* 3. Butonlar *@

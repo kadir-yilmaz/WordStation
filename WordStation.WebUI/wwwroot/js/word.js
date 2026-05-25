@@ -193,7 +193,8 @@ function deleteWord(id, listName, wordEn, searchTerm, searchMode) {
         }
 
         document.body.appendChild(form);
-        form.submit();
+        // AJAX ile submit - token expire olursa modal gösterir
+        window.submitFormAjax(form);
     }
 }
 window.deleteWord = deleteWord;
@@ -623,18 +624,24 @@ function initModalHandlers() {
         this.querySelector('#updateListNameHidden').value = btn.dataset.listname;
     });
 
-    els.createWordForm?.addEventListener('submit', () => {
+    els.createWordForm?.addEventListener('submit', (e) => {
+        e.preventDefault(); // Normal submit'i engelle
         if (!els.tableView.classList.contains('d-none')) {
             sessionStorage.setItem('scrollTarget', 'preserve');
             sessionStorage.setItem('scrollPosition', window.scrollY.toString());
         }
+        // AJAX ile submit - token expire olursa modal gösterir
+        window.submitFormAjax(els.createWordForm);
     });
 
-    els.updateWordForm?.addEventListener('submit', () => {
+    els.updateWordForm?.addEventListener('submit', (e) => {
+        e.preventDefault(); // Normal submit'i engelle
         if (!els.tableView.classList.contains('d-none')) {
             sessionStorage.setItem('scrollTarget', 'preserve');
             sessionStorage.setItem('scrollPosition', window.scrollY.toString());
         }
+        // AJAX ile submit - token expire olursa modal gösterir
+        window.submitFormAjax(els.updateWordForm);
     });
 }
 
@@ -665,6 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSearchUI();
     initModalHandlers();
+
+    // Login sonrası kaydedilmiş form verisini geri yükle
+    if (window.restorePendingFormData) {
+        window.restorePendingFormData();
+    }
 
     // Scroll To Top
     window.addEventListener("scroll", () => {

@@ -81,6 +81,8 @@ a:hover {
 /* Navbar */
 .navbar.bg-dark {
     background-color: var(--navbar-bg) !important;
+    position: relative;
+    z-index: 1060;
 }
 
 .navbar-brand {
