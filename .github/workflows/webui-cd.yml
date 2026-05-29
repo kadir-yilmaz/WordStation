@@ -20,15 +20,13 @@ jobs:
         dotnet-version: '8.0.x'
     - name: Restore
       run: dotnet restore
-    - name: Update Production API URL
+    - name: Create appsettings.json from Secrets
       shell: pwsh
-      env:
-        API_BASE: ${{ secrets.API_BASE_URL }}
       run: |
-        $appsettingsPath = "WordStation.WebUI/appsettings.Production.json"
-        $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
-        $json.ApiSettings.BaseUrl = $env:API_BASE
-        $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
+        $appsettings = @"
+        ${{ secrets.WEBUI_APPSETTINGS_JSON }}
+        "@
+        $appsettings | Out-File -FilePath "WordStation.WebUI/appsettings.json" -Encoding utf8
     - name: Deploy WebUI
       run: |
         dotnet publish WordStation.WebUI -c Release `

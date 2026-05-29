@@ -20,17 +20,13 @@ jobs:
         dotnet-version: '8.0.x'
     - name: Restore
       run: dotnet restore
-    - name: Update Production secrets
+    - name: Create appsettings.json from Secrets
       shell: pwsh
-      env:
-        SQL_CONN_STRING: ${{ secrets.SQL_CONNECTION_STRING }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET_KEY }}
       run: |
-        $appsettingsPath = "WordStation.WebAPI/appsettings.Production.json"
-        $json = Get-Content $appsettingsPath -Raw | ConvertFrom-Json
-        $json.ConnectionStrings.sqlConnection = $env:SQL_CONN_STRING
-        $json.JwtSettings.SecretKey = $env:JWT_SECRET
-        $json | ConvertTo-Json -Depth 10 | Set-Content $appsettingsPath
+        $appsettings = @"
+        ${{ secrets.API_APPSETTINGS_JSON }}
+        "@
+        $appsettings | Out-File -FilePath "WordStation.WebAPI/appsettings.json" -Encoding utf8
     - name: Deploy API
       run: |
         dotnet publish WordStation.WebAPI -c Release `

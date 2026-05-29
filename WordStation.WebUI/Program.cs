@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using WordStation.WebUI.Services.Abstract;
 using WordStation.WebUI.Services.Concrete;
 using WordStation.WebUI.Extensions;
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,13 @@ builder.Services.AddControllersWithViews()
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
+
+builder.Services.AddNotyf(config =>
+{
+    config.DurationInSeconds = 5;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.BottomRight;
+});
 
 builder.Services.ConfigureDataProtection(builder.Environment);
 
@@ -38,6 +47,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseNotyf();
 
 app.MapControllerRoute(
     name: "default",
