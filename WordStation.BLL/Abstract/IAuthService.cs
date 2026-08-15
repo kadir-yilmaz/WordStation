@@ -8,6 +8,7 @@ namespace WordStation.BLL.Abstract
     {
         Task<(bool Success, string Message, IEnumerable<string> Errors)> RegisterUserAsync(RegisterDto model);
         Task<(bool Success, string Message, object TokenData)> LoginUserAsync(LoginDto model);
+        Task<(bool Success, string Message, object TokenData)> GoogleLoginUserAsync(GoogleLoginDto model);
         Task<(bool Success, string Message, object TokenData)> RefreshTokenAsync(TokenRequestDto model);
         Task<(bool Success, string Message)> RevokeTokenAsync(string refreshToken);
     }

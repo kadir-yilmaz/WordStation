@@ -45,6 +45,19 @@ namespace WordStation.WebAPI.Controllers
             return Ok(tokenData);
         }
 
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var (success, message, tokenData) = await _authService.GoogleLoginUserAsync(model);
+            if (!success)
+                return BadRequest(new { message });
+
+            return Ok(tokenData);
+        }
+
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto model)
         {

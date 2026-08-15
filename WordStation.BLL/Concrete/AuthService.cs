@@ -60,6 +60,48 @@ namespace WordStation.BLL.Concrete
             return (true, "Giriş başarılı", tokenData);
         }
 
+        public async Task<(bool Success, string Message, object TokenData)> GoogleLoginUserAsync(GoogleLoginDto model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                return (false, "Email adresi zorunludur.", null);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                // Kullanıcı daha önce kayıt olmamışsa yeni kullanıcı oluştur
+                user = new IdentityUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    EmailConfirmed = true
+                };
+
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    return (false, $"Google kullanıcısı oluşturulamadı: {errors}", null);
+                }
+            }
+
+            // Google login bilgisini kullanıcıya bağla (daha önce bağlanmadıysa)
+            if (!string.IsNullOrEmpty(model.GoogleId))
+            {
+                var logins = await _userManager.GetLoginsAsync(user);
+                if (!logins.Any(l => l.LoginProvider == "Google" && l.ProviderKey == model.GoogleId))
+                {
+                    await _userManager.AddLoginAsync(user, new UserLoginInfo("Google", model.GoogleId, "Google"));
+                }
+            }
+
+            // Hem email/şifre ile daha önce kayıt olmuş kullanıcı hem de yeni oluşturulan kullanıcı için JWT üretilir
+            var tokenData = await GenerateTokenResponseAsync(user);
+            return (true, "Google ile giriş başarılı.", tokenData);
+        }
+
         public async Task<(bool Success, string Message, object TokenData)> RefreshTokenAsync(TokenRequestDto model)
         {
             var storedRefreshToken = _refreshTokenRepository.GetByCondition(x => x.Token == model.RefreshToken, trackChanges: false)

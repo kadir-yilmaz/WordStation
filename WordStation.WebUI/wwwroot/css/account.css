@@ -118,40 +118,71 @@
     color: #fff;
 }
 
-/* Social Buttons */
-.social-login {
-    margin-top: 35px;
+/* Auth Divider & Social Login */
+.auth-divider {
+    display: flex;
+    align-items: center;
     text-align: center;
-    border-top: 1px solid var(--account-input-border);
-    padding-top: 25px;
+    margin: 16px 0 12px 0;
+    color: #777;
+    font-size: 0.8rem;
 }
 
-.social-login p {
-    color: #888;
-    font-size: 0.9rem;
-    margin-bottom: 20px;
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--account-input-border);
 }
 
-.social-btn {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    border: 1px solid var(--account-input-border);
-    background: var(--account-input-bg);
-    margin: 0 10px;
+.auth-divider span {
+    padding: 0 10px;
+}
+
+.btn-google,
+a.btn-google,
+a.btn-google:hover,
+a.btn-google:focus,
+a.btn-google:active,
+a.btn-google:visited {
+    width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    color: #888;
-    transition: all 0.3s ease;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--account-input-border);
+    background: var(--account-input-bg);
+    color: #ccc;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.social-btn:hover {
+.btn-google:hover,
+a.btn-google:hover {
     background: var(--account-tab-bg);
     border-color: var(--account-primary);
-    color: var(--account-primary);
-    transform: translateY(-3px);
+    color: #fff;
+    text-decoration: none !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.btn-google i,
+a.btn-google i {
+    font-size: 1rem;
+    color: #ea4335;
+    text-decoration: none !important;
+    display: inline-block;
+}
+
+.auth-footer-text {
+    color: #888;
+    font-size: 0.88rem;
+    margin: 0;
 }
 
 /* Links */

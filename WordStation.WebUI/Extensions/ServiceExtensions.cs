@@ -1,36 +1,37 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
 
 namespace WordStation.WebUI.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void ConfigureCustomApplicationCookie(this IServiceCollection services)
+        public static void ConfigureCustomApplicationCookie(this IServiceCollection services, IConfiguration configuration)
         {
             // Cookie ayarlarını burada yapılandırıyoruz
             var cookieBuilder = new CookieBuilder
             {
-                Name = "WordStationAuth", // Kullanıcının isteği üzerine WordStationCookie de olabilir ama auth uyumu için mevcut ismi koruyalim veya değiştirelim. Kullanıcı kodunda "WordStationCookie" demiş.
+                Name = "WordStationAuth",
                 HttpOnly = true,
                 SameSite = SameSiteMode.Lax,
                 SecurePolicy = CookieSecurePolicy.SameAsRequest
             };
 
-            // Identity olmadığı için direkt AddAuthentication().AddCookie() zinciri kullanıyoruz.
-            // Ancak bu metodun sadece ayarları yapılandırmasını istiyorsak Configure kullanabiliriz.
-            // En temizi Program.cs'deki zinciri buraya taşımaktır.
-            
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = new PathString("/Account/Login");
-                    options.LogoutPath = new PathString("/Account/Logout");
-                    options.AccessDeniedPath = new PathString("/Account/AccessDenied");
-                    options.Cookie = cookieBuilder;
-                    
-                    options.SlidingExpiration = false;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(7); 
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.LoginPath = new PathString("/Account/Login");
+                options.LogoutPath = new PathString("/Account/Logout");
+                options.AccessDeniedPath = new PathString("/Account/AccessDenied");
+                options.Cookie = cookieBuilder;
+                
+                options.SlidingExpiration = false;
+                options.ExpireTimeSpan = TimeSpan.FromDays(7); 
 
                     options.Events = new CookieAuthenticationEvents
                     {
@@ -103,6 +104,14 @@ namespace WordStation.WebUI.Extensions
                             }
                         }
                     };
+                })
+                .AddCookie("ExternalCookie")
+                .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+                {
+                    options.ClientId = configuration["Authentication:Google:ClientId"] ?? "";
+                    options.ClientSecret = configuration["Authentication:Google:ClientSecret"] ?? "";
+                    options.SignInScheme = "ExternalCookie";
+                    options.CallbackPath = "/signin-google";
                 });
         }
         public static void ConfigureDataProtection(this IServiceCollection services, IWebHostEnvironment environment)

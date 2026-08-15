@@ -22,7 +22,7 @@ builder.Services.AddNotyf(config =>
 
 builder.Services.ConfigureDataProtection(builder.Environment);
 
-builder.Services.ConfigureCustomApplicationCookie();
+builder.Services.ConfigureCustomApplicationCookie(builder.Configuration);
 
 builder.Services.AddHttpClient("WordStationApi", client => {
     var apiUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5032"; 

@@ -44,20 +44,22 @@
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
 
-                <button type="submit" class="btn btn-account mb-3">
+                <button type="submit" class="btn btn-account">
                     Hesabı Oluştur
                 </button>
             </form>
 
-            <div class="text-center mt-3">
-                <p style="color: #888">Zaten bir hesabınız var mı? <a asp-action="Login" class="forgot-password" style="font-weight: bold">Giriş yapın</a></p>
+            <div class="auth-divider">
+                <span>veya</span>
             </div>
-            
-            <div class="social-login">
-                <p>veya Google ile devam et</p>
-                <button class="social-btn">
-                    <i class="fab fa-google"></i>
-                </button>
+
+            <a asp-action="GoogleLogin" class="btn btn-google text-decoration-none">
+                <i class="fab fa-google"></i>
+                Google ile devam et
+            </a>
+
+            <div class="text-center mt-3">
+                <p class="auth-footer-text">Zaten bir hesabınız var mı? <a asp-action="Login" class="forgot-password" style="font-weight: 600">Giriş yapın</a></p>
             </div>
         </div>
     </div>

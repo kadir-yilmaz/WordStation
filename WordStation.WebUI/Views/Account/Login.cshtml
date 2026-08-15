@@ -39,21 +39,23 @@
                     <a href="#" class="forgot-password">Şifremi unuttum</a>
                 </div>
 
-                <button type="submit" class="btn btn-account mb-3">
+                <button type="submit" class="btn btn-account">
                     <i class="fa-solid fa-right-to-bracket me-2"></i>
                     Giriş yap
                 </button>
             </form>
 
-            <div class="text-center mt-3">
-                <p style="color: #888">Hesabınız yok mu? <a asp-action="Register" class="forgot-password" style="font-weight: bold">Üye olun</a></p>
+            <div class="auth-divider">
+                <span>veya</span>
             </div>
 
-            <div class="social-login">
-                <p>veya Google ile devam et</p>
-                <button class="social-btn">
-                    <i class="fab fa-google"></i>
-                </button>
+            <a asp-action="GoogleLogin" asp-route-returnUrl="@Model.ReturnUrl" class="btn btn-google text-decoration-none">
+                <i class="fab fa-google"></i>
+                Google ile devam et
+            </a>
+
+            <div class="text-center mt-3">
+                <p class="auth-footer-text">Hesabınız yok mu? <a asp-action="Register" class="forgot-password" style="font-weight: 600">Üye olun</a></p>
             </div>
         </div>
     </div>

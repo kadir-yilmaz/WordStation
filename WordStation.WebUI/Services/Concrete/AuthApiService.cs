@@ -72,6 +72,56 @@ namespace WordStation.WebUI.Services.Concrete
             }
         }
 
+        public async Task<(bool Success, TokenResponse? Data, string? Error)> GoogleLoginAsync(string email, string googleId, string name)
+        {
+            var googleData = new { Email = email, GoogleId = googleId, Name = name };
+            var content = new StringContent(
+                JsonSerializer.Serialize(googleData),
+                Encoding.UTF8,
+                "application/json");
+
+            try
+            {
+                var response = await _httpClient.PostAsync("auth/google-login", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage;
+                    try
+                    {
+                        var errorJson = await response.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(errorJson);
+                        if (doc.RootElement.TryGetProperty("message", out var msgElement))
+                        {
+                            errorMessage = msgElement.GetString();
+                        }
+                        else
+                        {
+                            errorMessage = errorJson;
+                        }
+                    }
+                    catch
+                    {
+                        errorMessage = response.ReasonPhrase ?? response.StatusCode.ToString();
+                    }
+
+                    return (false, null, errorMessage ?? "Google ile giriş başarısız.");
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return (true, tokenResponse, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, null, $"Bağlantı hatası: {ex.Message}");
+            }
+        }
+
         public async Task<(bool Success, string[] Errors)> RegisterAsync(string email, string password)
         {
             var registerData = new { Email = email, Password = password, ConfirmPassword = password };
