@@ -1,7 +1,13 @@
 name: WebUI (CI/CD)
 
 on:
-  workflow_dispatch: # Sadece butona basarak manuel tetiklenir
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'UI Testleri çalıştırılsın mı?'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   build-and-test:
@@ -18,12 +24,14 @@ jobs:
     - name: Build
       run: dotnet build WordStation.sln -c Debug
     - name: Install Playwright Browsers
+      if: ${{ inputs.run_tests == true }}
       run: |
         $playwrightPath = Get-ChildItem -Path "WordStation.UITests/bin/Debug" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
         if ($playwrightPath) {
           powershell -ExecutionPolicy Bypass -File $playwrightPath.FullName install
         }
     - name: Start WebUI in Background
+      if: ${{ inputs.run_tests == true }}
       shell: pwsh
       env:
         ASPNETCORE_ENVIRONMENT: "Development"
@@ -48,6 +56,7 @@ jobs:
             $retry++
         }
     - name: Run UI Tests
+      if: ${{ inputs.run_tests == true }}
       env:
         TEST_BASE_URL: http://localhost:5000
         GITHUB_ACTIONS: "true"

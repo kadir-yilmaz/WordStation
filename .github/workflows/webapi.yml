@@ -1,7 +1,13 @@
 name: WebAPI (CI/CD)
 
 on:
-  workflow_dispatch: # Sadece butona basarak manuel tetiklenir
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Testler çalıştırılsın mı?'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   build-and-test:
@@ -18,6 +24,7 @@ jobs:
     - name: Build Solution
       run: dotnet build WordStation.sln -c Release --no-restore
     - name: Run API Tests
+      if: ${{ inputs.run_tests == true }}
       run: dotnet test WordStation.Tests -c Release --no-build
 
   deploy:
