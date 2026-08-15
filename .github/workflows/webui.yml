@@ -1,13 +1,7 @@
 name: WebUI (CI/CD)
 
 on:
-  workflow_dispatch: # GitHub UI üzerinden manuel 'Run workflow' ile tetikleme
-  push:
-    branches: [ main ]
-    paths:
-      - 'WordStation.WebUI/**'
-      - 'WordStation.UITests/**'
-      - 'WordStation.BLL/**'
+  workflow_dispatch: # Sadece butona basarak manuel tetiklenir
 
 jobs:
   build-and-test:
