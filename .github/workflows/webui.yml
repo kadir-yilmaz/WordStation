@@ -10,35 +10,39 @@ on:
         default: false
 
 jobs:
-  build-and-test:
-    name: 🧪 Build & Test UI (CI)
+  pipeline:
+    name: 🚀 WebUI Pipeline (Build & Deploy)
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
+
     - name: Restore
       run: dotnet restore
-    - name: Build
-      run: dotnet build WordStation.sln -c Debug
-    - name: Install Playwright Browsers
+
+    - name: 🎭 Install Playwright Browsers
       if: ${{ inputs.run_tests == true }}
       run: |
+        dotnet build WordStation.sln -c Debug
         $playwrightPath = Get-ChildItem -Path "WordStation.UITests/bin/Debug" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
         if ($playwrightPath) {
           powershell -ExecutionPolicy Bypass -File $playwrightPath.FullName install
         }
-    - name: Start WebUI in Background
+
+    - name: 🧪 Start WebUI & Run Tests
       if: ${{ inputs.run_tests == true }}
       shell: pwsh
       env:
         ASPNETCORE_ENVIRONMENT: "Development"
+        TEST_BASE_URL: "http://localhost:5000"
+        GITHUB_ACTIONS: "true"
       run: |
-        Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000 --no-build"
+        Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000"
         
-        # Sitenin ayaga kalkmasini bekle (Healthcheck)
         $maxRetries = 15
         $retry = 0
         $ready = $false
@@ -48,39 +52,23 @@ jobs:
                 $res = Invoke-WebRequest -Uri "http://localhost:5000/Account/Login" -UseBasicParsing -TimeoutSec 5
                 if ($res.StatusCode -eq 200) {
                     $ready = $true
-                    Write-Host "✅ WebUI http://localhost:5000/Account/Login adresinde hazır!"
+                    Write-Host "✅ WebUI hazır!"
                 }
             } catch {
                 Write-Host "⏳ WebUI baslatiliyor... ($($retry + 1)/$maxRetries)"
             }
             $retry++
         }
-    - name: Run UI Tests
-      if: ${{ inputs.run_tests == true }}
-      env:
-        TEST_BASE_URL: http://localhost:5000
-        GITHUB_ACTIONS: "true"
-      run: dotnet test WordStation.UITests --no-build -c Debug
+        dotnet test WordStation.UITests -c Debug
 
-  deploy:
-    name: 🚀 Deploy WebUI (CD)
-    needs: build-and-test # CI testleri başarısız olursa Deploy ASLA çalışmaz
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    - name: Restore
-      run: dotnet restore
     - name: Create appsettings.json from Secrets
       shell: pwsh
       env:
         APPSETTINGS_JSON: ${{ secrets.WEBUI_APPSETTINGS_JSON }}
       run: |
         $env:APPSETTINGS_JSON | Out-File -FilePath "WordStation.WebUI/appsettings.json" -Encoding utf8
-    - name: Deploy WebUI
+
+    - name: 🚀 Deploy WebUI via WebDeploy
       shell: pwsh
       env:
         WEB_DEPLOY_JSON: ${{ secrets.WEB_DEPLOY_JSON }}

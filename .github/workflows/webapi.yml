@@ -4,48 +4,38 @@ on:
   workflow_dispatch:
     inputs:
       run_tests:
-        description: 'Testler çalıştırılsın mı?'
+        description: 'Birim Testleri çalıştırılsın mı?'
         required: true
         type: boolean
         default: false
 
 jobs:
-  build-and-test:
-    name: 🧪 Build & Test API (CI)
+  pipeline:
+    name: 🚀 WebAPI Pipeline (Build & Deploy)
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    - name: Restore
-      run: dotnet restore
-    - name: Build Solution
-      run: dotnet build WordStation.sln -c Release --no-restore
-    - name: Run API Tests
-      if: ${{ inputs.run_tests == true }}
-      run: dotnet test WordStation.Tests -c Release --no-build
 
-  deploy:
-    name: 🚀 Deploy WebAPI (CD)
-    needs: build-and-test # CI adımı başarısız olursa Deploy ASLA çalışmaz
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
+
     - name: Restore
       run: dotnet restore
+
+    - name: 🧪 Run API Unit Tests
+      if: ${{ inputs.run_tests == true }}
+      run: dotnet test WordStation.Tests -c Release
+
     - name: Create appsettings.json from Secrets
       shell: pwsh
       env:
         APPSETTINGS_JSON: ${{ secrets.API_APPSETTINGS_JSON }}
       run: |
         $env:APPSETTINGS_JSON | Out-File -FilePath "WordStation.WebAPI/appsettings.json" -Encoding utf8
-    - name: Deploy API
+
+    - name: 🚀 Deploy API via WebDeploy
       shell: pwsh
       env:
         WEB_DEPLOY_JSON: ${{ secrets.WEB_DEPLOY_JSON }}
