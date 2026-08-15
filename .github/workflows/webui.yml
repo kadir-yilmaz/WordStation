@@ -1,0 +1,84 @@
+name: WebUI (CI/CD)
+
+on:
+  workflow_dispatch: # GitHub UI üzerinden manuel 'Run workflow' ile tetikleme
+  push:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebUI/**'
+      - 'WordStation.UITests/**'
+      - 'WordStation.BLL/**'
+
+jobs:
+  build-and-test:
+    name: 🧪 Build & Test UI (CI)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    - name: Restore
+      run: dotnet restore
+    - name: Build
+      run: dotnet build WordStation.sln -c Debug
+    - name: Install Playwright Browsers
+      run: |
+        $playwrightPath = Get-ChildItem -Path "WordStation.UITests/bin/Debug" -Filter "playwright.ps1" -Recurse | Select-Object -First 1
+        if ($playwrightPath) {
+          powershell -ExecutionPolicy Bypass -File $playwrightPath.FullName install
+        }
+    - name: Start WebUI in Background
+      shell: pwsh
+      run: |
+        Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000"
+        Start-Sleep -Seconds 20
+    - name: Run UI Tests
+      env:
+        TEST_BASE_URL: http://localhost:5000
+        GITHUB_ACTIONS: "true"
+      run: dotnet test WordStation.UITests --no-build -c Debug
+
+  deploy:
+    name: 🚀 Deploy WebUI (CD)
+    needs: build-and-test # CI testleri başarısız olursa Deploy ASLA çalışmaz
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    - name: Restore
+      run: dotnet restore
+    - name: Create appsettings.json from Secrets
+      shell: pwsh
+      env:
+        APPSETTINGS_JSON: ${{ secrets.WEBUI_APPSETTINGS_JSON }}
+      run: |
+        $env:APPSETTINGS_JSON | Out-File -FilePath "WordStation.WebUI/appsettings.json" -Encoding utf8
+    - name: Deploy WebUI
+      shell: pwsh
+      env:
+        WEB_DEPLOY_JSON: ${{ secrets.WEB_DEPLOY_JSON }}
+      run: |
+        $deployConfig = $env:WEB_DEPLOY_JSON | ConvertFrom-Json
+        $server = $deployConfig.WebUI.Server
+        if (-not $server.StartsWith("http")) {
+            $server = "https://$server/MsDeploy.axd"
+        }
+        $site = $deployConfig.WebUI.SiteName
+        $user = $deployConfig.WebUI.UserName
+        $pass = $deployConfig.WebUI.Password
+
+        dotnet publish WordStation.WebUI -c Release `
+          /p:WebPublishMethod=MSDeploy `
+          /p:MSDeployPublishMethod=WMSVC `
+          /p:MsDeployServiceUrl="$server" `
+          /p:DeployIisAppPath="$site" `
+          /p:UserName="$user" `
+          /p:Password="$pass" `
+          /p:AllowUntrustedCertificate=true `
+          /p:EnableMsDeployAppOffline=true `
+          /p:SkipExtraFilesOnServer=true

@@ -1,18 +1,37 @@
-name: WebAPI-CD
+name: WebAPI (CI/CD)
 
 on:
-  workflow_dispatch: # GitHub UI üzerinden manuel olarak tetiklemeyi sağlar
-  workflow_run:
-    workflows: ["WebAPI-CI"]
-    types:
-      - completed
-    branches: [main]
+  workflow_dispatch: # GitHub UI üzerinden manuel 'Run workflow' ile tetikleme
+  push:
+    branches: [ main ]
+    paths:
+      - 'WordStation.WebAPI/**'
+      - 'WordStation.BLL/**'
+      - 'WordStation.DAL/**'
+      - 'WordStation.EL/**'
+      - 'WordStation.Tests/**'
 
 jobs:
-  deploy:
-    name: Deploy WebAPI
+  build-and-test:
+    name: 🧪 Build & Test API (CI)
     runs-on: windows-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    - name: Restore
+      run: dotnet restore
+    - name: Build Solution
+      run: dotnet build WordStation.sln -c Release --no-restore
+    - name: Run API Tests
+      run: dotnet test WordStation.Tests -c Release --no-build
+
+  deploy:
+    name: 🚀 Deploy WebAPI (CD)
+    needs: build-and-test # CI adımı başarısız olursa Deploy ASLA çalışmaz
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
