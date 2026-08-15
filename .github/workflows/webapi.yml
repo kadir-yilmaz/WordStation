@@ -51,7 +51,8 @@ jobs:
       env:
         WEB_DEPLOY_JSON: ${{ secrets.WEB_DEPLOY_JSON }}
       run: |
-        $deployConfig = $env:WEB_DEPLOY_JSON | ConvertFrom-Json
+        $rawJson = $env:WEB_DEPLOY_JSON | Out-String
+        $deployConfig = $rawJson | ConvertFrom-Json
         $server = $deployConfig.WebAPI.Server
         if (-not $server.StartsWith("http")) {
             $server = "https://$server/MsDeploy.axd"
