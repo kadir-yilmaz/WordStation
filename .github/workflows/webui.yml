@@ -31,9 +31,28 @@ jobs:
         }
     - name: Start WebUI in Background
       shell: pwsh
+      env:
+        ASPNETCORE_ENVIRONMENT: "Development"
       run: |
-        Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000"
-        Start-Sleep -Seconds 20
+        Start-Process dotnet -ArgumentList "run --project WordStation.WebUI/WordStation.WebUI.csproj --urls http://localhost:5000 --no-build"
+        
+        # Sitenin ayaga kalkmasini bekle (Healthcheck)
+        $maxRetries = 15
+        $retry = 0
+        $ready = $false
+        while ($retry -lt $maxRetries -and -not $ready) {
+            Start-Sleep -Seconds 2
+            try {
+                $res = Invoke-WebRequest -Uri "http://localhost:5000/Account/Login" -UseBasicParsing -TimeoutSec 5
+                if ($res.StatusCode -eq 200) {
+                    $ready = $true
+                    Write-Host "✅ WebUI http://localhost:5000/Account/Login adresinde hazır!"
+                }
+            } catch {
+                Write-Host "⏳ WebUI baslatiliyor... ($($retry + 1)/$maxRetries)"
+            }
+            $retry++
+        }
     - name: Run UI Tests
       env:
         TEST_BASE_URL: http://localhost:5000
