@@ -23,20 +23,31 @@ jobs:
       run: dotnet restore
     - name: Create appsettings.json from Secrets
       shell: pwsh
+      env:
+        APPSETTINGS_JSON: ${{ secrets.API_APPSETTINGS_JSON }}
       run: |
-        $appsettings = @"
-        ${{ secrets.API_APPSETTINGS_JSON }}
-        "@
-        $appsettings | Out-File -FilePath "WordStation.WebAPI/appsettings.json" -Encoding utf8
+        $env:APPSETTINGS_JSON | Out-File -FilePath "WordStation.WebAPI/appsettings.json" -Encoding utf8
     - name: Deploy API
+      shell: pwsh
+      env:
+        WEB_DEPLOY_JSON: ${{ secrets.WEB_DEPLOY_JSON }}
       run: |
+        $deployConfig = $env:WEB_DEPLOY_JSON | ConvertFrom-Json
+        $server = $deployConfig.WebAPI.Server
+        if (-not $server.StartsWith("http")) {
+            $server = "https://$server/MsDeploy.axd"
+        }
+        $site = $deployConfig.WebAPI.SiteName
+        $user = $deployConfig.WebAPI.UserName
+        $pass = $deployConfig.WebAPI.Password
+
         dotnet publish WordStation.WebAPI -c Release `
           /p:WebPublishMethod=MSDeploy `
           /p:MSDeployPublishMethod=WMSVC `
-          /p:MsDeployServiceUrl=${{ secrets.WEBAPI_SERVER }} `
-          /p:DeployIisAppPath=${{ secrets.WEBAPI_SITENAME }} `
-          /p:UserName=${{ secrets.WEBAPI_USERNAME }} `
-          /p:Password=${{ secrets.WEBAPI_PASSWORD }} `
+          /p:MsDeployServiceUrl="$server" `
+          /p:DeployIisAppPath="$site" `
+          /p:UserName="$user" `
+          /p:Password="$pass" `
           /p:AllowUntrustedCertificate=true `
           /p:EnableMsDeployAppOffline=true `
           /p:SkipExtraFilesOnServer=true
