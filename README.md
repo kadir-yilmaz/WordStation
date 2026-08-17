@@ -14,8 +14,7 @@ ASP.NET Core (Web API & MVC) kullanılarak geliştirilmiş, gelişmiş mimari ya
 - **UI**: ASP.NET Core MVC, Bootstrap 5, Bi-Icons, Custom CSS (Glassmorphism & Dark Theme)
 - **Testing**: xUnit & Playwright (UI/E2E Testing)
 - **CI/CD Süreçleri**: 
-    - **GitHub Actions**: Akıllı Pipeline yapısı kurulmuştur. `paths` filtreleri sayesinde API değişimlerinde sadece API testleri, UI değişimlerinde sadece UI testleri tetiklenir.
-    - **Jenkins**: Yerel makinede hibrit yapı ile deployment süreçlerini yönetir.
+    - **GitHub Actions**: Akıllı Pipeline yapısı kurulmuştur. `paths` filtreleri sayesinde API değişimlerinde sadece API testleri ve deployment, UI değişimlerinde sadece UI testleri ve deployment tetiklenir.
 
 ## Test Altyapısı ve Çalıştırma
 

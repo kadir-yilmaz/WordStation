@@ -63,6 +63,19 @@ builder.Services.AddRouting(options =>
 
 var app = builder.Build();
 
+// Otomatik Database Migration
+try
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Veritabanı migration uygulanırken bir hata oluştu.");
+}
+
 // Middleware
 if (app.Environment.IsDevelopment())
 {
