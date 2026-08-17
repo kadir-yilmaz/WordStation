@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,12 +11,6 @@ namespace WordStation.DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "SynonymWords");
-
-            migrationBuilder.DropTable(
-                name: "SynonymGroups");
-
             migrationBuilder.CreateTable(
                 name: "DailyQuizPlans",
                 columns: table => new
