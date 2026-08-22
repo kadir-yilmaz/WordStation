@@ -1,7 +1,7 @@
-namespace WordStation.EL.Dtos
+﻿namespace WordStation.EL.Dtos
 {
     public class RevokeTokenDto
     {
-        public string RefreshToken { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }

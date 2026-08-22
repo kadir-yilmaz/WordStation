@@ -42,7 +42,7 @@ namespace WordStation.WebAPI.Controllers
             if (!success)
                 return Unauthorized(new { message });
 
-            //  Web SPA (Flutter Web vb.) istemcileri için HttpOnly Refresh Token Cookie'si ekle
+            // 🍪 Web SPA (Flutter Web vb.) istemcileri için HttpOnly Refresh Token Cookie'si ekle
             SetRefreshTokenCookie(tokenData);
 
             return Ok(tokenData);
@@ -58,7 +58,7 @@ namespace WordStation.WebAPI.Controllers
             if (!success)
                 return BadRequest(new { message });
 
-            //  Web SPA (Flutter Web vb.) istemcileri için HttpOnly Refresh Token Cookie'si ekle
+            // 🍪 Web SPA (Flutter Web vb.) istemcileri için HttpOnly Refresh Token Cookie'si ekle
             SetRefreshTokenCookie(tokenData);
 
             return Ok(tokenData);
@@ -69,7 +69,7 @@ namespace WordStation.WebAPI.Controllers
         {
             model ??= new TokenRequestDto();
 
-            //  Eğer body'de RefreshToken boşsa (Web SPA / Silent Refresh), Cookie'den oku
+            // 🍪 Eğer body'de RefreshToken boşsa (Web SPA / Silent Refresh), Cookie'den oku
             if (string.IsNullOrEmpty(model.RefreshToken))
             {
                 var cookieRefreshToken = Request.Cookies["refreshToken"];
@@ -79,11 +79,16 @@ namespace WordStation.WebAPI.Controllers
                 }
             }
 
+            if (string.IsNullOrEmpty(model.RefreshToken))
+            {
+                return BadRequest(new { message = "Refresh token bulunamadı." });
+            }
+
             var (success, message, tokenData) = await _authService.RefreshTokenAsync(model);
             if (!success)
                 return Unauthorized(new { message });
 
-            //  Yenilenen veya mevcut Refresh Token'ı Cookie olarak güncelle
+            // 🍪 Yenilenen veya mevcut Refresh Token'ı Cookie olarak güncelle
             SetRefreshTokenCookie(tokenData);
 
             return Ok(tokenData);
