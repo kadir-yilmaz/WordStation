@@ -21,10 +21,22 @@ namespace WordStation.DAL
         
         public DbSet<Word> Words { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<DailyQuizPlan> DailyQuizPlans { get; set; }
+        public DbSet<QuizHistory> QuizHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DailyQuizPlan>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+            });
+
+            modelBuilder.Entity<QuizHistory>(entity =>
+            {
+                entity.HasIndex(e => e.UserId);
+            });
         }
     }
 

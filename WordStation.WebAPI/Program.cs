@@ -50,8 +50,12 @@ builder.Services.AddCustomJwtAuthentication(builder.Configuration);
 // Scoped Repositories & Services
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IDailyQuizRepository, DailyQuizRepository>();
+builder.Services.AddScoped<IQuizHistoryRepository, QuizHistoryRepository>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDailyQuizService, DailyQuizService>();
+builder.Services.AddScoped<IQuizHistoryService, QuizHistoryService>();
 
 builder.Services.AddRouting(options =>
 {
@@ -60,6 +64,19 @@ builder.Services.AddRouting(options =>
 });
 
 var app = builder.Build();
+
+// Otomatik Database Migration
+try
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Veritabanı migration uygulanırken bir hata oluştu.");
+}
 
 // Middleware
 if (app.Environment.IsDevelopment())
