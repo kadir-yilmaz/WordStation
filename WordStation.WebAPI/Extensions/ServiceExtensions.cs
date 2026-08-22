@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -47,32 +47,44 @@ namespace WordStation.WebAPI.Extensions
 
         public static void AddCustomCors(this IServiceCollection services, IConfiguration configuration)
         {
-            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigins", policy =>
                 {
-                    if (allowedOrigins != null && allowedOrigins.Length > 0)
+                    policy.SetIsOriginAllowed(origin =>
                     {
-                        policy.WithOrigins(allowedOrigins)
-                              .AllowAnyMethod()
-                              .AllowAnyHeader()
-                              .AllowCredentials(); // Cookie/Auth paylaşımları için önemli
-                    }
-                    else
-                    {
-                        // Fallback: Eğer konfigürasyon boşsa güvenlik için hata vermesini veya kısıtlı kalmasını sağlayabiliriz.
-                        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                    }
+                        if (string.IsNullOrEmpty(origin)) return false;
+
+                        try
+                        {
+                            var uri = new Uri(origin);
+                            // Localhost / 127.0.0.1 geliştirme ortamları
+                            if (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+                                uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return true;
+                            }
+
+                            // Konfigürasyonda tanımlı izin verilen domainler
+                            return allowedOrigins.Any(allowed =>
+                                allowed.TrimEnd('/').Equals(origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase));
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials(); // 🍪 Cookie ve Auth başlıklarının iletilmesi için zorunlu
                 });
             });
         }
 
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            // Repositories ve Services buraya taşınabilir (İsteğe bağlı)
-            // Şu an sadece Auth kalsın ama ilerde burayı büyütebilirsiniz.
         }
     }
 }
