@@ -454,6 +454,11 @@ els.flashcard?.addEventListener('click', () => els.flashcard.classList.toggle('f
 document.addEventListener('keydown', (e) => {
     // Input/Textarea ise işlem yapma (Ancak Range Slider hariç)
     if ((e.target.tagName === 'INPUT' && e.target.type !== 'range') || e.target.tagName === 'TEXTAREA') return;
+
+    // Word Detail modalı açıksa flashcard kontrolleri çalışmasın (kendi dinleyicisi çalışır)
+    const detailModal = document.getElementById('wordDetailModal');
+    if (detailModal && detailModal.classList.contains('show')) return;
+
     if (els.flashcardView.classList.contains('d-none')) return;
 
     const key = e.key;
@@ -473,7 +478,7 @@ document.addEventListener('keydown', (e) => {
         const nextIndex = getRandomUnusedIndex();
         if (nextIndex !== -1) showWord(nextIndex);
     }
-    else if (key === 's' || key === 'S') {
+    else if (key === '.' || e.code === 'Period' || e.code === 'NumpadDecimal') {
         // Arama inputu aktifken tetiklenmesin
         if (document.activeElement?.id !== 'searchInput') {
             e.preventDefault();

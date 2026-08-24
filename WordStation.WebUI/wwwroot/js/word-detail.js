@@ -33,3 +33,20 @@ window.showWordDetailFromElement = function(element) {
     const example = element.getAttribute('data-example');
     showWordDetail(en, tr, example);
 };
+
+// Detail modal açıkken klavyeden '.' basıldığında telaffuz çal
+document.addEventListener('keydown', function(e) {
+    if ((e.target.tagName === 'INPUT' && e.target.type !== 'range') || e.target.tagName === 'TEXTAREA') return;
+
+    const modalEl = document.getElementById('wordDetailModal');
+    if (modalEl && modalEl.classList.contains('show')) {
+        const key = e.key;
+        if (key === '.' || e.code === 'Period' || e.code === 'NumpadDecimal') {
+            e.preventDefault();
+            const detailWordEn = document.getElementById('detailWordEn')?.textContent?.trim();
+            if (detailWordEn && window.speakWord) {
+                window.speakWord(detailWordEn);
+            }
+        }
+    }
+});
