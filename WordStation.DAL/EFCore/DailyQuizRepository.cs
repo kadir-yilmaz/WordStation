@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,45 +15,15 @@ namespace WordStation.DAL.EFCore
             _context = context;
         }
 
-        public async Task<DailyQuizPlan?> GetPlanByIdAsync(int id, bool trackChanges = false)
-        {
-            var query = _context.DailyQuizPlans.AsQueryable();
-            return trackChanges
-                ? await query.FirstOrDefaultAsync(p => p.Id == id)
-                : await query.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<List<DailyQuizPlan>> GetPlansByUserIdAsync(string userId, bool trackChanges = false)
+        public async Task<DailyQuizPlan?> GetPlanByUserIdAsync(string userId, bool trackChanges = false)
         {
             var query = _context.DailyQuizPlans.AsQueryable();
             if (!trackChanges)
                 query = query.AsNoTracking();
-
-            return await query
-                .Where(p => p.UserId == userId)
-                .OrderByDescending(p => p.IsActive)
-                .ThenByDescending(p => p.UpdatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<DailyQuizPlan?> GetActivePlanByUserIdAsync(string userId, bool trackChanges = false)
-        {
-            var query = _context.DailyQuizPlans.AsQueryable();
-            if (!trackChanges)
-                query = query.AsNoTracking();
-
-            var active = await query.FirstOrDefaultAsync(p => p.UserId == userId && p.IsActive);
-            if (active != null)
-                return active;
 
             return await query
                 .OrderByDescending(p => p.UpdatedAt)
                 .FirstOrDefaultAsync(p => p.UserId == userId);
-        }
-
-        public async Task<DailyQuizPlan?> GetPlanByUserIdAsync(string userId, bool trackChanges = false)
-        {
-            return await GetActivePlanByUserIdAsync(userId, trackChanges);
         }
 
         public void CreatePlan(DailyQuizPlan plan) => _context.DailyQuizPlans.Add(plan);
