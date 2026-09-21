@@ -9,6 +9,8 @@ namespace WordStation.DAL.Abstract
         void CreatePlan(DailyQuizPlan plan);
         void UpdatePlan(DailyQuizPlan plan);
         void DeletePlan(DailyQuizPlan plan);
+        Task<System.Collections.Generic.List<DailyPlanDayHistory>> GetDayHistoriesByPlanIdAsync(int planId);
+        void AddDayHistory(DailyPlanDayHistory dayHistory);
         Task SaveAsync();
     }
 }

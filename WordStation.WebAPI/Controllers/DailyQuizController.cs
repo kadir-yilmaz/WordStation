@@ -119,5 +119,51 @@ namespace WordStation.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
             }
         }
+
+        // GET: api/dailyquiz/days?userId=xxx
+        [HttpGet("days")]
+        public async Task<IActionResult> GetDayHistories([FromQuery] string? userId)
+        {
+            try
+            {
+                var effectiveUserId = ResolveUserId(userId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                var days = await _dailyQuizService.GetDayHistoriesAsync(effectiveUserId);
+                return Ok(days);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
+
+        // POST: api/dailyquiz/days
+        [HttpPost("days")]
+        public async Task<IActionResult> SaveDayHistory([FromBody] SaveDailyPlanDayDto dto)
+        {
+            try
+            {
+                if (dto == null)
+                    return BadRequest("Geçersiz istek.");
+
+                var effectiveUserId = ResolveUserId(dto.UserId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                dto.UserId = effectiveUserId;
+
+                var saved = await _dailyQuizService.SaveDayHistoryAsync(effectiveUserId, dto);
+                if (saved == null)
+                    return BadRequest("Gün sonucu kaydedilemedi. Aktif bir plan bulunamadı.");
+
+                return Ok(saved);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
     }
 }

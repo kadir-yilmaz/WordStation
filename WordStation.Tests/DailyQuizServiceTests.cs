@@ -115,8 +115,9 @@ namespace WordStation.Tests
             Assert.Equal(0, result.StreakDays);
             Assert.Null(result.LastCompletedDate);
 
-            _mockDailyQuizRepo.Verify(r => r.UpdatePlan(existingPlan), Times.Once);
-            _mockDailyQuizRepo.Verify(r => r.SaveAsync(), Times.Once);
+            _mockDailyQuizRepo.Verify(r => r.DeletePlan(existingPlan), Times.Once);
+            _mockDailyQuizRepo.Verify(r => r.CreatePlan(It.IsAny<DailyQuizPlan>()), Times.Once);
+            _mockDailyQuizRepo.Verify(r => r.SaveAsync(), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -206,6 +207,87 @@ namespace WordStation.Tests
             Assert.True(result);
             _mockDailyQuizRepo.Verify(r => r.DeletePlan(plan), Times.Once);
             _mockDailyQuizRepo.Verify(r => r.SaveAsync(), Times.AtLeastOnce);
+        }
+
+        [Fact]
+        public async Task GetDayHistoriesAsync_ShouldReturnDayHistoriesForActivePlan()
+        {
+            // Arrange
+            var plan = new DailyQuizPlan { Id = 10, UserId = "userDays" };
+            var histories = new List<DailyPlanDayHistory>
+            {
+                new DailyPlanDayHistory
+                {
+                    Id = 1,
+                    DailyQuizPlanId = 10,
+                    UserId = "userDays",
+                    DayNumber = 2,
+                    TotalQuestions = 10,
+                    CorrectCount = 8,
+                    WrongCount = 2,
+                    Score = 80,
+                    MaxScore = 100
+                },
+                new DailyPlanDayHistory
+                {
+                    Id = 2,
+                    DailyQuizPlanId = 10,
+                    UserId = "userDays",
+                    DayNumber = 1,
+                    TotalQuestions = 10,
+                    CorrectCount = 7,
+                    WrongCount = 3,
+                    Score = 70,
+                    MaxScore = 100
+                }
+            };
+
+            _mockDailyQuizRepo.Setup(r => r.GetPlanByUserIdAsync("userDays", false))
+                .ReturnsAsync(plan);
+            _mockDailyQuizRepo.Setup(r => r.GetDayHistoriesByPlanIdAsync(10))
+                .ReturnsAsync(histories);
+
+            // Act
+            var result = await _dailyQuizService.GetDayHistoriesAsync("userDays");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(2, result[0].DayNumber);
+            Assert.Equal(8, result[0].CorrectCount);
+        }
+
+        [Fact]
+        public async Task SaveDayHistoryAsync_WhenPlanExists_ShouldAddAndReturnDto()
+        {
+            // Arrange
+            var plan = new DailyQuizPlan { Id = 20, UserId = "userSave" };
+            var dto = new SaveDailyPlanDayDto
+            {
+                DayNumber = 1,
+                TotalQuestions = 10,
+                CorrectCount = 9,
+                WrongCount = 1,
+                Score = 90,
+                MaxScore = 100,
+                ResultsJson = "[{\"question\":\"test\"}]"
+            };
+
+            _mockDailyQuizRepo.Setup(r => r.GetPlanByUserIdAsync("userSave", false))
+                .ReturnsAsync(plan);
+
+            // Act
+            var result = await _dailyQuizService.SaveDayHistoryAsync("userSave", dto);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(20, result.DailyQuizPlanId);
+            Assert.Equal(1, result.DayNumber);
+            Assert.Equal(9, result.CorrectCount);
+            Assert.Equal("userSave", result.UserId);
+
+            _mockDailyQuizRepo.Verify(r => r.AddDayHistory(It.IsAny<DailyPlanDayHistory>()), Times.Once);
+            _mockDailyQuizRepo.Verify(r => r.SaveAsync(), Times.Once);
         }
     }
 }

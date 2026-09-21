@@ -32,6 +32,18 @@ namespace WordStation.DAL.EFCore
 
         public void DeletePlan(DailyQuizPlan plan) => _context.DailyQuizPlans.Remove(plan);
 
+        public async Task<System.Collections.Generic.List<DailyPlanDayHistory>> GetDayHistoriesByPlanIdAsync(int planId)
+        {
+            return await _context.DailyPlanDayHistories
+                .AsNoTracking()
+                .Where(h => h.DailyQuizPlanId == planId)
+                .OrderByDescending(h => h.DayNumber)
+                .ThenByDescending(h => h.CompletedAt)
+                .ToListAsync();
+        }
+
+        public void AddDayHistory(DailyPlanDayHistory dayHistory) => _context.DailyPlanDayHistories.Add(dayHistory);
+
         public async Task SaveAsync() => await _context.SaveChangesAsync();
     }
 }

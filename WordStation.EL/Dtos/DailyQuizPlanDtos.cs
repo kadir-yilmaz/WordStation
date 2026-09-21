@@ -49,4 +49,43 @@ namespace WordStation.EL.Dtos
         [Range(0, int.MaxValue)]
         public int StreakDays { get; set; }
     }
+
+    public class DailyPlanDayHistoryDto
+    {
+        public int Id { get; set; }
+        public int DailyQuizPlanId { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public int DayNumber { get; set; }
+        public DateTime CompletedAt { get; set; }
+        public int TotalQuestions { get; set; }
+        public int CorrectCount { get; set; }
+        public int WrongCount { get; set; }
+        public int Score { get; set; }
+        public int MaxScore { get; set; }
+        public string ResultsJson { get; set; } = "[]";
+    }
+
+    public class SaveDailyPlanDayDto
+    {
+        public string? UserId { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int DayNumber { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int TotalQuestions { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int CorrectCount { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int WrongCount { get; set; }
+
+        public int Score { get; set; }
+
+        public int MaxScore { get; set; }
+
+        public string ResultsJson { get; set; } = "[]";
+    }
 }
+

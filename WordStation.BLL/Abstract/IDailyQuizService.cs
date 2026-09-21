@@ -9,5 +9,7 @@ namespace WordStation.BLL.Abstract
         Task<DailyQuizPlanDto> CreateOrResetPlanAsync(CreateDailyQuizPlanDto dto);
         Task<DailyQuizPlanDto?> UpdateProgressAsync(UpdateDailyQuizProgressDto dto);
         Task<bool> DeletePlanAsync(string userId);
+        Task<System.Collections.Generic.List<DailyPlanDayHistoryDto>> GetDayHistoriesAsync(string userId);
+        Task<DailyPlanDayHistoryDto?> SaveDayHistoryAsync(string userId, SaveDailyPlanDayDto dto);
     }
 }

@@ -14,16 +14,13 @@ namespace WordStation.BLL.Concrete
     {
         private readonly IDailyQuizRepository _dailyQuizRepository;
         private readonly IWordRepository _wordRepository;
-        private readonly IQuizHistoryRepository? _quizHistoryRepository;
 
         public DailyQuizService(
             IDailyQuizRepository dailyQuizRepository,
-            IWordRepository wordRepository,
-            IQuizHistoryRepository? quizHistoryRepository = null)
+            IWordRepository wordRepository)
         {
             _dailyQuizRepository = dailyQuizRepository;
             _wordRepository = wordRepository;
-            _quizHistoryRepository = quizHistoryRepository;
         }
 
         public async Task<DailyQuizPlanDto?> GetPlanByUserIdAsync(string userId)
@@ -47,28 +44,11 @@ namespace WordStation.BLL.Concrete
             var shuffledJson = JsonSerializer.Serialize(wordIds);
 
             var existingPlan = await _dailyQuizRepository.GetPlanByUserIdAsync(dto.UserId, trackChanges: true);
-
             if (existingPlan != null)
             {
-                existingPlan.ListName = dto.ListName ?? "Tümü";
-                existingPlan.DailyCount = dto.DailyCount > 0 ? dto.DailyCount : 10;
-                existingPlan.ShuffledWordIdsJson = shuffledJson;
-                existingPlan.CurrentPointer = 0;
-                existingPlan.LastCompletedDate = null;
-                existingPlan.StreakDays = 0;
-                existingPlan.IsEnglishToTurkish = dto.IsEnglishToTurkish;
-                existingPlan.UpdatedAt = DateTime.UtcNow;
-
-                _dailyQuizRepository.UpdatePlan(existingPlan);
+                // Deleting old plan cascades and wipes its old DailyPlanDayHistories
+                _dailyQuizRepository.DeletePlan(existingPlan);
                 await _dailyQuizRepository.SaveAsync();
-
-                if (_quizHistoryRepository != null)
-                {
-                    await _quizHistoryRepository.DeleteHistoryAsync(dto.UserId, isDailyQuiz: true);
-                    await _quizHistoryRepository.SaveAsync();
-                }
-
-                return MapToDto(existingPlan);
             }
 
             var newPlan = new DailyQuizPlan
@@ -87,12 +67,6 @@ namespace WordStation.BLL.Concrete
 
             _dailyQuizRepository.CreatePlan(newPlan);
             await _dailyQuizRepository.SaveAsync();
-
-            if (_quizHistoryRepository != null)
-            {
-                await _quizHistoryRepository.DeleteHistoryAsync(dto.UserId, isDailyQuiz: true);
-                await _quizHistoryRepository.SaveAsync();
-            }
 
             return MapToDto(newPlan);
         }
@@ -126,16 +100,79 @@ namespace WordStation.BLL.Concrete
             if (existingPlan == null)
                 return false;
 
+            // Deleting the plan will cascade delete all DailyPlanDayHistories in DB
             _dailyQuizRepository.DeletePlan(existingPlan);
             await _dailyQuizRepository.SaveAsync();
 
-            if (_quizHistoryRepository != null)
-            {
-                await _quizHistoryRepository.DeleteHistoryAsync(userId, isDailyQuiz: true);
-                await _quizHistoryRepository.SaveAsync();
-            }
-
             return true;
+        }
+
+        public async Task<List<DailyPlanDayHistoryDto>> GetDayHistoriesAsync(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return new List<DailyPlanDayHistoryDto>();
+
+            var plan = await _dailyQuizRepository.GetPlanByUserIdAsync(userId, trackChanges: false);
+            if (plan == null)
+                return new List<DailyPlanDayHistoryDto>();
+
+            var histories = await _dailyQuizRepository.GetDayHistoriesByPlanIdAsync(plan.Id);
+            return histories.Select(h => new DailyPlanDayHistoryDto
+            {
+                Id = h.Id,
+                DailyQuizPlanId = h.DailyQuizPlanId,
+                UserId = h.UserId,
+                DayNumber = h.DayNumber,
+                CompletedAt = h.CompletedAt,
+                TotalQuestions = h.TotalQuestions,
+                CorrectCount = h.CorrectCount,
+                WrongCount = h.WrongCount,
+                Score = h.Score,
+                MaxScore = h.MaxScore,
+                ResultsJson = h.ResultsJson
+            }).ToList();
+        }
+
+        public async Task<DailyPlanDayHistoryDto?> SaveDayHistoryAsync(string userId, SaveDailyPlanDayDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || dto == null)
+                return null;
+
+            var plan = await _dailyQuizRepository.GetPlanByUserIdAsync(userId, trackChanges: false);
+            if (plan == null)
+                return null;
+
+            var entity = new DailyPlanDayHistory
+            {
+                DailyQuizPlanId = plan.Id,
+                UserId = userId,
+                DayNumber = dto.DayNumber,
+                CompletedAt = DateTime.UtcNow,
+                TotalQuestions = dto.TotalQuestions,
+                CorrectCount = dto.CorrectCount,
+                WrongCount = dto.WrongCount,
+                Score = dto.Score,
+                MaxScore = dto.MaxScore,
+                ResultsJson = dto.ResultsJson ?? "[]"
+            };
+
+            _dailyQuizRepository.AddDayHistory(entity);
+            await _dailyQuizRepository.SaveAsync();
+
+            return new DailyPlanDayHistoryDto
+            {
+                Id = entity.Id,
+                DailyQuizPlanId = entity.DailyQuizPlanId,
+                UserId = entity.UserId,
+                DayNumber = entity.DayNumber,
+                CompletedAt = entity.CompletedAt,
+                TotalQuestions = entity.TotalQuestions,
+                CorrectCount = entity.CorrectCount,
+                WrongCount = entity.WrongCount,
+                Score = entity.Score,
+                MaxScore = entity.MaxScore,
+                ResultsJson = entity.ResultsJson
+            };
         }
 
         private async Task<List<int>> ResolveWordIdsAsync(string userId, string? listNameInput)
