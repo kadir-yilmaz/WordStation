@@ -14,11 +14,16 @@ namespace WordStation.BLL.Concrete
     {
         private readonly IDailyQuizRepository _dailyQuizRepository;
         private readonly IWordRepository _wordRepository;
+        private readonly IQuizHistoryRepository? _quizHistoryRepository;
 
-        public DailyQuizService(IDailyQuizRepository dailyQuizRepository, IWordRepository wordRepository)
+        public DailyQuizService(
+            IDailyQuizRepository dailyQuizRepository,
+            IWordRepository wordRepository,
+            IQuizHistoryRepository? quizHistoryRepository = null)
         {
             _dailyQuizRepository = dailyQuizRepository;
             _wordRepository = wordRepository;
+            _quizHistoryRepository = quizHistoryRepository;
         }
 
         public async Task<DailyQuizPlanDto?> GetPlanByUserIdAsync(string userId)
@@ -57,6 +62,12 @@ namespace WordStation.BLL.Concrete
                 _dailyQuizRepository.UpdatePlan(existingPlan);
                 await _dailyQuizRepository.SaveAsync();
 
+                if (_quizHistoryRepository != null)
+                {
+                    await _quizHistoryRepository.DeleteHistoryAsync(dto.UserId, isDailyQuiz: true);
+                    await _quizHistoryRepository.SaveAsync();
+                }
+
                 return MapToDto(existingPlan);
             }
 
@@ -76,6 +87,12 @@ namespace WordStation.BLL.Concrete
 
             _dailyQuizRepository.CreatePlan(newPlan);
             await _dailyQuizRepository.SaveAsync();
+
+            if (_quizHistoryRepository != null)
+            {
+                await _quizHistoryRepository.DeleteHistoryAsync(dto.UserId, isDailyQuiz: true);
+                await _quizHistoryRepository.SaveAsync();
+            }
 
             return MapToDto(newPlan);
         }
@@ -111,6 +128,12 @@ namespace WordStation.BLL.Concrete
 
             _dailyQuizRepository.DeletePlan(existingPlan);
             await _dailyQuizRepository.SaveAsync();
+
+            if (_quizHistoryRepository != null)
+            {
+                await _quizHistoryRepository.DeleteHistoryAsync(userId, isDailyQuiz: true);
+                await _quizHistoryRepository.SaveAsync();
+            }
 
             return true;
         }
