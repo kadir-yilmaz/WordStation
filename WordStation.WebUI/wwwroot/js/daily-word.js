@@ -182,14 +182,11 @@
             <button class="dw-btn-send dw-btn-send-left" title="Geri gönder" data-word-id="${wordId}">
                 <i class="bi bi-arrow-left"></i>
             </button>
-            <div class="dw-word-content">
+            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                 <span class="dw-word-en">${escapeHtml(en)}</span>
                 <span class="dw-word-tr">${escapeHtml(tr)}</span>
             </div>
             <div class="dw-row-actions">
-                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                    <i class="bi bi-eye"></i>
-                </button>
                 <button class="dw-btn-complete" title="Çalışıldı olarak işaretle" data-word-id="${wordId}">
                     <i class="bi bi-check-lg"></i>
                 </button>
@@ -247,14 +244,11 @@
         row.setAttribute('data-tr', tr.toLowerCase());
         row.setAttribute('data-example', example);
         row.innerHTML = `
-            <div class="dw-word-content">
+            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                 <span class="dw-word-en">${escapeHtml(en)}</span>
                 <span class="dw-word-tr">${escapeHtml(tr)}</span>
             </div>
             <div class="dw-row-actions">
-                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                    <i class="bi bi-eye"></i>
-                </button>
                 <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="${wordId}">
                     <i class="bi bi-arrow-right"></i>
                 </button>
@@ -310,14 +304,11 @@
         row.setAttribute('data-tr', tr.toLowerCase());
         row.setAttribute('data-example', example);
         row.innerHTML = `
-            <div class="dw-word-content">
+            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                 <span class="dw-word-en">${escapeHtml(en)}</span>
                 <span class="dw-word-tr">${escapeHtml(tr)}</span>
             </div>
             <div class="dw-row-actions">
-                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                    <i class="bi bi-eye"></i>
-                </button>
                 <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="${wordId}">
                     <i class="bi bi-arrow-right"></i>
                 </button>

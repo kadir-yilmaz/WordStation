@@ -21,7 +21,14 @@
                         {
                             <tr id="word-row-@word.Id" class="word-row">
                                 <td class="text-center fw-bold align-middle">@index</td>
-                                <td class="align-middle"><strong>@word.En</strong></td>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <strong>@word.En</strong>
+                                        <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
+                                            <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
+                                        </button>
+                                    </div>
+                                </td>
                                 <td class="align-middle">@word.Tr</td>
                                 <td class="align-middle">
                                     @if (!string.IsNullOrEmpty(word.Example))

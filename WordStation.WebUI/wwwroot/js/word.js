@@ -84,12 +84,37 @@ function _stopTtsKeepAlive() {
     if (_ttsKeepAlive) { clearInterval(_ttsKeepAlive); _ttsKeepAlive = null; }
 }
 
-function speakWord(text) {
+function speakWord(text, btnElement = null) {
     if (!window.speechSynthesis || !text) return;
 
     // Önce temizle
     _stopTtsKeepAlive();
     window.speechSynthesis.cancel();
+    
+    const targetBtns = btnElement ? [btnElement] : [];
+    if (!btnElement) {
+        const detailSpeakBtn = document.getElementById('detailSpeakBtn');
+        if (detailSpeakBtn) targetBtns.push(detailSpeakBtn);
+        if (els.speakBtn) targetBtns.push(els.speakBtn);
+    }
+    
+    const setIcons = (playing) => {
+        targetBtns.forEach(btn => {
+            btn.classList.toggle('speaking', playing);
+            const icon = btn.querySelector('i');
+            if (icon) {
+                if (playing) {
+                    icon.classList.remove('bi-volume-off-fill', 'bi-volume-off', 'bi-volume-up');
+                    icon.classList.add('bi-volume-up-fill');
+                    btn.style.color = '#63b3ed';
+                } else {
+                    icon.classList.remove('bi-volume-up-fill');
+                    icon.classList.add('bi-volume-off-fill');
+                    btn.style.color = '';
+                }
+            }
+        });
+    };
 
     // Chrome bug fix
     setTimeout(() => {
@@ -106,20 +131,16 @@ function speakWord(text) {
         utterance.lang = 'en-US';
         if (usVoice) utterance.voice = usVoice;
 
-        const detailSpeakBtn = document.getElementById('detailSpeakBtn');
-        if (els.speakBtn) els.speakBtn.classList.add('speaking');
-        if (detailSpeakBtn) detailSpeakBtn.classList.add('speaking');
+        setIcons(true);
 
         utterance.onstart = () => _startTtsKeepAlive();
         utterance.onend = () => {
             _stopTtsKeepAlive();
-            if (els.speakBtn) els.speakBtn.classList.remove('speaking');
-            if (detailSpeakBtn) detailSpeakBtn.classList.remove('speaking');
+            setIcons(false);
         };
         utterance.onerror = () => {
             _stopTtsKeepAlive();
-            if (els.speakBtn) els.speakBtn.classList.remove('speaking');
-            if (detailSpeakBtn) detailSpeakBtn.classList.remove('speaking');
+            setIcons(false);
         };
 
         window.speechSynthesis.speak(utterance);

@@ -779,3 +779,17 @@
 .dw-btn-detail:active {
     transform: scale(0.95);
 }
+/* --- Fix for clickable area dead zones --- */
+.dw-word-row {
+    gap: 0;
+    padding: 0;
+}
+.dw-word-content {
+    padding: 0.6rem 0.75rem;
+}
+.dw-btn-send-left {
+    margin-left: 0.75rem;
+}
+.dw-row-actions {
+    padding-right: 0.75rem;
+}

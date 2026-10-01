@@ -69,14 +69,16 @@
                     @foreach (var word in Model.AllWords)
                     {
                         <div class="dw-word-row" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
-                            <div class="dw-word-content">
-                                <span class="dw-word-en">@word.En</span>
+                            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
+                                <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
+                                    <span class="dw-word-en text-truncate">@word.En</span>
+                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
+                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
+                                    </button>
+                                </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>
                             <div class="dw-row-actions">
-                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                                    <i class="bi bi-eye"></i>
-                                </button>
                                 <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="@word.Id">
                                     <i class="bi bi-arrow-right"></i>
                                 </button>
@@ -100,14 +102,16 @@
                     @foreach (var word in Model.CompletedWords)
                     {
                         <div class="dw-word-row dw-word-completed" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
-                            <div class="dw-word-content">
-                                <span class="dw-word-en">@word.En</span>
+                            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
+                                <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
+                                    <span class="dw-word-en text-truncate">@word.En</span>
+                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
+                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
+                                    </button>
+                                </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>
                             <div class="dw-row-actions">
-                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                                    <i class="bi bi-eye"></i>
-                                </button>
                                 <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="@word.Id">
                                     <i class="bi bi-arrow-right"></i>
                                 </button>
@@ -147,14 +151,16 @@
                             <button class="dw-btn-send dw-btn-send-left" title="Geri gönder" data-word-id="@word.Id">
                                 <i class="bi bi-arrow-left"></i>
                             </button>
-                            <div class="dw-word-content">
-                                <span class="dw-word-en">@word.En</span>
+                            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
+                                <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
+                                    <span class="dw-word-en text-truncate">@word.En</span>
+                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
+                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
+                                    </button>
+                                </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>
                             <div class="dw-row-actions">
-                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
-                                    <i class="bi bi-eye"></i>
-                                </button>
                                 <button class="dw-btn-complete" title="Çalışıldı olarak işaretle" data-word-id="@word.Id">
                                     <i class="bi bi-check-lg"></i>
                                 </button>
