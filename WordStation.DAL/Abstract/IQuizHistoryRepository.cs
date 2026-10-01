@@ -6,9 +6,9 @@ namespace WordStation.DAL.Abstract
 {
     public interface IQuizHistoryRepository
     {
-        Task<List<QuizHistory>> GetHistoryByUserIdAsync(string userId, bool? isDailyQuiz = null, int limit = 50, bool trackChanges = false);
+        Task<List<QuizHistory>> GetHistoryByUserIdAsync(string userId, int limit = 50, bool trackChanges = false);
         void CreateHistory(QuizHistory history);
-        Task DeleteHistoryAsync(string userId, bool? isDailyQuiz = null);
+        Task DeleteHistoryAsync(string userId);
         Task SaveAsync();
     }
 }

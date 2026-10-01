@@ -31,9 +31,9 @@ namespace WordStation.WebAPI.Controllers
                 ?? User.Identity?.Name;
         }
 
-        // GET: api/quizhistory?userId=xxx&isDailyQuiz=true|false
+        // GET: api/quizhistory?userId=xxx
         [HttpGet]
-        public async Task<IActionResult> GetHistory([FromQuery] string? userId, [FromQuery] bool? isDailyQuiz)
+        public async Task<IActionResult> GetHistory([FromQuery] string? userId)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace WordStation.WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(effectiveUserId))
                     return BadRequest("Kullanıcı ID gereklidir.");
 
-                var history = await _quizHistoryService.GetHistoryAsync(effectiveUserId, isDailyQuiz);
+                var history = await _quizHistoryService.GetHistoryAsync(effectiveUserId);
                 return Ok(history);
             }
             catch (Exception ex)
@@ -74,9 +74,9 @@ namespace WordStation.WebAPI.Controllers
             }
         }
 
-        // DELETE: api/quizhistory?userId=xxx&isDailyQuiz=true|false
+        // DELETE: api/quizhistory?userId=xxx
         [HttpDelete]
-        public async Task<IActionResult> ClearHistory([FromQuery] string? userId, [FromQuery] bool? isDailyQuiz)
+        public async Task<IActionResult> ClearHistory([FromQuery] string? userId)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace WordStation.WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(effectiveUserId))
                     return BadRequest("Kullanıcı ID gereklidir.");
 
-                var result = await _quizHistoryService.ClearHistoryAsync(effectiveUserId, isDailyQuiz);
+                var result = await _quizHistoryService.ClearHistoryAsync(effectiveUserId);
                 return NoContent();
             }
             catch (Exception ex)

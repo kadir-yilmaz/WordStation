@@ -34,7 +34,7 @@ namespace WordStation.EL.Dtos
         public int TotalQuestions { get; set; }
         public int CorrectCount { get; set; }
         public int WrongCount { get; set; }
-        public bool IsDailyQuiz { get; set; }
+
         public List<QuizQuestionResultDto> Results { get; set; } = new();
         public DateTime CreatedAt { get; set; }
     }
@@ -58,7 +58,7 @@ namespace WordStation.EL.Dtos
 
         public int WrongCount { get; set; }
 
-        public bool IsDailyQuiz { get; set; }
+
 
         public List<QuizQuestionResultDto>? Results { get; set; }
 

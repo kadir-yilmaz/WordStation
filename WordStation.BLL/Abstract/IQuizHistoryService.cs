@@ -6,8 +6,8 @@ namespace WordStation.BLL.Abstract
 {
     public interface IQuizHistoryService
     {
-        Task<List<QuizHistoryDto>> GetHistoryAsync(string userId, bool? isDailyQuiz = null);
+        Task<List<QuizHistoryDto>> GetHistoryAsync(string userId);
         Task<QuizHistoryDto> SaveHistoryAsync(CreateQuizHistoryDto dto);
-        Task<bool> ClearHistoryAsync(string userId, bool? isDailyQuiz = null);
+        Task<bool> ClearHistoryAsync(string userId);
     }
 }

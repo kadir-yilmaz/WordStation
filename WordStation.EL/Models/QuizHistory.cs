@@ -28,7 +28,7 @@ namespace WordStation.EL.Models
 
         public int WrongCount { get; set; }
 
-        public bool IsDailyQuiz { get; set; }
+
 
         /// <summary>
         /// Soru ve cevap detayları JSON formatında saklanır.

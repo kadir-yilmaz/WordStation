@@ -36,7 +36,7 @@ namespace WordStation.Tests
                 TotalQuestions = 10,
                 CorrectCount = 8,
                 WrongCount = 2,
-                IsDailyQuiz = true,
+
                 Results = new List<QuizQuestionResultDto>
                 {
                     new()
@@ -63,7 +63,7 @@ namespace WordStation.Tests
             Assert.Equal("user@test.com", result.UserId);
             Assert.Equal(80, result.Score);
             Assert.Equal(10, result.TotalQuestions);
-            Assert.True(result.IsDailyQuiz);
+
             Assert.Single(result.Results);
             Assert.Equal("apple", result.Results[0].QuestionText);
             _mockRepo.Verify(r => r.CreateHistory(It.IsAny<QuizHistory>()), Times.Once);
@@ -87,37 +87,37 @@ namespace WordStation.Tests
                     TotalQuestions = 5,
                     CorrectCount = 5,
                     WrongCount = 0,
-                    IsDailyQuiz = false,
+
                     ResultsJson = "[]"
                 }
             };
 
-            _mockRepo.Setup(r => r.GetHistoryByUserIdAsync("user@test.com", false, 50, false))
+            _mockRepo.Setup(r => r.GetHistoryByUserIdAsync("user@test.com", 50, false))
                      .ReturnsAsync(list);
 
             // Act
-            var result = await _service.GetHistoryAsync("user@test.com", isDailyQuiz: false);
+            var result = await _service.GetHistoryAsync("user@test.com");
 
             // Assert
             Assert.Single(result);
             Assert.Equal("Genel Test", result[0].Title);
-            Assert.False(result[0].IsDailyQuiz);
+
         }
 
         [Fact]
         public async Task ClearHistoryAsync_DeletesUserHistory()
         {
             // Arrange
-            _mockRepo.Setup(r => r.DeleteHistoryAsync("user@test.com", null))
+            _mockRepo.Setup(r => r.DeleteHistoryAsync("user@test.com"))
                      .Returns(Task.CompletedTask);
             _mockRepo.Setup(r => r.SaveAsync()).Returns(Task.CompletedTask);
 
             // Act
-            var result = await _service.ClearHistoryAsync("user@test.com", null);
+            var result = await _service.ClearHistoryAsync("user@test.com");
 
             // Assert
             Assert.True(result);
-            _mockRepo.Verify(r => r.DeleteHistoryAsync("user@test.com", null), Times.Once);
+            _mockRepo.Verify(r => r.DeleteHistoryAsync("user@test.com"), Times.Once);
             _mockRepo.Verify(r => r.SaveAsync(), Times.Once);
         }
 

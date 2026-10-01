@@ -50,12 +50,12 @@ builder.Services.AddCustomJwtAuthentication(builder.Configuration);
 // Scoped Repositories & Services
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-builder.Services.AddScoped<IDailyQuizRepository, DailyQuizRepository>();
+
 builder.Services.AddScoped<IQuizHistoryRepository, QuizHistoryRepository>();
 builder.Services.AddScoped<IDailyWordRepository, DailyWordRepository>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IDailyQuizService, DailyQuizService>();
+
 builder.Services.AddScoped<IQuizHistoryService, QuizHistoryService>();
 builder.Services.AddScoped<IDailyWordService, DailyWordService>();
 

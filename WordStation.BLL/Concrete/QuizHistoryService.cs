@@ -20,12 +20,12 @@ namespace WordStation.BLL.Concrete
             _quizHistoryRepository = quizHistoryRepository;
         }
 
-        public async Task<List<QuizHistoryDto>> GetHistoryAsync(string userId, bool? isDailyQuiz = null)
+        public async Task<List<QuizHistoryDto>> GetHistoryAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 return new List<QuizHistoryDto>();
 
-            var entities = await _quizHistoryRepository.GetHistoryByUserIdAsync(userId, isDailyQuiz, limit: 50, trackChanges: false);
+            var entities = await _quizHistoryRepository.GetHistoryByUserIdAsync(userId, limit: 50, trackChanges: false);
             return entities.Select(MapToDto).ToList();
         }
 
@@ -50,7 +50,7 @@ namespace WordStation.BLL.Concrete
                 TotalQuestions = dto.TotalQuestions,
                 CorrectCount = dto.CorrectCount,
                 WrongCount = dto.WrongCount,
-                IsDailyQuiz = dto.IsDailyQuiz,
+
                 ResultsJson = resultsJson,
                 CreatedAt = DateTime.UtcNow
             };
@@ -61,12 +61,12 @@ namespace WordStation.BLL.Concrete
             return MapToDto(entity);
         }
 
-        public async Task<bool> ClearHistoryAsync(string userId, bool? isDailyQuiz = null)
+        public async Task<bool> ClearHistoryAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 return false;
 
-            await _quizHistoryRepository.DeleteHistoryAsync(userId, isDailyQuiz);
+            await _quizHistoryRepository.DeleteHistoryAsync(userId);
             await _quizHistoryRepository.SaveAsync();
             return true;
         }
@@ -95,7 +95,7 @@ namespace WordStation.BLL.Concrete
                 TotalQuestions = entity.TotalQuestions,
                 CorrectCount = entity.CorrectCount,
                 WrongCount = entity.WrongCount,
-                IsDailyQuiz = entity.IsDailyQuiz,
+
                 Results = results,
                 CreatedAt = entity.CreatedAt
             };

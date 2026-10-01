@@ -21,8 +21,7 @@ namespace WordStation.DAL
         
         public DbSet<Word> Words { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<DailyQuizPlan> DailyQuizPlans { get; set; }
-        public DbSet<DailyPlanDayHistory> DailyPlanDayHistories { get; set; }
+
         public DbSet<QuizHistory> QuizHistories { get; set; }
         public DbSet<DailyWordSession> DailyWordSessions { get; set; }
 
@@ -30,21 +29,7 @@ namespace WordStation.DAL
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<DailyQuizPlan>(entity =>
-            {
-                entity.HasIndex(e => e.UserId);
-            });
 
-            modelBuilder.Entity<DailyPlanDayHistory>(entity =>
-            {
-                entity.HasIndex(e => e.UserId);
-                entity.HasIndex(e => e.DailyQuizPlanId);
-
-                entity.HasOne(e => e.DailyQuizPlan)
-                      .WithMany()
-                      .HasForeignKey(e => e.DailyQuizPlanId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
 
             modelBuilder.Entity<QuizHistory>(entity =>
             {

@@ -16,14 +16,9 @@ namespace WordStation.DAL.EFCore
             _context = context;
         }
 
-        public async Task<List<QuizHistory>> GetHistoryByUserIdAsync(string userId, bool? isDailyQuiz = null, int limit = 50, bool trackChanges = false)
+        public async Task<List<QuizHistory>> GetHistoryByUserIdAsync(string userId, int limit = 50, bool trackChanges = false)
         {
             var query = _context.QuizHistories.Where(h => h.UserId == userId);
-
-            if (isDailyQuiz.HasValue)
-            {
-                query = query.Where(h => h.IsDailyQuiz == isDailyQuiz.Value);
-            }
 
             query = query.OrderByDescending(h => h.Date).Take(limit);
 
@@ -34,14 +29,9 @@ namespace WordStation.DAL.EFCore
 
         public void CreateHistory(QuizHistory history) => _context.QuizHistories.Add(history);
 
-        public async Task DeleteHistoryAsync(string userId, bool? isDailyQuiz = null)
+        public async Task DeleteHistoryAsync(string userId)
         {
             var query = _context.QuizHistories.Where(h => h.UserId == userId);
-
-            if (isDailyQuiz.HasValue)
-            {
-                query = query.Where(h => h.IsDailyQuiz == isDailyQuiz.Value);
-            }
 
             var items = await query.ToListAsync();
             if (items.Any())
