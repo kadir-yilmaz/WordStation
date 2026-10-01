@@ -1,0 +1,73 @@
+@model WordStation.WebUI.Models.DailyWordViewModel
+
+@{
+    ViewData["Title"] = "Günlük Kelimeler";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/daily-word.css" asp-append-version="true" />
+}
+
+<div class="dw-page">
+    <div class="dw-header">
+        <div class="dw-header-content">
+            <div class="dw-header-icon">
+                <i class="bi bi-calendar-check-fill"></i>
+            </div>
+            <div>
+                <h1 class="dw-title">Günlük Kelimeler</h1>
+                <p class="dw-subtitle">Çalışmak istediğin listeyi seç</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dw-grid">
+        @if (Model.AllLists.Any())
+        {
+            @foreach (var list in Model.AllLists)
+            {
+                var totalCount = Model.ListWordCounts.ContainsKey(list) ? Model.ListWordCounts[list] : 0;
+                var completedCount = Model.ListCompletedCounts.ContainsKey(list) ? Model.ListCompletedCounts[list] : 0;
+                var progressPercent = totalCount > 0 ? (int)((double)completedCount / totalCount * 100) : 0;
+
+                <a asp-controller="DailyWord" asp-action="Study" asp-route-listName="@list" class="dw-list-card" title="@list listesini çalış">
+                    <div class="dw-card-header">
+                        <div class="dw-card-icon">
+                            <i class="bi bi-collection-fill"></i>
+                        </div>
+                        <span class="dw-card-name">@list</span>
+                    </div>
+                    <div class="dw-card-stats">
+                        <div class="dw-stat">
+                            <span class="dw-stat-number">@totalCount</span>
+                            <span class="dw-stat-label">Toplam</span>
+                        </div>
+                        <div class="dw-stat">
+                            <span class="dw-stat-number dw-stat-completed">@completedCount</span>
+                            <span class="dw-stat-label">Çalışılan</span>
+                        </div>
+                        <div class="dw-stat">
+                            <span class="dw-stat-number dw-stat-remaining">@(totalCount - completedCount)</span>
+                            <span class="dw-stat-label">Kalan</span>
+                        </div>
+                    </div>
+                    <div class="dw-progress-bar">
+                        <div class="dw-progress-fill" style="width: @progressPercent%"></div>
+                    </div>
+                    <div class="dw-progress-text">%@progressPercent tamamlandı</div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="dw-empty-state">
+                <i class="bi bi-inbox"></i>
+                <h3>Henüz liste yok</h3>
+                <p>Kelimelerim sayfasından liste oluşturmaya başlayın.</p>
+                <a asp-controller="Word" asp-action="Index" class="btn dw-btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Kelimelerime Git
+                </a>
+            </div>
+        }
+    </div>
+</div>

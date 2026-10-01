@@ -1,0 +1,190 @@
+@model WordStation.WebUI.Models.DailyWordViewModel
+
+@{
+    ViewData["Title"] = $"{Model.SelectedList} - Günlük Kelimeler";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/daily-word.css" asp-append-version="true" />
+}
+
+<div class="dw-study-page">
+    <!-- Üst Bar: Liste Adı ve Dropdown -->
+    <div class="dw-study-topbar">
+        <div class="dw-study-topbar-info" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <h2 class="dw-study-list-name mb-0" style="margin: 0;">@Model.SelectedList</h2>
+            
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); padding: 0.4rem 1rem; font-weight: 500;">
+                    <i class="bi bi-card-list me-1"></i> @Model.SelectedList
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-sm">
+                    @foreach (var listName in Model.AllLists)
+                    {
+                        <li>
+                            <a class="dropdown-item @(listName == Model.SelectedList ? "active" : "")" 
+                               href="@Url.Action("Study", "DailyWord", new { listName = listName })">
+                                @listName
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- İki Panel -->
+    <div class="dw-panels">
+
+        <!-- SOL PANEL: Kelime Havuzu -->
+        <div class="dw-panel dw-panel-left">
+            <div class="dw-panel-header">
+                <!-- Tab Bar -->
+                <div class="dw-tabs">
+                    <button class="dw-tab active" data-tab="all" id="tabAll">
+                        tümü(<span id="allCount">@Model.AllWords.Count</span>)
+                    </button>
+                    <button class="dw-tab" data-tab="completed" id="tabCompleted">
+                        çalışılan(<span id="completedCount">@Model.CompletedWordCount</span>)
+                    </button>
+                </div>
+                <!-- Arama -->
+                <div class="dw-search-wrapper">
+                    <button class="dw-search-toggle" id="searchToggle" title="Ara">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <div class="dw-search-box" id="searchBox">
+                        <input type="text" id="searchInput" placeholder="İngilizce veya Türkçe ara..." autocomplete="off" />
+                        <button class="dw-search-clear" id="searchClear" title="Temizle">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kelime Listesi: Tümü -->
+            <div class="dw-word-list" id="allWordsList">
+                @if (Model.AllWords.Any())
+                {
+                    @foreach (var word in Model.AllWords)
+                    {
+                        <div class="dw-word-row" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
+                            <div class="dw-word-content">
+                                <span class="dw-word-en">@word.En</span>
+                                <span class="dw-word-tr">@word.Tr</span>
+                            </div>
+                            <div class="dw-row-actions">
+                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="@word.Id">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dw-empty-list">
+                        <i class="bi bi-inbox"></i>
+                        <p>Tüm kelimeler günlüğe eklendi</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Kelime Listesi: Çalışılan -->
+            <div class="dw-word-list dw-hidden" id="completedWordsList">
+                @if (Model.CompletedWords.Any())
+                {
+                    @foreach (var word in Model.CompletedWords)
+                    {
+                        <div class="dw-word-row dw-word-completed" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
+                            <div class="dw-word-content">
+                                <span class="dw-word-en">@word.En</span>
+                                <span class="dw-word-tr">@word.Tr</span>
+                            </div>
+                            <div class="dw-row-actions">
+                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="@word.Id">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dw-empty-list" id="completedEmptyState">
+                        <i class="bi bi-hourglass"></i>
+                        <p>Henüz çalışılmış kelime yok</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL: Günlük Kelimeler -->
+        <div class="dw-panel dw-panel-right">
+            <div class="dw-panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="dw-panel-title">
+                    <i class="bi bi-calendar-day"></i>
+                    <span>Günlük Kelimeler</span>
+                    <span class="dw-daily-count" id="dailyCount">@Model.DailyWords.Count</span>
+                </div>
+                <button class="dw-btn-complete-all" id="completeAllBtn" title="Tümünü çalışıldı olarak işaretle">
+                    <i class="bi bi-check-all"></i> Tümünü İşaretle
+                </button>
+            </div>
+
+            <div class="dw-word-list" id="dailyWordsList">
+                @if (Model.DailyWords.Any())
+                {
+                    @foreach (var word in Model.DailyWords)
+                    {
+                        <div class="dw-word-row dw-daily-row" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
+                            <button class="dw-btn-send dw-btn-send-left" title="Geri gönder" data-word-id="@word.Id">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <div class="dw-word-content">
+                                <span class="dw-word-en">@word.En</span>
+                                <span class="dw-word-tr">@word.Tr</span>
+                            </div>
+                            <div class="dw-row-actions">
+                                <button class="dw-btn-detail" title="Detay" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="dw-btn-complete" title="Çalışıldı olarak işaretle" data-word-id="@word.Id">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="dw-empty-list" id="dailyEmptyState">
+                        <i class="bi bi-arrow-left-circle"></i>
+                        <p>Soldaki listeden kelime ekleyin</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.dailyWordConfig = {
+            listName: '@Model.SelectedList',
+            addToDailyUrl: '@Url.Action("AddToDaily", "DailyWord")',
+            removeFromDailyUrl: '@Url.Action("RemoveFromDaily", "DailyWord")',
+            completeWordUrl: '@Url.Action("CompleteWord", "DailyWord")'
+        };
+    </script>
+    <script src="~/js/word-detail.js" asp-append-version="true"></script>
+    <script src="~/js/daily-word.js" asp-append-version="true"></script>
+}
+
+<partial name="_WordDetailModal" />

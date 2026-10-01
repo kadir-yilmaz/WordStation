@@ -24,6 +24,7 @@ namespace WordStation.DAL
         public DbSet<DailyQuizPlan> DailyQuizPlans { get; set; }
         public DbSet<DailyPlanDayHistory> DailyPlanDayHistories { get; set; }
         public DbSet<QuizHistory> QuizHistories { get; set; }
+        public DbSet<DailyWordSession> DailyWordSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,11 @@ namespace WordStation.DAL
             modelBuilder.Entity<QuizHistory>(entity =>
             {
                 entity.HasIndex(e => e.UserId);
+            });
+
+            modelBuilder.Entity<DailyWordSession>(entity =>
+            {
+                entity.HasIndex(e => new { e.UserId, e.ListName }).IsUnique();
             });
         }
     }
