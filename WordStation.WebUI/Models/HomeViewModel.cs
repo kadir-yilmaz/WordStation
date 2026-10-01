@@ -12,5 +12,6 @@ namespace WordStation.WebUI.Models
         public string SelectedList { get; set; } = string.Empty;
         public string SearchTerm { get; set; } = string.Empty;
         public string SearchMode { get; set; } = "starts";
+        public string SearchLang { get; set; } = "en";
     }
 }

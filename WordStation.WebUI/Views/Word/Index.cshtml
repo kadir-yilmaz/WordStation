@@ -45,20 +45,29 @@
                     </div>
 
                     @* 2. Arama Formu *@
-                    <form method="get" asp-controller="Word" asp-action="Index" class="banner-search d-flex gap-2"
+                    <form method="get" asp-controller="Word" asp-action="Index" class="banner-search d-flex align-items-center gap-2"
                         style="min-width: 250px; flex: 1; max-width: 800px;">
                         <input type="hidden" name="listName" value="@Model.SelectedList" />
                         <input type="hidden" name="searchMode" id="searchModeInput"
                             value="@((Model.SearchMode ?? "starts").ToLower())" />
+                        <input type="hidden" name="searchLang" id="searchLangInput"
+                            value="@((Model.SearchLang ?? "en").ToLower())" />
+
+                        <button type="button"
+                            class="search-mode-btn @(Model.SearchMode == "contains" ? "active" : "")"
+                            id="searchModeToggle"
+                            title="Mode: @(Model.SearchMode == "contains" ? "Contains" : "Starts with")">
+                            <i class="bi @(Model.SearchMode == "contains" ? "bi-text-center" : "bi-text-left")"></i>
+                        </button>
+
+                        <button type="button"
+                            class="search-mode-btn @(Model.SearchLang == "tr" ? "active" : "")"
+                            id="searchLangToggle"
+                            title="Lang: @(Model.SearchLang == "tr" ? "Türkçe" : "English")">
+                            @(Model.SearchLang == "tr" ? "TR" : "EN")
+                        </button>
 
                         <div class="search-group flex-grow-1 m-0">
-                            <button type="button"
-                                class="search-mode-btn @(Model.SearchMode == "contains" ? "active" : "")"
-                                id="searchModeToggle"
-                                title="Mode: @(Model.SearchMode == "contains" ? "Contains" : "Starts with")">
-                                <i class="bi @(Model.SearchMode == "contains" ? "bi-text-center" : "bi-text-left")"></i>
-                            </button>
-                            
                             <div class="search-wrapper d-flex flex-grow-1 align-items-center">
                                 <input type="text" name="SearchTerm" id="searchInput"
                                     class="search-main-input @(string.IsNullOrEmpty(Model.SearchTerm) ? "" : "has-clear")"
@@ -125,6 +134,7 @@
                     <input type="hidden" name="ListName" value="@Model.SelectedList" />
                     <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
                     <input type="hidden" name="searchMode" value="@Model.SearchMode" />
+                    <input type="hidden" name="searchLang" value="@Model.SearchLang" />
                     <div class="mb-3">
                         <label class="form-label">English</label>
                         <input type="text" name="En" class="form-control" required />
@@ -161,6 +171,7 @@
                     <input type="hidden" id="updateListNameHidden" name="ListName" />
                     <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
                     <input type="hidden" name="searchMode" value="@Model.SearchMode" />
+                    <input type="hidden" name="searchLang" value="@Model.SearchLang" />
                     <div class="mb-3">
                         <label class="form-label">English</label>
                         <input type="text" id="updateEn" name="En" class="form-control" required />
@@ -190,6 +201,7 @@
         window.synonymGroups = @Html.Raw(Json.Serialize(Model.SynonymGroups));
         window.searchTermValue = '@Model.SearchTerm';
         window.searchModeValue = '@Model.SearchMode';
+        window.searchLangValue = '@Model.SearchLang';
         window.selectedList = '@Model.SelectedList';
     </script>
     <script src="~/js/word.js" asp-append-version="true"></script>

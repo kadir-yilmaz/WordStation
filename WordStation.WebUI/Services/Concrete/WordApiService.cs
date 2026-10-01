@@ -38,9 +38,9 @@ namespace WordStation.WebUI.Services.Concrete
             }) ?? Enumerable.Empty<Word>();
         }
 
-        public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string token, string searchMode = "starts")
+        public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string token, string searchMode = "starts", string searchLang = "en")
         {
-            var response = await SendRequestAsync(HttpMethod.Get, $"words/search?en={en}&userId={userId}&listName={listName}&searchMode={searchMode}", token);
+            var response = await SendRequestAsync(HttpMethod.Get, $"words/search?en={en}&userId={userId}&listName={listName}&searchMode={searchMode}&searchLang={searchLang}", token);
             
             if (!response.IsSuccessStatusCode)
                 return Enumerable.Empty<Word>();

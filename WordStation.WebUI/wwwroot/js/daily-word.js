@@ -22,10 +22,17 @@
     const allWordsList = document.getElementById('allWordsList');
     const completedWordsList = document.getElementById('completedWordsList');
     const dailyWordsList = document.getElementById('dailyWordsList');
-    const searchToggle = document.getElementById('searchToggle');
     const searchBox = document.getElementById('searchBox');
     const searchInput = document.getElementById('searchInput');
     const searchClear = document.getElementById('searchClear');
+
+    // Search mode & language toggle buttons
+    const searchModeToggle = document.getElementById('searchModeToggle');
+    const searchLangToggle = document.getElementById('searchLangToggle');
+
+    // Search state
+    let currentSearchMode = 'starts'; // 'starts' or 'contains'
+    let currentSearchLang = 'en';     // 'en' or 'tr'
 
     // Count elements
     const allCountEl = document.getElementById('allCount');
@@ -85,18 +92,6 @@
     if (tabCompleted) tabCompleted.addEventListener('click', () => switchTab('completed'));
 
     // ===== Search =====
-    if (searchToggle) {
-        searchToggle.addEventListener('click', () => {
-            searchToggle.classList.toggle('active');
-            searchBox.classList.toggle('visible');
-            if (searchBox.classList.contains('visible')) {
-                searchInput.focus();
-            } else {
-                searchInput.value = '';
-                filterWords('');
-            }
-        });
-    }
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -112,6 +107,45 @@
         });
     }
 
+    // Search Mode Toggle (StartsWith / Contains)
+    if (searchModeToggle) {
+        searchModeToggle.addEventListener('click', () => {
+            const modeIcon = searchModeToggle.querySelector('i');
+            if (currentSearchMode === 'starts') {
+                currentSearchMode = 'contains';
+                searchModeToggle.classList.add('active');
+                modeIcon?.classList.replace('bi-text-left', 'bi-text-center');
+                searchModeToggle.title = 'Mode: Contains';
+            } else {
+                currentSearchMode = 'starts';
+                searchModeToggle.classList.remove('active');
+                modeIcon?.classList.replace('bi-text-center', 'bi-text-left');
+                searchModeToggle.title = 'Mode: Starts with';
+            }
+            if (searchInput && searchInput.value) filterWords(searchInput.value);
+            searchInput?.focus();
+        });
+    }
+
+    // Language Toggle (EN / TR)
+    if (searchLangToggle) {
+        searchLangToggle.addEventListener('click', () => {
+            if (currentSearchLang === 'en') {
+                currentSearchLang = 'tr';
+                searchLangToggle.classList.add('active');
+                searchLangToggle.textContent = 'TR';
+                searchLangToggle.title = 'Lang: Türkçe';
+            } else {
+                currentSearchLang = 'en';
+                searchLangToggle.classList.remove('active');
+                searchLangToggle.textContent = 'EN';
+                searchLangToggle.title = 'Lang: English';
+            }
+            if (searchInput && searchInput.value) filterWords(searchInput.value);
+            searchInput?.focus();
+        });
+    }
+
     function filterWords(term) {
         const query = term.toLowerCase().trim();
 
@@ -124,9 +158,11 @@
                     row.style.display = '';
                     return;
                 }
-                const en = row.getAttribute('data-en') || '';
-                const tr = row.getAttribute('data-tr') || '';
-                row.style.display = (en.includes(query) || tr.includes(query)) ? '' : 'none';
+                const fieldValue = row.getAttribute(`data-${currentSearchLang}`) || '';
+                const matches = currentSearchMode === 'starts'
+                    ? fieldValue.startsWith(query)
+                    : fieldValue.includes(query);
+                row.style.display = matches ? '' : 'none';
             });
         });
     }

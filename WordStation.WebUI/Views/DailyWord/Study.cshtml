@@ -50,11 +50,14 @@
                 </div>
                 <!-- Arama -->
                 <div class="dw-search-wrapper">
-                    <button class="dw-search-toggle" id="searchToggle" title="Ara">
-                        <i class="bi bi-search"></i>
+                    <button type="button" class="dw-search-mode-btn" id="searchModeToggle" title="Mode: Starts with">
+                        <i class="bi bi-text-left"></i>
+                    </button>
+                    <button type="button" class="dw-search-mode-btn" id="searchLangToggle" title="Lang: English">
+                        EN
                     </button>
                     <div class="dw-search-box" id="searchBox">
-                        <input type="text" id="searchInput" placeholder="İngilizce veya Türkçe ara..." autocomplete="off" />
+                        <input type="text" id="searchInput" placeholder="Kelime ara..." autocomplete="off" />
                         <button class="dw-search-clear" id="searchClear" title="Temizle">
                             <i class="bi bi-x-lg"></i>
                         </button>
@@ -72,9 +75,6 @@
                             <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                                 <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
                                     <span class="dw-word-en text-truncate">@word.En</span>
-                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
-                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
-                                    </button>
                                 </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>
@@ -105,9 +105,6 @@
                             <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                                 <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
                                     <span class="dw-word-en text-truncate">@word.En</span>
-                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
-                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
-                                    </button>
                                 </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>
@@ -154,9 +151,6 @@
                             <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
                                 <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
                                     <span class="dw-word-en text-truncate">@word.En</span>
-                                    <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
-                                        <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
-                                    </button>
                                 </div>
                                 <span class="dw-word-tr">@word.Tr</span>
                             </div>

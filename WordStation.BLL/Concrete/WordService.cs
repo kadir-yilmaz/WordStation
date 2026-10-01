@@ -44,24 +44,42 @@ namespace WordStation.BLL.Concrete
                     trackChanges: false);
         }
 
-        public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts")
+        public async Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts", string searchLang = "en")
         {
-            var enLower = en.ToLower();
+            var termLower = en.ToLower();
             var listNameLower = listName.ToLower();
+
+            if (searchLang == "tr")
+            {
+                if (searchMode == "contains")
+                {
+                    return await _wordRepository.GetWordsByConditionAsync(
+                            w => w.UserId == userId &&
+                                 w.ListName.ToLower() == listNameLower &&
+                                 w.Tr.ToLower().Contains(termLower),
+                            trackChanges: false);
+                }
+
+                return await _wordRepository.GetWordsByConditionAsync(
+                        w => w.UserId == userId &&
+                             w.ListName.ToLower() == listNameLower &&
+                             w.Tr.ToLower().StartsWith(termLower),
+                        trackChanges: false);
+            }
 
             if (searchMode == "contains")
             {
                 return await _wordRepository.GetWordsByConditionAsync(
                         w => w.UserId == userId &&
                              w.ListName.ToLower() == listNameLower &&
-                             w.En.ToLower().Contains(enLower),
+                             w.En.ToLower().Contains(termLower),
                         trackChanges: false);
             }
 
             return await _wordRepository.GetWordsByConditionAsync(
                     w => w.UserId == userId &&
                          w.ListName.ToLower() == listNameLower &&
-                         w.En.ToLower().StartsWith(enLower),
+                         w.En.ToLower().StartsWith(termLower),
                     trackChanges: false);
         }
 

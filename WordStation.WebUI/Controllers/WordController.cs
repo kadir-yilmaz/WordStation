@@ -26,14 +26,15 @@ namespace WordStation.WebUI.Controllers
 
         #endregion
 
-        public async Task<IActionResult> Index(string listName, string SearchTerm = null, string searchMode = "starts")
+        public async Task<IActionResult> Index(string listName, string SearchTerm = null, string searchMode = "starts", string searchLang = "en")
         {
             if (!IsAuthenticated) return RedirectToLogin();
 
             var vm = new HomeViewModel
             {
                 SearchTerm = SearchTerm ?? string.Empty,
-                SearchMode = searchMode
+                SearchMode = searchMode,
+                SearchLang = searchLang
             };
 
             try
@@ -58,7 +59,7 @@ namespace WordStation.WebUI.Controllers
                 if (!string.IsNullOrEmpty(vm.SelectedList))
                 {
                     vm.Words = !string.IsNullOrEmpty(SearchTerm)
-                        ? await _wordService.SearchWordAsync(SearchTerm, CurrentUserId!, vm.SelectedList, AccessToken!, searchMode)
+                        ? await _wordService.SearchWordAsync(SearchTerm, CurrentUserId!, vm.SelectedList, AccessToken!, searchMode, searchLang)
                         : await _wordService.GetAllWordsAsync(CurrentUserId!, vm.SelectedList, AccessToken!);
                 }
             }
@@ -72,10 +73,10 @@ namespace WordStation.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateWord(Word word, string SearchTerm, string searchMode)
+        public async Task<IActionResult> CreateWord(Word word, string SearchTerm, string searchMode, string searchLang = "en")
         {
             if (!IsAuthenticated) return RedirectToLogin();
-            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, "Invalid data.");
+            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, searchLang, "Invalid data.");
 
             word.UserId = CurrentUserId!;
 
@@ -84,15 +85,15 @@ namespace WordStation.WebUI.Controllers
             else
                 this.NotifyError("Failure", "Could not add the word.");
 
-            return RedirectToIndex(word.ListName, SearchTerm, searchMode);
+            return RedirectToIndex(word.ListName, SearchTerm, searchMode, searchLang);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateWord(Word word, string SearchTerm, string searchMode)
+        public async Task<IActionResult> UpdateWord(Word word, string SearchTerm, string searchMode, string searchLang = "en")
         {
             if (!IsAuthenticated) return RedirectToLogin();
-            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, "Invalid data.");
+            if (!ModelState.IsValid) return RedirectToIndex(word.ListName, SearchTerm, searchMode, searchLang, "Invalid data.");
 
             word.UserId = CurrentUserId!;
 
@@ -101,12 +102,12 @@ namespace WordStation.WebUI.Controllers
             else
                 this.NotifyError("Failure", "Update failed.");
 
-            return RedirectToIndex(word.ListName, SearchTerm, searchMode);
+            return RedirectToIndex(word.ListName, SearchTerm, searchMode, searchLang);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteWord(int id, string listName, string SearchTerm, string searchMode, string wordEn)
+        public async Task<IActionResult> DeleteWord(int id, string listName, string SearchTerm, string searchMode, string searchLang, string wordEn)
         {
             if (!IsAuthenticated) return RedirectToLogin();
 
@@ -115,7 +116,7 @@ namespace WordStation.WebUI.Controllers
             else
                 this.NotifyError("Failure", "Delete operation failed.");
 
-            return RedirectToIndex(listName, SearchTerm, searchMode);
+            return RedirectToIndex(listName, SearchTerm, searchMode, searchLang);
         }
 
         [HttpPost]
@@ -155,10 +156,10 @@ namespace WordStation.WebUI.Controllers
 
         private IActionResult RedirectToLogin() => RedirectToAction("Login", "Account");
 
-        private IActionResult RedirectToIndex(string? listName = null, string? searchTerm = null, string? mode = null, string? error = null)
+        private IActionResult RedirectToIndex(string? listName = null, string? searchTerm = null, string? mode = null, string? lang = null, string? error = null)
         {
             if (error != null) this.NotifyError("Error", error);
-            return RedirectToAction("Index", new { listName, SearchTerm = searchTerm, searchMode = mode });
+            return RedirectToAction("Index", new { listName, SearchTerm = searchTerm, searchMode = mode, searchLang = lang });
         }
 
         #endregion

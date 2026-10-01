@@ -30,14 +30,14 @@ namespace WordStation.WebAPI.Controllers
             return Ok(words);
         }
 
-        // GET: api/words/search?en=xxx&userId=yyy&listName=zzz&searchMode=starts|contains
+        // GET: api/words/search?en=xxx&userId=yyy&listName=zzz&searchMode=starts|contains&searchLang=en|tr
         [HttpGet("search")]
-        public async Task<IActionResult> SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName, [FromQuery] string searchMode = "starts")
+        public async Task<IActionResult> SearchWord([FromQuery] string en, [FromQuery] string userId, [FromQuery] string listName, [FromQuery] string searchMode = "starts", [FromQuery] string searchLang = "en")
         {
             if (string.IsNullOrWhiteSpace(en) || string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(listName))
                 return BadRequest("Arama kriterleri eksik.");
 
-            var results = await _wordService.SearchWordAsync(en, userId, listName, searchMode);
+            var results = await _wordService.SearchWordAsync(en, userId, listName, searchMode, searchLang);
             return Ok(results);
         }
 

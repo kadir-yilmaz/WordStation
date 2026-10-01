@@ -39,6 +39,8 @@ const els = {
     searchClearBtn: document.getElementById('searchClearBtn'),
     searchModeInput: document.getElementById('searchModeInput'),
     searchModeBtn: document.getElementById('searchModeToggle'),
+    searchLangInput: document.getElementById('searchLangInput'),
+    searchLangBtn: document.getElementById('searchLangToggle'),
 
     // Synonyms
     synonymsContainer: document.getElementById('flashcardSynonymsContainer'),
@@ -170,7 +172,7 @@ function getAntiForgeryToken() {
 /* =====================================================
    Delete Word
    ===================================================== */
-function deleteWord(id, listName, wordEn, searchTerm, searchMode) {
+function deleteWord(id, listName, wordEn, searchTerm, searchMode, searchLang) {
     if (confirm(`Are you sure you want to delete the word "${wordEn}"?`)) {
         const isCardView = !els.flashcardView.classList.contains('d-none');
         const form = document.createElement('form');
@@ -182,6 +184,7 @@ function deleteWord(id, listName, wordEn, searchTerm, searchMode) {
             { name: 'listName', value: listName },
             { name: 'SearchTerm', value: searchTerm || '' },
             { name: 'searchMode', value: searchMode || 'starts' },
+            { name: 'searchLang', value: searchLang || 'en' },
             { name: 'wordEn', value: wordEn || '' }
         ];
 
@@ -324,7 +327,8 @@ function showWord(index, opts = {}) {
                     data.listName || data.ListName,
                     data.en || data.En,
                     window.searchTermValue,
-                    window.searchModeValue
+                    window.searchModeValue,
+                    window.searchLangValue
                 );
         }
 
@@ -604,6 +608,25 @@ function initSearchUI() {
                 els.searchModeBtn.classList.remove('active');
                 modeIcon?.classList.replace('bi-text-center', 'bi-text-left');
                 els.searchModeBtn.title = "Mode: Starts with";
+            }
+            els.searchInput?.focus();
+        });
+    }
+
+    if (els.searchLangBtn && els.searchLangInput) {
+        els.searchLangBtn.addEventListener('click', function () {
+            const currentLang = els.searchLangInput.value;
+            const newLang = currentLang === 'en' ? 'tr' : 'en';
+            els.searchLangInput.value = newLang;
+
+            if (newLang === 'tr') {
+                els.searchLangBtn.classList.add('active');
+                els.searchLangBtn.textContent = 'TR';
+                els.searchLangBtn.title = "Lang: Türkçe";
+            } else {
+                els.searchLangBtn.classList.remove('active');
+                els.searchLangBtn.textContent = 'EN';
+                els.searchLangBtn.title = "Lang: English";
             }
             els.searchInput?.focus();
         });

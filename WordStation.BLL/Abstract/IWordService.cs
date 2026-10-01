@@ -6,7 +6,7 @@ namespace WordStation.BLL.Abstract
     {
         // Query metodları
         Task<IEnumerable<Word>> GetAllWordsAsync(string userId, string listName);
-        Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts");
+        Task<IEnumerable<Word>> SearchWordAsync(string en, string userId, string listName, string searchMode = "starts", string searchLang = "en");
         Task<IEnumerable<string>> GetListNamesAsync(string userId);
         Task<IEnumerable<Word>> GetAllWordsForUserAsync(string userId);
 

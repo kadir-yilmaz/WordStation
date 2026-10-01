@@ -24,9 +24,6 @@
                                 <td class="align-middle">
                                     <div class="d-flex align-items-center gap-2">
                                         <strong>@word.En</strong>
-                                        <button type="button" class="btn btn-sm btn-link text-white-50 p-0 shadow-none border-0" onclick="window.speakWord('@word.En.Replace("'", "\\'")', this); event.stopPropagation();" title="Dinle">
-                                            <i class="bi bi-volume-off-fill" style="font-size: 1.1rem;"></i>
-                                        </button>
                                     </div>
                                 </td>
                                 <td class="align-middle">@word.Tr</td>
@@ -65,7 +62,7 @@
                                             <li>
                                                 <button type="button"
                                                         class="dropdown-item text-danger"
-                                                        onclick="deleteWord(@word.Id, '@Model.SelectedList', '@word.En', '@Model.SearchTerm', '@Model.SearchMode')">
+                                                        onclick="deleteWord(@word.Id, '@Model.SelectedList', '@word.En', '@Model.SearchTerm', '@Model.SearchMode', '@Model.SearchLang')">
                                                     <i class="bi bi-trash-fill me-2"></i>Delete
                                                 </button>
                                             </li>
