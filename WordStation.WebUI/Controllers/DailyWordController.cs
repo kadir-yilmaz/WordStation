@@ -92,12 +92,13 @@ namespace WordStation.WebUI.Controllers
                     // Çalışılmış kelimeler
                     vm.CompletedWords = session.CompletedWords.Select(d => {
                         var orig = allWords.FirstOrDefault(w => w.Id == d.WordId);
-                        return new Word
+                        return new CompletedWordViewModel
                         {
                             Id = d.WordId,
                             En = d.En,
                             Tr = d.Tr,
-                            Example = orig?.Example
+                            Example = orig?.Example,
+                            CompletedAt = d.CompletedAt
                         };
                     }).ToList();
                     vm.CompletedWordCount = vm.CompletedWords.Count;

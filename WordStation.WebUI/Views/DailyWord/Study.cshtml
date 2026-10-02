@@ -38,15 +38,13 @@
 
         <!-- SOL PANEL: Kelime Havuzu -->
         <div class="dw-panel dw-panel-left">
-            <div class="dw-panel-header">
-                <!-- Tab Bar -->
-                <div class="dw-tabs">
-                    <button class="dw-tab active" data-tab="all" id="tabAll">
-                        Tümü (<span id="allCount">@Model.AllWords.Count</span>)
-                    </button>
-                    <button class="dw-tab" data-tab="completed" id="tabCompleted">
-                        Çalışılan (<span id="completedCount">@Model.CompletedWordCount</span>)
-                    </button>
+            <div class="dw-panel-header" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="dw-panel-title">
+                        <i class="bi bi-collection"></i>
+                        <span>Tümü</span>
+                        <span class="dw-daily-count" id="allCount">@Model.AllWords.Count</span>
+                    </div>
                 </div>
                 <!-- Arama -->
                 <div class="dw-search-wrapper">
@@ -94,40 +92,10 @@
                     </div>
                 }
             </div>
-
-            <!-- Kelime Listesi: Çalışılan -->
-            <div class="dw-word-list dw-hidden" id="completedWordsList">
-                @if (Model.CompletedWords.Any())
-                {
-                    @foreach (var word in Model.CompletedWords)
-                    {
-                        <div class="dw-word-row dw-word-completed" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
-                            <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
-                                <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
-                                    <span class="dw-word-en text-truncate">@word.En</span>
-                                </div>
-                                <span class="dw-word-tr">@word.Tr</span>
-                            </div>
-                            <div class="dw-row-actions">
-                                <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="@word.Id">
-                                    <i class="bi bi-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="dw-empty-list" id="completedEmptyState">
-                        <i class="bi bi-hourglass"></i>
-                        <p>Henüz çalışılmış kelime yok</p>
-                    </div>
-                }
-            </div>
         </div>
 
-        <!-- SAĞ PANEL: Günlük Kelimeler -->
-        <div class="dw-panel dw-panel-right">
+        <!-- ORTA PANEL: Günlük Kelimeler -->
+        <div class="dw-panel dw-panel-middle">
             <div class="dw-panel-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="dw-panel-title">
                     <i class="bi bi-calendar-day"></i>
@@ -135,7 +103,7 @@
                     <span class="dw-daily-count" id="dailyCount">@Model.DailyWords.Count</span>
                 </div>
                 <button class="dw-btn-complete-all" id="completeAllBtn" title="Tümünü çalışıldı olarak işaretle">
-                    <i class="bi bi-check-all"></i> Tümünü İşaretle
+                    <i class="bi bi-check-all"></i> Çalışıldı olarak işaretle
                 </button>
             </div>
 
@@ -171,6 +139,65 @@
                 }
             </div>
         </div>
+
+        <!-- SAĞ PANEL: Çalışılanlar -->
+        <div class="dw-panel dw-panel-right">
+            <div class="dw-panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="dw-panel-title">
+                    <i class="bi bi-check2-circle"></i>
+                    <span>Çalışılanlar</span>
+                    <span class="dw-daily-count" id="completedCount">@Model.CompletedWordCount</span>
+                </div>
+            </div>
+            
+            <!-- Kelime Listesi: Çalışılan -->
+            <div class="dw-word-list" id="completedWordsList">
+                @if (Model.CompletedWords.Any())
+                {
+                    var groupedWords = Model.CompletedWords
+                        .GroupBy(w => w.CompletedAt?.Date ?? DateTime.UtcNow.Date)
+                        .OrderBy(g => g.Key)
+                        .ToList();
+
+                    int dayNumber = 1;
+
+                    foreach (var group in groupedWords)
+                    {
+                        <div class="day-group-card" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 16px; padding: 12px; background: rgba(0,0,0,0.2); position: relative;">
+                            <div class="day-group-header" style="text-align: right; color: rgba(255,255,255,0.5); font-weight: 500; font-size: 0.85rem; margin-bottom: 8px;">
+                                Day @dayNumber
+                            </div>
+                            <div class="day-group-body">
+                                @foreach (var word in group)
+                                {
+                                    <div class="dw-word-row dw-word-completed" data-word-id="@word.Id" data-en="@word.En.ToLower()" data-tr="@word.Tr.ToLower()" data-example="@word.Example">
+                                        <button class="dw-btn-send dw-btn-send-left" title="Günlüğe geri al" data-word-id="@word.Id">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </button>
+                                        <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
+                                            <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
+                                                <span class="dw-word-en text-truncate">@word.En</span>
+                                            </div>
+                                            <span class="dw-word-tr">@word.Tr</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        dayNumber++;
+                    }
+                }
+                else
+                {
+                    <div class="dw-empty-list" id="completedEmptyState">
+                        <i class="bi bi-hourglass"></i>
+                        <p>Henüz çalışılmış kelime yok</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+
     </div>
 </div>
 

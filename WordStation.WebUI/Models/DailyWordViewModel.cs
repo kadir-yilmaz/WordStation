@@ -2,6 +2,15 @@ using System.Collections.Generic;
 
 namespace WordStation.WebUI.Models
 {
+    public class CompletedWordViewModel
+    {
+        public int Id { get; set; }
+        public string En { get; set; } = string.Empty;
+        public string Tr { get; set; } = string.Empty;
+        public string Example { get; set; }
+        public DateTime? CompletedAt { get; set; }
+    }
+
     public class DailyWordViewModel
     {
         // Liste seçim sayfası
@@ -15,7 +24,7 @@ namespace WordStation.WebUI.Models
 
         // Sol panel verileri
         public List<Word> AllWords { get; set; } = new();             // Tüm kelimeler
-        public List<Word> CompletedWords { get; set; } = new();       // Çalışılmış kelimeler
+        public List<CompletedWordViewModel> CompletedWords { get; set; } = new(); // Çalışılmış kelimeler
         public int TotalWordCount { get; set; }
         public int CompletedWordCount { get; set; }
 

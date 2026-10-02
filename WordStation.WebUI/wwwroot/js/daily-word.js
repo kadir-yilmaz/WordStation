@@ -17,8 +17,7 @@
     if (!config) return;
 
     // ===== DOM References =====
-    const tabAll = document.getElementById('tabAll');
-    const tabCompleted = document.getElementById('tabCompleted');
+
     const allWordsList = document.getElementById('allWordsList');
     const completedWordsList = document.getElementById('completedWordsList');
     const dailyWordsList = document.getElementById('dailyWordsList');
@@ -69,27 +68,7 @@
         return await response.json();
     }
 
-    // ===== Tab Switching =====
-    function switchTab(tab) {
-        if (tab === 'all') {
-            tabAll.classList.add('active');
-            tabCompleted.classList.remove('active');
-            allWordsList.classList.remove('dw-hidden');
-            completedWordsList.classList.add('dw-hidden');
-        } else {
-            tabAll.classList.remove('active');
-            tabCompleted.classList.add('active');
-            allWordsList.classList.add('dw-hidden');
-            completedWordsList.classList.remove('dw-hidden');
-        }
-        // Re-apply search filter when switching tabs
-        if (searchInput && searchInput.value) {
-            filterWords(searchInput.value);
-        }
-    }
 
-    if (tabAll) tabAll.addEventListener('click', () => switchTab('all'));
-    if (tabCompleted) tabCompleted.addEventListener('click', () => switchTab('completed'));
 
     // ===== Search =====
 
@@ -169,7 +148,7 @@
 
     // ===== Add to Daily (→) =====
     function handleAddToDaily(e) {
-        const btn = e.target.closest('.dw-btn-send-right');
+        const btn = e.target.closest('.dw-btn-send');
         if (!btn) return;
 
         const wordId = parseInt(btn.getAttribute('data-word-id'));
@@ -340,17 +319,39 @@
         row.setAttribute('data-tr', tr.toLowerCase());
         row.setAttribute('data-example', example);
         row.innerHTML = `
+            <button class="dw-btn-send dw-btn-send-left" title="Günlüğe geri al" data-word-id="${wordId}">
+                <i class="bi bi-arrow-left"></i>
+            </button>
             <div class="dw-word-content" onclick="window.showWordDetailFromElement(this.closest('.dw-word-row'))" style="cursor: pointer;" title="Detay">
-                <span class="dw-word-en">${escapeHtml(en)}</span>
+                <div class="d-flex align-items-center gap-2 me-auto" style="min-width: 0;">
+                    <span class="dw-word-en text-truncate">${escapeHtml(en)}</span>
+                </div>
                 <span class="dw-word-tr">${escapeHtml(tr)}</span>
             </div>
-            <div class="dw-row-actions">
-                <button class="dw-btn-send dw-btn-send-right" title="Günlüğe ekle" data-word-id="${wordId}">
-                    <i class="bi bi-arrow-right"></i>
-                </button>
-            </div>
         `;
-        completedWordsList.appendChild(row);
+        
+        let lastCard = completedWordsList.querySelectorAll('.day-group-card');
+        let cardToAppend = lastCard.length > 0 ? lastCard[lastCard.length - 1] : null;
+
+        if (cardToAppend) {
+            const body = cardToAppend.querySelector('.day-group-body');
+            if (body) {
+                body.appendChild(row);
+            }
+        } else {
+            // No cards exist yet, create Day 1 card
+            const card = document.createElement('div');
+            card.className = 'day-group-card';
+            card.style = 'border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 16px; padding: 12px; background: rgba(0,0,0,0.2); position: relative;';
+            card.innerHTML = `
+                <div class="day-group-header" style="text-align: right; color: rgba(255,255,255,0.5); font-weight: 500; font-size: 0.85rem; margin-bottom: 8px;">
+                    Day 1
+                </div>
+                <div class="day-group-body"></div>
+            `;
+            card.querySelector('.day-group-body').appendChild(row);
+            completedWordsList.appendChild(card);
+        }
     }
 
     // ===== Complete All Words =====
