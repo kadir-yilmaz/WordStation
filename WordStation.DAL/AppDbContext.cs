@@ -24,6 +24,7 @@ namespace WordStation.DAL
 
         public DbSet<QuizHistory> QuizHistories { get; set; }
         public DbSet<DailyWordSession> DailyWordSessions { get; set; }
+        public DbSet<DailyWordSessionItem> DailyWordSessionItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -45,6 +45,13 @@ namespace WordStation.WebUI.Models
         public int WordId { get; set; }
     }
 
+    public class CompleteDailyWordsRequestDto
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string ListName { get; set; } = string.Empty;
+        public List<int> WordIds { get; set; } = new();
+    }
+
     public class InitDailyWordSessionRequestDto
     {
         public string UserId { get; set; } = string.Empty;

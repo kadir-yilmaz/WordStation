@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using WordStation.BLL.Abstract;
 using WordStation.DAL.Abstract;
@@ -14,11 +13,6 @@ namespace WordStation.BLL.Concrete
     {
         private readonly IDailyWordRepository _dailyWordRepository;
         private readonly IWordRepository _wordRepository;
-
-        private static readonly JsonSerializerOptions _jsonOptions = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
 
         public DailyWordService(
             IDailyWordRepository dailyWordRepository,
@@ -60,23 +54,29 @@ namespace WordStation.BLL.Concrete
                 w => w.UserId == userId && w.ListName == listName,
                 trackChanges: false);
 
-            var allWordIds = words.Select(w => w.Id).ToList();
-
             var session = new DailyWordSession
             {
                 UserId = userId,
                 ListName = listName,
-                DailyWordsJson = "[]",
-                CompletedWordsJson = "[]",
-                RemainingWordIdsJson = JsonSerializer.Serialize(allWordIds),
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                SessionItems = new List<DailyWordSessionItem>()
             };
+
+            foreach (var word in words)
+            {
+                session.SessionItems.Add(new DailyWordSessionItem
+                {
+                    WordId = word.Id,
+                    Status = 0 // 0: Remaining
+                });
+            }
 
             _dailyWordRepository.Create(session);
             await _dailyWordRepository.SaveAsync();
 
-            return MapToDto(session);
+            // Sadece DTO maplemek için DB'den son halini Word'lerle birlikte çek
+            return MapToDto(await _dailyWordRepository.GetByUserAndListAsync(userId, listName) ?? session);
         }
 
         public async Task<DailyWordSessionDto> AddToDailyAsync(AddToDailyDto dto)
@@ -88,40 +88,17 @@ namespace WordStation.BLL.Concrete
             if (session == null)
                 throw new InvalidOperationException("Aktif session bulunamadı.");
 
-            var dailyWords = DeserializeItems(session.DailyWordsJson);
-            var remainingIds = DeserializeIds(session.RemainingWordIdsJson);
-            var completedWords = DeserializeItems(session.CompletedWordsJson);
-
-            // Eklenecek kelimeleri DB'den al
-            var words = await _wordRepository.GetWordsByConditionAsync(
-                w => dto.WordIds.Contains(w.Id), trackChanges: false);
-
-            foreach (var word in words)
+            foreach (var wordId in dto.WordIds)
             {
-                // Zaten günlükte yoksa ekle
-                if (!dailyWords.Any(d => d.WordId == word.Id))
+                var item = session.SessionItems.FirstOrDefault(x => x.WordId == wordId);
+                if (item != null)
                 {
-                    dailyWords.Add(new DailyWordItemDto
-                    {
-                        WordId = word.Id,
-                        En = word.En,
-                        Tr = word.Tr
-                    });
+                    item.Status = 1; // 1: Daily
                 }
-
-                // Remaining'den çıkar
-                remainingIds.Remove(word.Id);
-
-                // Completed'dan çıkar (varsa)
-                completedWords.RemoveAll(d => d.WordId == word.Id);
             }
 
-            session.DailyWordsJson = JsonSerializer.Serialize(dailyWords, _jsonOptions);
-            session.RemainingWordIdsJson = JsonSerializer.Serialize(remainingIds, _jsonOptions);
-            session.CompletedWordsJson = JsonSerializer.Serialize(completedWords, _jsonOptions);
             session.UpdatedAt = DateTime.UtcNow;
 
-            _dailyWordRepository.Update(session);
             await _dailyWordRepository.SaveAsync();
 
             return MapToDto(session);
@@ -136,30 +113,33 @@ namespace WordStation.BLL.Concrete
             if (session == null)
                 throw new InvalidOperationException("Aktif session bulunamadı.");
 
-            var dailyWords = DeserializeItems(session.DailyWordsJson);
-            var remainingIds = DeserializeIds(session.RemainingWordIdsJson);
-
             foreach (var wordId in dto.WordIds)
             {
-                // Günlükten çıkar
-                dailyWords.RemoveAll(d => d.WordId == wordId);
-
-                // Remaining'e geri ekle (yoksa)
-                if (!remainingIds.Contains(wordId))
-                    remainingIds.Add(wordId);
+                var item = session.SessionItems.FirstOrDefault(x => x.WordId == wordId);
+                if (item != null)
+                {
+                    item.Status = 0; // 0: Remaining
+                }
             }
 
-            session.DailyWordsJson = JsonSerializer.Serialize(dailyWords, _jsonOptions);
-            session.RemainingWordIdsJson = JsonSerializer.Serialize(remainingIds, _jsonOptions);
             session.UpdatedAt = DateTime.UtcNow;
 
-            _dailyWordRepository.Update(session);
             await _dailyWordRepository.SaveAsync();
 
             return MapToDto(session);
         }
 
         public async Task<DailyWordSessionDto> CompleteWordAsync(CompleteDailyWordDto dto)
+        {
+            return await CompleteWordsAsync(new CompleteDailyWordsDto
+            {
+                UserId = dto.UserId,
+                ListName = dto.ListName,
+                WordIds = new List<int> { dto.WordId }
+            });
+        }
+
+        public async Task<DailyWordSessionDto> CompleteWordsAsync(CompleteDailyWordsDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.UserId) || string.IsNullOrWhiteSpace(dto.ListName))
                 throw new ArgumentException("UserId ve ListName zorunludur.");
@@ -168,25 +148,18 @@ namespace WordStation.BLL.Concrete
             if (session == null)
                 throw new InvalidOperationException("Aktif session bulunamadı.");
 
-            var dailyWords = DeserializeItems(session.DailyWordsJson);
-            var completedWords = DeserializeItems(session.CompletedWordsJson);
-
-            var wordToComplete = dailyWords.FirstOrDefault(d => d.WordId == dto.WordId);
-            if (wordToComplete != null)
+            foreach (var wordId in dto.WordIds)
             {
-                // Günlükten çıkar
-                dailyWords.Remove(wordToComplete);
-
-                // Çalışılmışa ekle
-                wordToComplete.CompletedAt = DateTime.UtcNow;
-                completedWords.Add(wordToComplete);
+                var item = session.SessionItems.FirstOrDefault(x => x.WordId == wordId);
+                if (item != null)
+                {
+                    item.Status = 2; // 2: Completed
+                    item.CompletedAt = DateTime.UtcNow;
+                }
             }
 
-            session.DailyWordsJson = JsonSerializer.Serialize(dailyWords, _jsonOptions);
-            session.CompletedWordsJson = JsonSerializer.Serialize(completedWords, _jsonOptions);
             session.UpdatedAt = DateTime.UtcNow;
 
-            _dailyWordRepository.Update(session);
             await _dailyWordRepository.SaveAsync();
 
             return MapToDto(session);
@@ -210,40 +183,43 @@ namespace WordStation.BLL.Concrete
 
         private static DailyWordSessionDto MapToDto(DailyWordSession session)
         {
-            return new DailyWordSessionDto
+            var dto = new DailyWordSessionDto
             {
                 Id = session.Id,
                 ListName = session.ListName,
-                DailyWords = DeserializeItems(session.DailyWordsJson),
-                CompletedWords = DeserializeItems(session.CompletedWordsJson),
-                RemainingWordIds = DeserializeIds(session.RemainingWordIdsJson),
                 CreatedAt = session.CreatedAt,
                 UpdatedAt = session.UpdatedAt
             };
-        }
 
-        private static List<DailyWordItemDto> DeserializeItems(string json)
-        {
-            try
+            if (session.SessionItems != null)
             {
-                return JsonSerializer.Deserialize<List<DailyWordItemDto>>(json, _jsonOptions) ?? new List<DailyWordItemDto>();
-            }
-            catch
-            {
-                return new List<DailyWordItemDto>();
-            }
-        }
+                dto.DailyWords = session.SessionItems
+                    .Where(x => x.Status == 1 && x.Word != null)
+                    .Select(x => new DailyWordItemDto
+                    {
+                        WordId = x.WordId,
+                        En = x.Word.En,
+                        Tr = x.Word.Tr,
+                        CompletedAt = x.CompletedAt
+                    }).ToList();
 
-        private static List<int> DeserializeIds(string json)
-        {
-            try
-            {
-                return JsonSerializer.Deserialize<List<int>>(json, _jsonOptions) ?? new List<int>();
+                dto.CompletedWords = session.SessionItems
+                    .Where(x => x.Status == 2 && x.Word != null)
+                    .Select(x => new DailyWordItemDto
+                    {
+                        WordId = x.WordId,
+                        En = x.Word.En,
+                        Tr = x.Word.Tr,
+                        CompletedAt = x.CompletedAt
+                    }).ToList();
+
+                dto.RemainingWordIds = session.SessionItems
+                    .Where(x => x.Status == 0)
+                    .Select(x => x.WordId)
+                    .ToList();
             }
-            catch
-            {
-                return new List<int>();
-            }
+
+            return dto;
         }
 
         #endregion

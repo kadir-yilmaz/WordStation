@@ -16,7 +16,11 @@ namespace WordStation.DAL.EFCore
 
         public async Task<DailyWordSession?> GetByUserAndListAsync(string userId, string listName, bool trackChanges = false)
         {
-            var query = _context.DailyWordSessions.AsQueryable();
+            var query = _context.DailyWordSessions
+                .Include(s => s.SessionItems)
+                .ThenInclude(si => si.Word)
+                .AsQueryable();
+                
             if (!trackChanges)
                 query = query.AsNoTracking();
 

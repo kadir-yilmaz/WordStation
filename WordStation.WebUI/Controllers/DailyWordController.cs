@@ -115,9 +115,9 @@ namespace WordStation.WebUI.Controllers
                     vm.AllWords = allWords;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                this.NotifyError("Hata", "Kelimeler yüklenirken bir hata oluştu.");
+                this.NotifyError("Hata", "Kelimeler yüklenirken bir hata oluştu: " + ex.Message);
                 vm.AllWords = new List<Word>();
             }
 
@@ -177,6 +177,26 @@ namespace WordStation.WebUI.Controllers
             {
                 var result = await _dailyWordService.CompleteWordAsync(
                     CurrentUserId, request.ListName, request.WordId, AccessToken);
+
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        // POST: /DailyWord/CompleteWords
+        [HttpPost]
+        public async Task<IActionResult> CompleteWords([FromBody] AjaxWordRequest request)
+        {
+            if (!IsAuthenticated)
+                return Unauthorized();
+
+            try
+            {
+                var result = await _dailyWordService.CompleteWordsAsync(
+                    CurrentUserId, request.ListName, request.WordIds, AccessToken);
 
                 return Json(new { success = true, data = result });
             }

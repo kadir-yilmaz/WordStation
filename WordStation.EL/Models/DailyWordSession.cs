@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace WordStation.EL.Models
@@ -16,23 +17,7 @@ namespace WordStation.EL.Models
         [MaxLength(150)]
         public string ListName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Günlük çalışma listesi (sağ panel) - JSON: [{ "wordId": 1, "en": "blue", "tr": "mavi" }]
-        /// </summary>
-        [Required]
-        public string DailyWordsJson { get; set; } = "[]";
-
-        /// <summary>
-        /// Çalışılmış (tamamlanmış) kelimeler - JSON: [{ "wordId": 1, "en": "blue", "tr": "mavi", "completedAt": "..." }]
-        /// </summary>
-        [Required]
-        public string CompletedWordsJson { get; set; } = "[]";
-
-        /// <summary>
-        /// Kalan kelimeler (henüz günlüğe eklenmemiş) - JSON: [1, 2, 3, ...]
-        /// </summary>
-        [Required]
-        public string RemainingWordIdsJson { get; set; } = "[]";
+        public ICollection<DailyWordSessionItem> SessionItems { get; set; } = new List<DailyWordSessionItem>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

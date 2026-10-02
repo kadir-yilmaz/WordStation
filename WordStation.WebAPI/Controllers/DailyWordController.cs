@@ -161,6 +161,34 @@ namespace WordStation.WebAPI.Controllers
             }
         }
 
+        // POST: api/dailyword/complete-bulk
+        [HttpPost("complete-bulk")]
+        public async Task<IActionResult> CompleteWords([FromBody] CompleteDailyWordsDto dto)
+        {
+            try
+            {
+                if (dto == null || dto.WordIds == null || dto.WordIds.Count == 0)
+                    return BadRequest("Kelime seçilmedi.");
+
+                var effectiveUserId = ResolveUserId(dto.UserId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                dto.UserId = effectiveUserId;
+
+                var session = await _dailyWordService.CompleteWordsAsync(dto);
+                return Ok(session);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
+
         // DELETE: api/dailyword?userId=x&listName=y
         [HttpDelete]
         public async Task<IActionResult> DeleteSession([FromQuery] string? userId, [FromQuery] string listName)

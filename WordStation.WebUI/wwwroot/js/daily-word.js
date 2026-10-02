@@ -364,35 +364,43 @@
             completeAllBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> İşleniyor...';
 
             try {
-                // UI Güncellemeleri (Kullanıcıya hızlı göstermek için anında)
                 const wordIdsToProcess = [];
+                const rowsData = [];
+                
+                // Get all IDs and original DOM elements first
                 Array.from(rows).forEach(row => {
                     const wordId = parseInt(row.getAttribute('data-word-id'));
                     wordIdsToProcess.push(wordId);
                     
-                    const en = row.querySelector('.dw-word-en')?.textContent || '';
-                    const tr = row.querySelector('.dw-word-tr')?.textContent || '';
-                    const example = row.getAttribute('data-example') || '';
-                    row.classList.add('dw-animate-complete');
-                    
-                    setTimeout(() => {
-                        row.remove();
-                        addWordToCompletedPanel(wordId, en, tr, example);
-                    }, 400);
+                    rowsData.push({
+                        row: row,
+                        wordId: wordId,
+                        en: row.querySelector('.dw-word-en')?.textContent || '',
+                        tr: row.querySelector('.dw-word-tr')?.textContent || '',
+                        example: row.getAttribute('data-example') || ''
+                    });
                 });
 
-                // DB Concurrency (Race Condition) hatasını önlemek için istekleri sırayla (sequential) atıyoruz.
-                for (const wordId of wordIdsToProcess) {
-                    await mvcPost(config.completeWordUrl, {
-                        listName: config.listName,
-                        wordId: wordId
-                    });
-                }
+                // Send 1 BULK request to the server instead of multiple requests
+                await mvcPost(config.completeWordsUrl, {
+                    listName: config.listName,
+                    wordIds: wordIdsToProcess
+                });
+
+                // If successful, animate all rows to completed list
+                rowsData.forEach(data => {
+                    data.row.classList.add('dw-animate-complete');
+                    setTimeout(() => {
+                        data.row.remove();
+                        addWordToCompletedPanel(data.wordId, data.en, data.tr, data.example);
+                    }, 400);
+                });
                 
                 setTimeout(() => {
                     checkDailyEmpty();
                     updateCounts();
                 }, 450);
+                
             } catch (err) {
                 console.error('CompleteAll error:', err);
                 alert('Tümünü tamamlarken bir hata oluştu. Sayfayı yenileyip tekrar deneyin.');

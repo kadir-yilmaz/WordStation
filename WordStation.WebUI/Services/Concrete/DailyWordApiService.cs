@@ -61,7 +61,10 @@ namespace WordStation.WebUI.Services.Concrete
                 "dailyword/init", token, ToJsonContent(dto));
 
             if (!response.IsSuccessStatusCode)
-                return null;
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({response.StatusCode}): {errorContent}");
+            }
 
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<DailyWordSessionDto>(json, _jsonOptions);
@@ -104,6 +107,22 @@ namespace WordStation.WebUI.Services.Concrete
             var dto = new CompleteDailyWordRequestDto { UserId = userId, ListName = listName, WordId = wordId };
             var response = await SendRequestAsync(HttpMethod.Post,
                 "dailyword/complete", token, ToJsonContent(dto));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API Error ({response.StatusCode}): {errorContent}");
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<DailyWordSessionDto>(json, _jsonOptions);
+        }
+
+        public async Task<DailyWordSessionDto> CompleteWordsAsync(string userId, string listName, List<int> wordIds, string token)
+        {
+            var dto = new CompleteDailyWordsRequestDto { UserId = userId, ListName = listName, WordIds = wordIds };
+            var response = await SendRequestAsync(HttpMethod.Post,
+                "dailyword/complete-bulk", token, ToJsonContent(dto));
 
             if (!response.IsSuccessStatusCode)
             {

@@ -47,6 +47,13 @@ namespace WordStation.EL.Dtos
         public int WordId { get; set; }
     }
 
+    public class CompleteDailyWordsDto
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string ListName { get; set; } = string.Empty;
+        public List<int> WordIds { get; set; } = new();
+    }
+
     // ===== Request DTO: Session başlatma =====
     public class InitDailyWordSessionDto
     {

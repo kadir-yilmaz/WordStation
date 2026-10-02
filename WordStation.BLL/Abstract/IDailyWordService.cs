@@ -12,6 +12,7 @@ namespace WordStation.BLL.Abstract
         Task<DailyWordSessionDto> AddToDailyAsync(AddToDailyDto dto);
         Task<DailyWordSessionDto> RemoveFromDailyAsync(RemoveFromDailyDto dto);
         Task<DailyWordSessionDto> CompleteWordAsync(CompleteDailyWordDto dto);
+        Task<DailyWordSessionDto> CompleteWordsAsync(CompleteDailyWordsDto dto);
         Task<bool> DeleteSessionAsync(string userId, string listName);
     }
 }

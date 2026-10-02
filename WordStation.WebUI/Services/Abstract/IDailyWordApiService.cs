@@ -11,6 +11,7 @@ namespace WordStation.WebUI.Services.Abstract
         Task<DailyWordSessionDto> AddToDailyAsync(string userId, string listName, List<int> wordIds, string token);
         Task<DailyWordSessionDto> RemoveFromDailyAsync(string userId, string listName, List<int> wordIds, string token);
         Task<DailyWordSessionDto> CompleteWordAsync(string userId, string listName, int wordId, string token);
+        Task<DailyWordSessionDto> CompleteWordsAsync(string userId, string listName, List<int> wordIds, string token);
         Task<bool> DeleteSessionAsync(string userId, string listName, string token);
     }
 }

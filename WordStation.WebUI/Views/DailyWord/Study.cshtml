@@ -42,10 +42,10 @@
                 <!-- Tab Bar -->
                 <div class="dw-tabs">
                     <button class="dw-tab active" data-tab="all" id="tabAll">
-                        tümü(<span id="allCount">@Model.AllWords.Count</span>)
+                        Tümü (<span id="allCount">@Model.AllWords.Count</span>)
                     </button>
                     <button class="dw-tab" data-tab="completed" id="tabCompleted">
-                        çalışılan(<span id="completedCount">@Model.CompletedWordCount</span>)
+                        Çalışılan (<span id="completedCount">@Model.CompletedWordCount</span>)
                     </button>
                 </div>
                 <!-- Arama -->
@@ -180,7 +180,8 @@
             listName: '@Model.SelectedList',
             addToDailyUrl: '@Url.Action("AddToDaily", "DailyWord")',
             removeFromDailyUrl: '@Url.Action("RemoveFromDaily", "DailyWord")',
-            completeWordUrl: '@Url.Action("CompleteWord", "DailyWord")'
+            completeWordUrl: '@Url.Action("CompleteWord", "DailyWord")',
+            completeWordsUrl: '@Url.Action("CompleteWords", "DailyWord")'
         };
     </script>
     <script src="~/js/word-detail.js" asp-append-version="true"></script>

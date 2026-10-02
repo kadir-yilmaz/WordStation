@@ -13,7 +13,7 @@ namespace WordStation.WebUI.Extensions
             {
                 new Claim(ClaimTypes.Name, tokenResponse.Email),
                 new Claim(ClaimTypes.Email, tokenResponse.Email),
-                new Claim(ClaimTypes.NameIdentifier, tokenResponse.Email),
+                new Claim(ClaimTypes.NameIdentifier, tokenResponse.UserId),
                 new Claim("Token", tokenResponse.Token),
                 new Claim("RefreshToken", tokenResponse.RefreshToken),
                 new Claim("RefreshTokenExpiration", tokenResponse.RefreshTokenExpiration.ToString("o")),
