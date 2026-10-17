@@ -14,8 +14,11 @@ namespace WordStation.BLL.Abstract
         Task<StudyPlanDayDto?> GetCurrentDayAsync(int planId, string userId);
         Task<StudyPlanDayDto?> GetDayAsync(int planId, int dayNumber, string userId);
         Task<List<StudyPlanDayDto>> GetAllDaysAsync(int planId, string userId);
+        Task<List<StudyPlanWordDto>> GetDayWordsByDayIdAsync(int dayId, string userId);
 
         Task<StudyPlanQuizDto> GenerateQuizAsync(int planId, int dayNumber, string userId);
+        Task<StudyPlanQuizDto> GenerateQuizByDayIdAsync(int dayId, string userId);
         Task<StudyPlanDayDto> SubmitQuizAsync(SubmitPlanQuizDto dto);
+        Task<StudyPlanDayDto> SubmitQuizByDayIdAsync(int dayId, List<PlanQuizAnswerDto> answers, string userId);
     }
 }

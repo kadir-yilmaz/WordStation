@@ -101,15 +101,11 @@
                             @if (day.IsCompleted && day.QuizScore.HasValue)
                             {
                                 <div class="d-flex justify-content-between align-items-center gap-2 p-2 px-3 rounded-4" style="background: rgba(255, 255, 255, 0.035);">
-                                    <!-- Sol: Quiz Sonucu -->
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-3 px-2 py-1 fw-bold text-center" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.95rem;">
-                                            %@(day.QuizScore > 100 ? (int)Math.Round(day.QuizScore.Value / 2.0) : day.QuizScore)
-                                        </div>
-                                        <div class="small lh-sm text-secondary">
-                                            <div><span class="text-success fw-bold">@day.CorrectCount</span> D <span class="text-secondary opacity-50">/</span> <span class="text-danger fw-bold">@day.WrongCount</span> Y</div>
-                                            <div style="font-size: 0.7rem; color: #94a3b8;">En İyi Skor</div>
-                                        </div>
+                                    <!-- Sol: Doğru / Yanlış -->
+                                    <div class="fw-bold fs-6">
+                                        <span class="text-success">@day.CorrectCount D</span>
+                                        <span class="text-secondary opacity-50 mx-1">/</span>
+                                        <span class="text-danger">@day.WrongCount Y</span>
                                     </div>
                                     <!-- Sağ: Tekrar Çöz Butonu -->
                                     <a asp-action="Quiz" asp-route-id="@plan?.Id" asp-route-dayNumber="@day.DayNumber" class="btn btn-sm sp-btn-outline d-inline-flex align-items-center gap-1 px-3 py-2 text-nowrap" style="border-radius: 12px;">

@@ -34,6 +34,12 @@ namespace WordStation.EL.Dtos
         public List<PlanQuizAnswerDto> Answers { get; set; } = new();
     }
 
+    public class SubmitDayQuizRequestDto
+    {
+        [Required]
+        public List<PlanQuizAnswerDto> Answers { get; set; } = new();
+    }
+
     public class PlanQuizAnswerDto
     {
         public int WordId { get; set; }
@@ -113,7 +119,9 @@ namespace WordStation.EL.Dtos
     {
         public int WordId { get; set; }
         public string QuestionText { get; set; } = string.Empty;
+        public string EnWord { get; set; } = string.Empty;
         public string CorrectAnswer { get; set; } = string.Empty;
+        public string? Example { get; set; }
         public List<string> Options { get; set; } = new();
     }
 }

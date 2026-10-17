@@ -63,6 +63,19 @@ namespace WordStation.DAL.EFCore
                 : await query.AsNoTracking().FirstOrDefaultAsync();
         }
 
+        public async Task<StudyPlanDay?> GetDayByIdAsync(int dayId, bool trackChanges = false)
+        {
+            var query = _context.StudyPlanDays
+                .Where(d => d.Id == dayId)
+                .Include(d => d.StudyPlan)
+                .Include(d => d.Words)
+                    .ThenInclude(w => w.Word);
+
+            return trackChanges
+                ? await query.FirstOrDefaultAsync()
+                : await query.AsNoTracking().FirstOrDefaultAsync();
+        }
+
         public async Task<List<StudyPlanDay>> GetAllDaysAsync(int planId, bool trackChanges = false)
         {
             var query = _context.StudyPlanDays

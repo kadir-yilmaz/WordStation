@@ -274,7 +274,9 @@ namespace WordStation.BLL.Concrete
                 {
                     WordId = word.Id,
                     QuestionText = questionText,
+                    EnWord = word.En,
                     CorrectAnswer = correctAnswer,
+                    Example = word.Example,
                     Options = options
                 });
             }
@@ -354,6 +356,60 @@ namespace WordStation.BLL.Concrete
             // Güncel veriyi döndür
             var updatedDay = await _studyPlanRepository.GetDayAsync(dto.StudyPlanId, dto.DayNumber);
             return MapToDayDto(updatedDay ?? day);
+        }
+
+        public async Task<List<StudyPlanWordDto>> GetDayWordsByDayIdAsync(int dayId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return new List<StudyPlanWordDto>();
+
+            var day = await _studyPlanRepository.GetDayByIdAsync(dayId);
+            if (day == null || day.StudyPlan == null || day.StudyPlan.UserId != userId)
+                return new List<StudyPlanWordDto>();
+
+            return day.Words
+                .Where(w => w.Word != null)
+                .Select(w => new StudyPlanWordDto
+                {
+                    WordId = w.WordId,
+                    En = w.Word.En,
+                    Tr = w.Word.Tr,
+                    Example = w.Word.Example,
+                    IsCorrectInQuiz = w.IsCorrectInQuiz
+                })
+                .ToList();
+        }
+
+        public async Task<StudyPlanQuizDto> GenerateQuizByDayIdAsync(int dayId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("UserId zorunludur.");
+
+            var day = await _studyPlanRepository.GetDayByIdAsync(dayId);
+            if (day == null || day.StudyPlan == null || day.StudyPlan.UserId != userId)
+                throw new InvalidOperationException("Gün bulunamadı.");
+
+            return await GenerateQuizAsync(day.StudyPlanId, day.DayNumber, userId);
+        }
+
+        public async Task<StudyPlanDayDto> SubmitQuizByDayIdAsync(int dayId, List<PlanQuizAnswerDto> answers, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException("UserId zorunludur.");
+
+            var day = await _studyPlanRepository.GetDayByIdAsync(dayId);
+            if (day == null || day.StudyPlan == null || day.StudyPlan.UserId != userId)
+                throw new InvalidOperationException("Gün bulunamadı.");
+
+            var dto = new SubmitPlanQuizDto
+            {
+                StudyPlanId = day.StudyPlanId,
+                DayNumber = day.DayNumber,
+                UserId = userId,
+                Answers = answers ?? new List<PlanQuizAnswerDto>()
+            };
+
+            return await SubmitQuizAsync(dto);
         }
 
         // ──────────────────────────────────────────────────────────────

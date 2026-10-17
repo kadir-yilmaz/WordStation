@@ -238,5 +238,73 @@ namespace WordStation.WebAPI.Controllers
                 return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
             }
         }
+
+        // GET: api/studyplan/days/{dayId}/words
+        [HttpGet("days/{dayId:int}/words")]
+        public async Task<IActionResult> GetDayWords(int dayId, [FromQuery] string? userId)
+        {
+            try
+            {
+                var effectiveUserId = ResolveUserId(userId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                var words = await _studyPlanService.GetDayWordsByDayIdAsync(dayId, effectiveUserId);
+                return Ok(words);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
+
+        // GET: api/studyplan/days/{dayId}/quiz
+        [HttpGet("days/{dayId:int}/quiz")]
+        public async Task<IActionResult> GetDayQuiz(int dayId, [FromQuery] string? userId)
+        {
+            try
+            {
+                var effectiveUserId = ResolveUserId(userId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                var quiz = await _studyPlanService.GenerateQuizByDayIdAsync(dayId, effectiveUserId);
+                return Ok(quiz.Questions);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
+
+        // POST: api/studyplan/days/{dayId}/submit
+        [HttpPost("days/{dayId:int}/submit")]
+        public async Task<IActionResult> SubmitDayQuiz(int dayId, [FromBody] SubmitDayQuizRequestDto dto, [FromQuery] string? userId)
+        {
+            try
+            {
+                if (dto == null)
+                    return BadRequest("Geçersiz istek.");
+
+                var effectiveUserId = ResolveUserId(userId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                var result = await _studyPlanService.SubmitQuizByDayIdAsync(dayId, dto.Answers, effectiveUserId);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
     }
 }
