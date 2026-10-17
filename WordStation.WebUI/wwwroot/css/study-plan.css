@@ -1,0 +1,277 @@
+/* ========================================================
+   WORDSTATION STUDY PLAN (ÇALIŞMA PLANI) - DARK MODE THEME
+   ======================================================== */
+
+.sp-page-header {
+    margin-bottom: 1.75rem;
+}
+
+.sp-title {
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.sp-subtitle {
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+/* Koyu Kartlar (Glassmorphism & Slate) */
+.sp-card {
+    background: #151c2c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sp-card:hover {
+    border-color: rgba(16, 185, 129, 0.35);
+    box-shadow: 0 14px 35px -10px rgba(16, 185, 129, 0.15);
+}
+
+.sp-card-completed {
+    border-left: 4px solid #10b981 !important;
+}
+
+/* Boş Durum (Empty State) */
+.sp-empty-card {
+    background: radial-gradient(circle at top, #1e293b 0%, #111827 100%);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 22px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+}
+
+.sp-empty-icon {
+    width: 90px;
+    height: 90px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+}
+
+/* İstatistik Kutuları */
+.sp-stat-box {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.sp-stat-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.sp-stat-val {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-top: 0.2rem;
+}
+
+/* Butonlar */
+.sp-btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 0.65rem 1.4rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sp-btn-primary:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    color: #ffffff;
+}
+
+.sp-btn-outline {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0 !important;
+    font-weight: 600;
+    border-radius: 50px;
+    padding: 0.55rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.sp-btn-outline:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    color: #10b981 !important;
+}
+
+.sp-btn-delete {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.sp-btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Badge & Chipler */
+.sp-badge {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50px;
+}
+
+/* Progress Bar */
+.sp-progress-container {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 50px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.sp-progress-bar {
+    background: linear-gradient(90deg, #10b981, #34d399);
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.4s ease;
+}
+
+/* Form Elemanları (Create Sayfası) */
+.sp-form-card {
+    background: #151c2c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.sp-input {
+    background: #0f141f !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.sp-input:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+}
+
+.sp-checkbox-box {
+    background: #0f141f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.25rem;
+}
+
+.sp-checkbox-item {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem;
+    color: #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-checkbox-item:hover {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.sp-checkbox-item input:checked + label {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Quiz Seçenekleri (4 Şık) */
+.sp-quiz-question-card {
+    background: #151c2c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.sp-quiz-option {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    border-radius: 14px;
+    padding: 1.15rem 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sp-quiz-option:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+    transform: translateY(-2px);
+    color: #ffffff;
+}
+
+.sp-quiz-option.correct {
+    background: rgba(16, 185, 129, 0.25) !important;
+    border-color: #10b981 !important;
+    color: #34d399 !important;
+}
+
+.sp-quiz-option.wrong {
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: #ef4444 !important;
+    color: #f87171 !important;
+}
+
+/* Modal Stili */
+.sp-modal-content {
+    background: #151c2c;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    color: #ffffff;
+}
+
+.sp-modal-item {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1rem 0;
+}

@@ -52,12 +52,12 @@ builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 builder.Services.AddScoped<IQuizHistoryRepository, QuizHistoryRepository>();
-builder.Services.AddScoped<IDailyWordRepository, DailyWordRepository>();
+builder.Services.AddScoped<IStudyPlanRepository, StudyPlanRepository>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IQuizHistoryService, QuizHistoryService>();
-builder.Services.AddScoped<IDailyWordService, DailyWordService>();
+builder.Services.AddScoped<IStudyPlanService, StudyPlanService>();
 
 builder.Services.AddRouting(options =>
 {

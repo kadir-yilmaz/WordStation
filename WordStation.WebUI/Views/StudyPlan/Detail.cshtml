@@ -1,0 +1,186 @@
+@model List<WordStation.EL.Dtos.StudyPlanDayDto>
+@{
+    var plan = ViewBag.Plan as WordStation.EL.Dtos.StudyPlanSummaryDto;
+    ViewData["Title"] = plan != null ? plan.Name : "Plan Detayı";
+    var progressPercent = plan != null ? (int)Math.Round(plan.Progress * 100) : 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study-plan.css" asp-append-version="true" />
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <a asp-action="Index" class="text-decoration-none sp-subtitle small d-inline-flex align-items-center gap-1 mb-2">
+            <i class="bi bi-arrow-left"></i> Tüm Planlarım
+        </a>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h2 class="sp-title mb-0">
+                <i class="bi bi-calendar2-range text-success me-2"></i>@(plan?.Name ?? "Plan Detayı")
+            </h2>
+            <div class="d-flex gap-2">
+                <form asp-action="Delete" asp-route-id="@plan?.Id" method="post" onsubmit="return confirm('Bu planı silmek istediğinize emin misiniz?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                        <i class="bi bi-trash3 me-1"></i>Planı Sil
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-opacity-25 border-0 text-white alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(16, 185, 129, 0.2);">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Üst İlerleme Kartı (Dark) -->
+    <div class="sp-card p-4 mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-md-6">
+                <div class="d-flex justify-content-between small mb-2">
+                    <span class="text-secondary fw-semibold">Genel İlerleme</span>
+                    <span class="fw-bold text-success">%@progressPercent Tamamlandı</span>
+                </div>
+                <div class="sp-progress-container mb-2">
+                    <div class="sp-progress-bar" style="width: @progressPercent%;"></div>
+                </div>
+                <div class="text-secondary small">
+                    Gün @plan?.CompletedDays / @plan?.TotalDays tamamlandı
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row text-center g-2">
+                    <div class="col-4">
+                        <div class="sp-stat-box">
+                            <div class="sp-stat-label">Toplam Gün</div>
+                            <div class="sp-stat-val">@plan?.TotalDays</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="sp-stat-box">
+                            <div class="sp-stat-label">Günlük Sınır</div>
+                            <div class="sp-stat-val">@plan?.DailyWordLimit</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="sp-stat-box">
+                            <div class="sp-stat-label">Toplam Kelime</div>
+                            <div class="sp-stat-val">@plan?.TotalWords</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Günler Listesi -->
+    <h4 class="fw-bold mb-3 text-white">
+        <i class="bi bi-list-check text-success me-2"></i>Günlük Quiz Programı
+    </h4>
+
+    <div class="row g-3">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var day in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="sp-card p-4 h-100 d-flex flex-column @(day.IsCompleted ? "sp-card-completed" : "")">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-weight: bold; background: @(day.IsCompleted ? "#10b981" : "rgba(255,255,255,0.06)"); color: @(day.IsCompleted ? "#ffffff" : "#94a3b8");">
+                                    @if (day.IsCompleted)
+                                    {
+                                        <i class="bi bi-check-lg fs-5"></i>
+                                    }
+                                    else
+                                    {
+                                        <span>G@(day.DayNumber)</span>
+                                    }
+                                </div>
+                                <h5 class="fw-bold mb-0 text-white">Gün @day.DayNumber</h5>
+                            </div>
+                            <button type="button" class="btn btn-sm sp-btn-outline btn-view-words" data-plan-id="@plan?.Id" data-day-number="@day.DayNumber" title="Kelimeleri Önizle">
+                                <i class="bi bi-eye"></i> Kelimeler
+                            </button>
+                        </div>
+
+                        <div class="my-3">
+                            <div class="text-secondary small">@day.Words.Count eşsiz kelime</div>
+                            @if (day.IsCompleted && day.QuizScore.HasValue)
+                            {
+                                <div class="mt-2 p-2 rounded-3 small fw-semibold" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">
+                                    <i class="bi bi-trophy-fill me-1"></i>Skor: %@day.QuizScore (@day.CorrectCount Doğru, @day.WrongCount Yanlış)
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mt-auto pt-2">
+                            <a asp-action="Quiz" asp-route-id="@plan?.Id" asp-route-dayNumber="@day.DayNumber" class="btn w-100 @(day.IsCompleted ? "sp-btn-outline" : "sp-btn-primary justify-content-center")">
+                                <i class="bi @(day.IsCompleted ? "bi-arrow-clockwise" : "bi-play-fill") me-1"></i>
+                                @(day.IsCompleted ? "Tekrar Çöz" : "Günün Quizini Çöz")
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info bg-opacity-25 border-0 text-white">Bu plan için henüz gün kaydı bulunmamaktadır.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Kelimeleri İnceleme Modalı (Dark Mode) -->
+<div class="modal fade" id="wordsModal" tabindex="-1" aria-labelledby="wordsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content sp-modal-content shadow-lg">
+            <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
+                <h5 class="modal-title fw-bold text-white" id="wordsModalLabel">Günün Kelimeleri</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="modalWordsContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalEl = document.getElementById('wordsModal');
+            const modal = new bootstrap.Modal(modalEl);
+            const content = document.getElementById('modalWordsContent');
+
+            document.querySelectorAll('.btn-view-words').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const planId = this.getAttribute('data-plan-id');
+                    const dayNumber = this.getAttribute('data-day-number');
+
+                    modal.show();
+                    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>';
+
+                    fetch(`/StudyPlan/DayWords?planId=${planId}&dayNumber=${dayNumber}`)
+                        .then(res => res.text())
+                        .then(html => {
+                            content.innerHTML = html;
+                        })
+                        .catch(err => {
+                            content.innerHTML = '<div class="alert alert-danger bg-opacity-25 border-0 text-danger">Kelimeler yüklenemedi.</div>';
+                        });
+                });
+            });
+        });
+    </script>
+}

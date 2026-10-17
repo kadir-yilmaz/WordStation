@@ -31,7 +31,7 @@ builder.Services.AddHttpClient("WordStationApi", client => {
 
 builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<IWordApiService, WordApiService>();
-builder.Services.AddScoped<IDailyWordApiService, DailyWordApiService>();
+builder.Services.AddScoped<IStudyPlanApiService, StudyPlanApiService>();
 
 var app = builder.Build();
 

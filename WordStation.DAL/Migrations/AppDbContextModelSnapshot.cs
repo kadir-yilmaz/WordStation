@@ -220,67 +220,6 @@ namespace WordStation.DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WordStation.EL.Models.DailyWordSession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ListName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "ListName")
-                        .IsUnique();
-
-                    b.ToTable("DailyWordSessions");
-                });
-
-            modelBuilder.Entity("WordStation.EL.Models.DailyWordSessionItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SessionId")
-                        .HasColumnType("int");
-
-                    b.Property<byte>("Status")
-                        .HasColumnType("tinyint");
-
-                    b.Property<int>("WordId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SessionId");
-
-                    b.HasIndex("WordId");
-
-                    b.ToTable("DailyWordSessionItems");
-                });
-
             modelBuilder.Entity("WordStation.EL.Models.QuizHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -359,6 +298,135 @@ namespace WordStation.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DailyWordLimit")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TotalDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StudyPlans");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanDay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("QuizMaxScore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("QuizScore")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudyPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WrongCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudyPlanId");
+
+                    b.ToTable("StudyPlanDays");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanDayWord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsCorrectInQuiz")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StudyPlanDayId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WordId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WordId");
+
+                    b.HasIndex("StudyPlanDayId", "WordId")
+                        .IsUnique();
+
+                    b.ToTable("StudyPlanDayWords");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ListName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("StudyPlanId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudyPlanId");
+
+                    b.ToTable("StudyPlanLists");
                 });
 
             modelBuilder.Entity("WordStation.EL.Models.Word", b =>
@@ -444,11 +512,22 @@ namespace WordStation.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WordStation.EL.Models.DailyWordSessionItem", b =>
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanDay", b =>
                 {
-                    b.HasOne("WordStation.EL.Models.DailyWordSession", "Session")
-                        .WithMany("SessionItems")
-                        .HasForeignKey("SessionId")
+                    b.HasOne("WordStation.EL.Models.StudyPlan", "StudyPlan")
+                        .WithMany("Days")
+                        .HasForeignKey("StudyPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StudyPlan");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanDayWord", b =>
+                {
+                    b.HasOne("WordStation.EL.Models.StudyPlanDay", "Day")
+                        .WithMany("Words")
+                        .HasForeignKey("StudyPlanDayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -458,14 +537,32 @@ namespace WordStation.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Session");
+                    b.Navigation("Day");
 
                     b.Navigation("Word");
                 });
 
-            modelBuilder.Entity("WordStation.EL.Models.DailyWordSession", b =>
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanList", b =>
                 {
-                    b.Navigation("SessionItems");
+                    b.HasOne("WordStation.EL.Models.StudyPlan", "StudyPlan")
+                        .WithMany("IncludedLists")
+                        .HasForeignKey("StudyPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StudyPlan");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlan", b =>
+                {
+                    b.Navigation("Days");
+
+                    b.Navigation("IncludedLists");
+                });
+
+            modelBuilder.Entity("WordStation.EL.Models.StudyPlanDay", b =>
+                {
+                    b.Navigation("Words");
                 });
 #pragma warning restore 612, 618
         }

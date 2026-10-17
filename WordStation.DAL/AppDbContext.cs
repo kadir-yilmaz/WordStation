@@ -21,25 +21,31 @@ namespace WordStation.DAL
         
         public DbSet<Word> Words { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-
         public DbSet<QuizHistory> QuizHistories { get; set; }
-        public DbSet<DailyWordSession> DailyWordSessions { get; set; }
-        public DbSet<DailyWordSessionItem> DailyWordSessionItems { get; set; }
+
+        // Study Plan
+        public DbSet<StudyPlan> StudyPlans { get; set; }
+        public DbSet<StudyPlanList> StudyPlanLists { get; set; }
+        public DbSet<StudyPlanDay> StudyPlanDays { get; set; }
+        public DbSet<StudyPlanDayWord> StudyPlanDayWords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-
 
             modelBuilder.Entity<QuizHistory>(entity =>
             {
                 entity.HasIndex(e => e.UserId);
             });
 
-            modelBuilder.Entity<DailyWordSession>(entity =>
+            modelBuilder.Entity<StudyPlan>(entity =>
             {
-                entity.HasIndex(e => new { e.UserId, e.ListName }).IsUnique();
+                entity.HasIndex(e => e.UserId);
+            });
+
+            modelBuilder.Entity<StudyPlanDayWord>(entity =>
+            {
+                entity.HasIndex(e => new { e.StudyPlanDayId, e.WordId }).IsUnique();
             });
         }
     }

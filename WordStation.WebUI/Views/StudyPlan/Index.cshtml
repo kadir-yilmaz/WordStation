@@ -1,0 +1,123 @@
+@model List<WordStation.EL.Dtos.StudyPlanSummaryDto>
+@{
+    ViewData["Title"] = "Çalışma Planlarım";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study-plan.css" asp-append-version="true" />
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 sp-page-header">
+        <div>
+            <h2 class="sp-title mb-1">
+                <i class="bi bi-calendar-check text-success me-2"></i>Çalışma Planlarım
+            </h2>
+            <p class="sp-subtitle mb-0">Seçtiğiniz listelerden otomatik günlük eşsiz kelimelerle quiz çözerek ilerleyin.</p>
+        </div>
+        <a asp-action="Create" class="btn sp-btn-primary">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Yeni Plan Oluştur</span>
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-opacity-25 border-0 text-white alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(16, 185, 129, 0.2);">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger bg-opacity-25 border-0 text-white alert-dismissible fade show mb-4" role="alert" style="background-color: rgba(239, 68, 68, 0.2);">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <!-- Boş Durum (Dark Mode) -->
+        <div class="sp-empty-card">
+            <div class="sp-empty-icon">
+                <i class="bi bi-calendar-heart"></i>
+            </div>
+            <h3 class="fw-bold text-white mb-2">Henüz bir çalışma planınız yok</h3>
+            <p class="sp-subtitle mx-auto mb-4" style="max-width: 540px;">
+                YDS, Phrasal Verbs veya kendi kelime listelerinizden seçim yaparak her gün eşsiz kelimelerle quiz çözeceğiniz bir plan başlatın!
+            </p>
+            <a asp-action="Create" class="btn sp-btn-primary btn-lg px-4 shadow">
+                <i class="bi bi-rocket-takeoff-fill"></i>
+                <span>İlk Planını Oluştur</span>
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Plan Listesi Kartları -->
+        <div class="row g-4">
+            @foreach (var plan in Model)
+            {
+                var progressPercent = (int)Math.Round(plan.Progress * 100);
+                <div class="col-md-6 col-lg-4">
+                    <div class="sp-card p-4 h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold text-white mb-0 text-truncate" title="@plan.Name">
+                                @plan.Name
+                            </h5>
+                            <form asp-action="Delete" asp-route-id="@plan.Id" method="post" onsubmit="return confirm('Bu planı silmek istediğinize emin misiniz?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="sp-btn-delete" title="Planı Sil">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="mb-3 d-flex flex-wrap gap-1">
+                            @foreach (var list in plan.IncludedListNames)
+                            {
+                                <span class="sp-badge">
+                                    @list
+                                </span>
+                            }
+                        </div>
+
+                        <div class="my-auto">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-secondary">İlerleme: Gün @plan.CompletedDays / @plan.TotalDays</span>
+                                <span class="fw-bold text-success">%@progressPercent</span>
+                            </div>
+                            <div class="sp-progress-container mb-3">
+                                <div class="sp-progress-bar" style="width: @progressPercent%;"></div>
+                            </div>
+
+                            <div class="row text-center g-2">
+                                <div class="col-6">
+                                    <div class="sp-stat-box">
+                                        <div class="sp-stat-label">Günlük Sınır</div>
+                                        <div class="sp-stat-val">@plan.DailyWordLimit <span class="fs-6 fw-normal text-secondary">kelime</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="sp-stat-box">
+                                        <div class="sp-stat-label">Toplam Kelime</div>
+                                        <div class="sp-stat-val">@plan.TotalWords <span class="fs-6 fw-normal text-secondary">kelime</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-2">
+                            <a asp-action="Detail" asp-route-id="@plan.Id" class="btn sp-btn-outline w-100">
+                                <i class="bi bi-play-circle-fill me-1 text-success"></i>Plan Detayı & Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

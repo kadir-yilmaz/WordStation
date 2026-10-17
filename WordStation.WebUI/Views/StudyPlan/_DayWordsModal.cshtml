@@ -1,0 +1,41 @@
+@model WordStation.EL.Dtos.StudyPlanDayDto
+
+<div class="list-group list-group-flush bg-transparent">
+    @if (Model?.Words != null && Model.Words.Any())
+    {
+        @foreach (var word in Model.Words)
+        {
+            <div class="list-group-item bg-transparent px-0 py-3 border-secondary border-opacity-25">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h6 class="fw-bold text-white mb-0 fs-5">@word.En</h6>
+                    @if (Model.IsCompleted)
+                    {
+                        @if (word.IsCorrectInQuiz)
+                        {
+                            <span class="badge rounded-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                <i class="bi bi-check-circle me-1"></i>Doğru
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge rounded-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                <i class="bi bi-x-circle me-1"></i>Yanlış
+                            </span>
+                        }
+                    }
+                </div>
+                <div class="fw-medium" style="color: #cbd5e1;">@word.Tr</div>
+                @if (!string.IsNullOrWhiteSpace(word.Example))
+                {
+                    <div class="small fst-italic mt-1" style="color: #94a3b8;">
+                        “@word.Example”
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-secondary py-3 text-center">Bu gün için kayıtlı kelime bulunamadı.</div>
+    }
+</div>

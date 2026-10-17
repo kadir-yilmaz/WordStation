@@ -12,4 +12,8 @@
     <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WordStation.EL\WordStation.EL.csproj" />
+  </ItemGroup>
+
 </Project>

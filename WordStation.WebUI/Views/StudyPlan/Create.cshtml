@@ -1,0 +1,141 @@
+@model WordStation.EL.Dtos.CreateStudyPlanDto
+@{
+    ViewData["Title"] = "Yeni Çalışma Planı Oluştur";
+    var availableLists = ViewBag.AvailableLists as List<string> ?? new List<string>();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study-plan.css" asp-append-version="true" />
+}
+
+<div class="container py-4" style="max-width: 800px;">
+    <div class="mb-4">
+        <a asp-action="Index" class="text-decoration-none sp-subtitle small d-inline-flex align-items-center gap-1 mb-2">
+            <i class="bi bi-arrow-left"></i> Planlara Dön
+        </a>
+        <h2 class="sp-title mb-1">
+            <i class="bi bi-magic text-success me-2"></i>Yeni Çalışma Planı Oluştur
+        </h2>
+        <p class="sp-subtitle">Seçtiğiniz listelerdeki kelimeler karıştırılıp her güne eşsiz kelimeler atanacaktır.</p>
+    </div>
+
+    <div class="sp-form-card">
+        <form asp-action="Create" method="post" id="createPlanForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-opacity-25 border-0 text-white" role="alert"></div>
+
+
+
+            <!-- 2. Dahil Edilecek Listeler -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label text-white fw-bold mb-0">Dahil Edilecek Listeler</label>
+                    @if (availableLists.Any())
+                    {
+                        <button type="button" class="btn btn-link btn-sm text-success text-decoration-none p-0" id="btnToggleAll">
+                            Tümünü Seç / Kaldır
+                        </button>
+                    }
+                </div>
+
+                @if (!availableLists.Any())
+                {
+                    <div class="alert alert-warning bg-opacity-25 border-0 text-warning">
+                        <i class="bi bi-exclamation-circle me-1"></i>Kayıtlı kelime listeniz bulunamadı. Lütfen önce liste ve kelime ekleyin.
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-2 sp-checkbox-box">
+                        @foreach (var list in availableLists)
+                        {
+                            <label class="sp-checkbox-item user-select-none" for="list_@list">
+                                <input class="form-check-input list-checkbox m-0" type="checkbox" name="ListNames" value="@list" id="list_@list" />
+                                <span>@list</span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="ListNames" class="text-danger small"></span>
+                }
+            </div>
+
+            <!-- 3. Günlük Kelime Sınırı -->
+            <div class="mb-4">
+                <label class="form-label text-white fw-bold d-flex justify-content-between">
+                    <span>Günlük Kelime Sınırı (Quiz Soru Sayısı)</span>
+                    <span class="text-success fw-bold" id="limitDisplay">@Model.DailyWordLimit kelime / gün</span>
+                </label>
+                <input type="range" class="form-range" min="5" max="50" step="5" asp-for="DailyWordLimit" id="dailyLimitRange" />
+                
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button type="button" class="btn btn-sm sp-btn-outline limit-preset" data-val="10">10</button>
+                    <button type="button" class="btn btn-sm sp-btn-outline limit-preset" data-val="15">15</button>
+                    <button type="button" class="btn btn-sm sp-btn-outline limit-preset active" data-val="20">20 (Önerilen)</button>
+                    <button type="button" class="btn btn-sm sp-btn-outline limit-preset" data-val="25">25</button>
+                    <button type="button" class="btn btn-sm sp-btn-outline limit-preset" data-val="30">30</button>
+                </div>
+            </div>
+
+            <!-- 4. Bilgi Notu -->
+            <div class="p-3 rounded-3 mb-4 d-flex align-items-center gap-3" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.25);">
+                <i class="bi bi-info-circle-fill fs-4 text-info"></i>
+                <div class="small text-light">
+                    Plan oluşturulduğunda kelimeleriniz sistem tarafından otomatik karıştırılır ve günlere bölünür. Her gün sadece o güne ait eşsiz kelimelerle 4 şıklı quiz çözersiniz.
+                </div>
+            </div>
+
+            <!-- 5. Submit Butonu -->
+            <button type="submit" class="btn sp-btn-primary btn-lg w-100 justify-content-center shadow" id="btnSubmit">
+                <i class="bi bi-play-circle-fill"></i>
+                <span>Planı Oluştur ve Başlat</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const range = document.getElementById('dailyLimitRange');
+            const display = document.getElementById('limitDisplay');
+            const presets = document.querySelectorAll('.limit-preset');
+            const toggleAllBtn = document.getElementById('btnToggleAll');
+            const checkboxes = document.querySelectorAll('.list-checkbox');
+
+            function updateDisplay(val) {
+                display.innerText = val + ' kelime / gün';
+                presets.forEach(p => {
+                    if (p.getAttribute('data-val') === val.toString()) {
+                        p.classList.add('active');
+                        p.style.borderColor = '#10b981';
+                        p.style.color = '#10b981';
+                    } else {
+                        p.classList.remove('active');
+                        p.style.borderColor = 'rgba(255,255,255,0.15)';
+                        p.style.color = '#e2e8f0';
+                    }
+                });
+            }
+
+            range.addEventListener('input', function () {
+                updateDisplay(this.value);
+            });
+
+            presets.forEach(p => {
+                p.addEventListener('click', function () {
+                    const val = this.getAttribute('data-val');
+                    range.value = val;
+                    updateDisplay(val);
+                });
+            });
+
+            if (toggleAllBtn) {
+                let allChecked = false;
+                toggleAllBtn.addEventListener('click', function () {
+                    allChecked = !allChecked;
+                    checkboxes.forEach(cb => cb.checked = allChecked);
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,264 @@
+@model WordStation.EL.Dtos.StudyPlanQuizDto
+@{
+    var planId = ViewBag.PlanId as int? ?? 0;
+    var dayNumber = ViewBag.DayNumber as int? ?? 0;
+    ViewData["Title"] = $"Gün {dayNumber} Quiz";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/study-plan.css" asp-append-version="true" />
+}
+
+<div class="container py-4" style="max-width: 760px;">
+    <!-- Üst Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div style="flex: 1;">
+            <a asp-action="Detail" asp-route-id="@planId" class="text-decoration-none sp-subtitle small d-inline-flex align-items-center gap-1">
+                <i class="bi bi-x-lg"></i> Çıkış
+            </a>
+        </div>
+        <div class="d-flex flex-column align-items-center gap-2 text-center" style="flex: 2;">
+            <div class="fw-bold text-white fs-6" id="questionCounter">
+                Soru 1 / @(Model?.Questions?.Count ?? 0)
+            </div>
+            <div class="d-flex justify-content-center gap-2">
+                <span class="badge rounded-pill px-3 py-1 fw-bold" id="badgeCorrect" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.8rem;">
+                    <i class="bi bi-check-circle-fill me-1"></i>0 Doğru
+                </span>
+                <span class="badge rounded-pill px-3 py-1 fw-bold" id="badgeWrong" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.8rem;">
+                    <i class="bi bi-x-circle-fill me-1"></i>0 Yanlış
+                </span>
+            </div>
+        </div>
+        <div style="flex: 1;"></div>
+    </div>
+
+    <!-- İlerleme Çubuğu -->
+    <div class="sp-progress-container mb-4">
+        <div class="sp-progress-bar" id="quizProgressBar" style="width: 0%;"></div>
+    </div>
+
+    <!-- Quiz Alanı -->
+    <div id="quizContainer">
+        <!-- Soru Kartı -->
+        <div class="sp-quiz-question-card mb-4">
+            <h2 class="display-4 fw-bold text-white my-2" id="wordTitle">
+                Word
+            </h2>
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                <button type="button" class="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center" id="btnSpeak" style="width: 44px; height: 44px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 1.25rem; transition: transform 0.2s ease;" title="Telaffuzu Dinle">
+                    <i class="bi bi-volume-up-fill"></i>
+                </button>
+            </div>
+            <div class="p-2 px-3 rounded-pill d-inline-block mx-auto small fst-italic mt-3" id="wordExampleWrapper" style="display: none; background: rgba(255, 255, 255, 0.05); color: #94a3b8;">
+                <span id="wordExample"></span>
+            </div>
+        </div>
+
+        <!-- 4 Şık -->
+        <div class="row g-3" id="optionsContainer">
+            <!-- Dinamik doldurulacak -->
+        </div>
+    </div>
+
+    <!-- Sonuç Ekranı (Başlangıçta Gizli) -->
+    <div id="resultContainer" style="display: none;">
+        <div class="sp-card p-5 text-center my-4">
+            <div class="display-3 text-success mb-3">
+                <i class="bi bi-trophy-fill"></i>
+            </div>
+            <h2 class="fw-bold text-white mb-2">Tebrikler! Gün Tamamlandı</h2>
+            <p class="sp-subtitle">Günün kelimelerini başarıyla quiz olarak tamamladınız.</p>
+
+            <div class="my-4 p-4 rounded-4 mx-auto" style="max-width: 400px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08);">
+                <div class="display-4 fw-bold text-success mb-1" id="finalScore">%0</div>
+                <div class="small fw-bold text-uppercase text-secondary">Başarı Skoru</div>
+                <hr class="my-3 border-secondary border-opacity-25">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="fs-4 fw-bold text-success" id="finalCorrect">0</div>
+                        <div class="small text-secondary">Doğru</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="fs-4 fw-bold text-danger" id="finalWrong">0</div>
+                        <div class="small text-secondary">Yanlış</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <a asp-action="Detail" asp-route-id="@planId" class="btn sp-btn-primary btn-lg px-5">
+                    <i class="bi bi-arrow-left me-2"></i>Plana Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const questions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Questions ?? new List<WordStation.EL.Dtos.StudyPlanQuizQuestionDto>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const planId = @planId;
+        const dayNumber = @dayNumber;
+
+        let currentIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let hasAnsweredCurrent = false;
+        const recordedAnswers = [];
+
+        const counterEl = document.getElementById('questionCounter');
+        const badgeCorrectEl = document.getElementById('badgeCorrect');
+        const badgeWrongEl = document.getElementById('badgeWrong');
+        const progressEl = document.getElementById('quizProgressBar');
+        const wordTitleEl = document.getElementById('wordTitle');
+        const btnSpeakEl = document.getElementById('btnSpeak');
+        const optionsEl = document.getElementById('optionsContainer');
+        const quizContainer = document.getElementById('quizContainer');
+        const resultContainer = document.getElementById('resultContainer');
+
+        let currentActiveWord = '';
+
+        if (btnSpeakEl) {
+            btnSpeakEl.addEventListener('click', () => {
+                if (currentActiveWord && window.speakWord) {
+                    window.speakWord(currentActiveWord, btnSpeakEl);
+                }
+            });
+        }
+
+        function loadQuestion(index) {
+            if (!questions || index >= questions.length) {
+                finishQuiz();
+                return;
+            }
+
+            hasAnsweredCurrent = false;
+
+            const q = questions[index];
+            const qWordId = q.wordId ?? q.WordId;
+            const qText = q.questionText ?? q.QuestionText ?? '';
+            const qCorrect = q.correctAnswer ?? q.CorrectAnswer ?? '';
+            const qOptions = q.options ?? q.Options ?? [];
+
+            currentActiveWord = qText;
+
+            counterEl.innerText = `Soru ${index + 1} / ${questions.length}`;
+            const progress = ((index) / questions.length) * 100;
+            progressEl.style.width = `${progress}%`;
+
+            wordTitleEl.innerText = qText || 'Kelime';
+
+            // Kelimeyi telaffuz et
+            if (window.speakWord && currentActiveWord) {
+                window.speakWord(currentActiveWord, btnSpeakEl);
+            }
+            
+            optionsEl.innerHTML = '';
+            optionsEl.style.pointerEvents = 'auto';
+
+            qOptions.forEach(opt => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6';
+                
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'sp-quiz-option';
+                btn.innerText = opt;
+                btn.addEventListener('click', () => handleOptionClick(opt, q, btn));
+
+                col.appendChild(btn);
+                optionsEl.appendChild(col);
+            });
+        }
+
+        function handleOptionClick(selectedOpt, question, clickedBtn) {
+            if (hasAnsweredCurrent) return;
+            hasAnsweredCurrent = true;
+
+            // Çoklu tıklamayı engelle
+            optionsEl.style.pointerEvents = 'none';
+
+            const qCorrect = question.correctAnswer ?? question.CorrectAnswer ?? '';
+            const qWordId = question.wordId ?? question.WordId;
+            const isCorrect = selectedOpt.trim().toLowerCase() === qCorrect.trim().toLowerCase();
+
+            if (isCorrect) {
+                correctCount++;
+                badgeCorrectEl.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>${correctCount} Doğru`;
+                clickedBtn.classList.add('correct');
+            } else {
+                wrongCount++;
+                badgeWrongEl.innerHTML = `<i class="bi bi-x-circle-fill me-1"></i>${wrongCount} Yanlış`;
+                clickedBtn.classList.add('wrong');
+
+                document.querySelectorAll('.sp-quiz-option').forEach(btn => {
+                    if (btn.innerText.trim().toLowerCase() === qCorrect.trim().toLowerCase()) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            recordedAnswers.push({
+                wordId: qWordId,
+                isCorrect: isCorrect
+            });
+
+            // Otomatik olarak sonraki soruya geç (800ms)
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex < questions.length) {
+                    loadQuestion(currentIndex);
+                } else {
+                    finishQuiz();
+                }
+            }, 800);
+        }
+
+        function finishQuiz() {
+            progressEl.style.width = '100%';
+            quizContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+
+            const payload = {
+                studyPlanId: planId,
+                dayNumber: dayNumber,
+                answers: recordedAnswers
+            };
+
+            fetch(`/StudyPlan/SubmitQuiz/${planId}?dayNumber=${dayNumber}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                const total = (questions && questions.length > 0) ? questions.length : ((correctCount + wrongCount) || 1);
+                let score = Math.round((correctCount / total) * 100);
+                if (data && data.score !== undefined && data.score <= 100) {
+                    score = data.score;
+                } else if (data && data.score !== undefined && data.maxScore && data.maxScore > 0) {
+                    score = Math.round((data.score / data.maxScore) * 100);
+                }
+                document.getElementById('finalScore').innerText = `%${score}`;
+                document.getElementById('finalCorrect').innerText = data.correctCount ?? correctCount;
+                document.getElementById('finalWrong').innerText = data.wrongCount ?? wrongCount;
+            })
+            .catch(err => {
+                const total = (questions && questions.length > 0) ? questions.length : ((correctCount + wrongCount) || 1);
+                const score = Math.round((correctCount / total) * 100);
+                document.getElementById('finalScore').innerText = `%${score}`;
+                document.getElementById('finalCorrect').innerText = correctCount;
+                document.getElementById('finalWrong').innerText = wrongCount;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (questions && questions.length > 0) {
+                loadQuestion(0);
+            }
+        });
+    </script>
+}
