@@ -22,6 +22,7 @@ namespace WordStation.DAL.EFCore
                 .Where(p => p.UserId == userId)
                 .Include(p => p.IncludedLists)
                 .Include(p => p.Days)
+                    .ThenInclude(d => d.Words)
                 .OrderByDescending(p => p.CreatedAt);
 
             return trackChanges
@@ -41,6 +42,13 @@ namespace WordStation.DAL.EFCore
             return trackChanges
                 ? await query.FirstOrDefaultAsync()
                 : await query.AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> IsPlanOwnerAsync(int planId, string userId)
+        {
+            return await _context.StudyPlans
+                .AsNoTracking()
+                .AnyAsync(p => p.Id == planId && p.UserId == userId);
         }
 
         public async Task<StudyPlanDay?> GetDayAsync(int planId, int dayNumber, bool trackChanges = false)

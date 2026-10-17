@@ -82,6 +82,28 @@ namespace WordStation.WebAPI.Controllers
             }
         }
 
+        // GET: api/studyplan/{id}
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetPlan(int id, [FromQuery] string? userId)
+        {
+            try
+            {
+                var effectiveUserId = ResolveUserId(userId);
+                if (string.IsNullOrWhiteSpace(effectiveUserId))
+                    return BadRequest("Kullanıcı ID gereklidir.");
+
+                var plan = await _studyPlanService.GetPlanDetailAsync(id, effectiveUserId);
+                if (plan == null)
+                    return NotFound("Plan bulunamadı.");
+
+                return Ok(plan);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message, details = ex.InnerException?.Message });
+            }
+        }
+
         // DELETE: api/studyplan/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeletePlan(int id, [FromQuery] string? userId)

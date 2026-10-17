@@ -7,6 +7,7 @@ namespace WordStation.BLL.Abstract
     public interface IStudyPlanService
     {
         Task<List<StudyPlanSummaryDto>> GetUserPlansAsync(string userId);
+        Task<StudyPlanDetailDto?> GetPlanDetailAsync(int planId, string userId);
         Task<StudyPlanSummaryDto> CreatePlanAsync(CreateStudyPlanDto dto);
         Task<bool> DeletePlanAsync(int planId, string userId);
 

@@ -1,41 +1,56 @@
 @model WordStation.EL.Dtos.StudyPlanDayDto
 
-<div class="list-group list-group-flush bg-transparent">
-    @if (Model?.Words != null && Model.Words.Any())
-    {
+@if (Model?.Words != null && Model.Words.Any())
+{
+    <div class="row g-3">
         @foreach (var word in Model.Words)
         {
-            <div class="list-group-item bg-transparent px-0 py-3 border-secondary border-opacity-25">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                    <h6 class="fw-bold text-white mb-0 fs-5">@word.En</h6>
-                    @if (Model.IsCompleted)
+            <div class="col-md-6">
+                <div class="p-3 rounded-4 h-100 d-flex flex-column" style="background: rgba(255, 255, 255, 0.035); transition: background 0.2s ease;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-white fs-5">@word.En</span>
+                            <button type="button" class="btn btn-sm rounded-circle p-0 d-inline-flex align-items-center justify-content-center" 
+                                    style="width: 28px; height: 28px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: none;"
+                                    onclick="if(window.speakWord) window.speakWord('@word.En', this);"
+                                    title="Telaffuzu Dinle">
+                                <i class="bi bi-volume-up-fill" style="font-size: 0.85rem;"></i>
+                            </button>
+                        </div>
+                        @if (Model.IsCompleted)
+                        {
+                            @if (word.IsCorrectInQuiz)
+                            {
+                                <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: none; font-size: 0.75rem;">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Doğru
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill px-2.5 py-1" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: none; font-size: 0.75rem;">
+                                    <i class="bi bi-x-circle-fill me-1"></i>Yanlış
+                                </span>
+                            }
+                        }
+                    </div>
+
+                    <div class="fw-semibold mb-2" style="color: #38bdf8; font-size: 0.95rem;">
+                        @word.Tr
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(word.Example))
                     {
-                        @if (word.IsCorrectInQuiz)
-                        {
-                            <span class="badge rounded-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                <i class="bi bi-check-circle me-1"></i>Doğru
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge rounded-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
-                                <i class="bi bi-x-circle me-1"></i>Yanlış
-                            </span>
-                        }
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center p-3 rounded-3 mt-1" 
+                             style="background: rgba(0, 0, 0, 0.25); color: #cbd5e1; white-space: pre-line; word-break: break-word; line-height: 1.55; font-size: 0.85rem;">
+                            @word.Example.Trim()
+                        </div>
                     }
                 </div>
-                <div class="fw-medium" style="color: #cbd5e1;">@word.Tr</div>
-                @if (!string.IsNullOrWhiteSpace(word.Example))
-                {
-                    <div class="small fst-italic mt-1" style="color: #94a3b8;">
-                        “@word.Example”
-                    </div>
-                }
             </div>
         }
-    }
-    else
-    {
-        <div class="text-secondary py-3 text-center">Bu gün için kayıtlı kelime bulunamadı.</div>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="text-secondary py-4 text-center">Bu gün için kayıtlı kelime bulunamadı.</div>
+}

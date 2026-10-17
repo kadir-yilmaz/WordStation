@@ -63,14 +63,14 @@
             {
                 var progressPercent = (int)Math.Round(plan.Progress * 100);
                 <div class="col-md-6 col-lg-4">
-                    <div class="sp-card p-4 h-100 d-flex flex-column">
+                    <div class="sp-card sp-card-clickable p-4 h-100 d-flex flex-column" onclick="location.href='@Url.Action("Detail", "StudyPlan", new { id = plan.Id })'">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="fw-bold text-white mb-0 text-truncate" title="@plan.Name">
                                 @plan.Name
                             </h5>
-                            <form asp-action="Delete" asp-route-id="@plan.Id" method="post" onsubmit="return confirm('Bu planı silmek istediğinize emin misiniz?');">
+                            <form asp-action="Delete" asp-route-id="@plan.Id" method="post" onsubmit="return confirm('Bu planı silmek istediğinize emin misiniz?');" onclick="event.stopPropagation();">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="sp-btn-delete" title="Planı Sil">
+                                <button type="submit" class="sp-btn-delete" title="Planı Sil" onclick="event.stopPropagation();">
                                     <i class="bi bi-trash3"></i>
                                 </button>
                             </form>
@@ -85,7 +85,7 @@
                             }
                         </div>
 
-                        <div class="my-auto">
+                        <div class="mt-auto">
                             <div class="d-flex justify-content-between small mb-1">
                                 <span class="text-secondary">İlerleme: Gün @plan.CompletedDays / @plan.TotalDays</span>
                                 <span class="fw-bold text-success">%@progressPercent</span>
@@ -108,12 +108,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mt-4 pt-2">
-                            <a asp-action="Detail" asp-route-id="@plan.Id" class="btn sp-btn-outline w-100">
-                                <i class="bi bi-play-circle-fill me-1 text-success"></i>Plan Detayı & Quiz
-                            </a>
                         </div>
                     </div>
                 </div>

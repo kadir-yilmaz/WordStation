@@ -8,6 +8,7 @@ namespace WordStation.DAL.Abstract
     {
         Task<List<StudyPlan>> GetPlansByUserIdAsync(string userId, bool trackChanges = false);
         Task<StudyPlan?> GetPlanByIdAsync(int planId, bool trackChanges = false);
+        Task<bool> IsPlanOwnerAsync(int planId, string userId);
         Task<StudyPlanDay?> GetDayAsync(int planId, int dayNumber, bool trackChanges = false);
         Task<List<StudyPlanDay>> GetAllDaysAsync(int planId, bool trackChanges = false);
         void CreatePlan(StudyPlan plan);

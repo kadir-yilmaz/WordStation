@@ -36,6 +36,32 @@ namespace WordStation.BLL.Concrete
             return plans.Select(MapToSummaryDto).ToList();
         }
 
+        public async Task<StudyPlanDetailDto?> GetPlanDetailAsync(int planId, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return null;
+
+            var plan = await _studyPlanRepository.GetPlanByIdAsync(planId);
+            if (plan == null || plan.UserId != userId)
+                return null;
+
+            var summary = MapToSummaryDto(plan);
+            return new StudyPlanDetailDto
+            {
+                Id = summary.Id,
+                Name = summary.Name,
+                DailyWordLimit = summary.DailyWordLimit,
+                TotalDays = summary.TotalDays,
+                CompletedDays = summary.CompletedDays,
+                TotalWords = summary.TotalWords,
+                IsActive = summary.IsActive,
+                Progress = summary.Progress,
+                IncludedListNames = summary.IncludedListNames,
+                CreatedAt = summary.CreatedAt,
+                Days = plan.Days.OrderBy(d => d.DayNumber).Select(MapToDayDto).ToList()
+            };
+        }
+
         public async Task<StudyPlanSummaryDto> CreatePlanAsync(CreateStudyPlanDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.UserId))
@@ -169,9 +195,9 @@ namespace WordStation.BLL.Concrete
             if (string.IsNullOrWhiteSpace(userId))
                 return null;
 
-            // Önce plan sahibi kontrolü
-            var plan = await _studyPlanRepository.GetPlanByIdAsync(planId);
-            if (plan == null || plan.UserId != userId)
+            // Hızlı sahiplik kontrolü (bütün planı ve binlerce kelimeyi çekmeden)
+            var isOwner = await _studyPlanRepository.IsPlanOwnerAsync(planId, userId);
+            if (!isOwner)
                 return null;
 
             var day = await _studyPlanRepository.GetDayAsync(planId, dayNumber);
@@ -183,8 +209,8 @@ namespace WordStation.BLL.Concrete
             if (string.IsNullOrWhiteSpace(userId))
                 return new List<StudyPlanDayDto>();
 
-            var plan = await _studyPlanRepository.GetPlanByIdAsync(planId);
-            if (plan == null || plan.UserId != userId)
+            var isOwner = await _studyPlanRepository.IsPlanOwnerAsync(planId, userId);
+            if (!isOwner)
                 return new List<StudyPlanDayDto>();
 
             var days = await _studyPlanRepository.GetAllDaysAsync(planId);
@@ -273,7 +299,7 @@ namespace WordStation.BLL.Concrete
             if (day == null)
                 throw new InvalidOperationException($"Gün {dto.DayNumber} bulunamadı.");
 
-            // Cevapları işle
+            // Cevapları hesapla
             int correctCount = 0;
             int wrongCount = 0;
 
@@ -282,7 +308,6 @@ namespace WordStation.BLL.Concrete
                 var dayWord = day.Words.FirstOrDefault(w => w.WordId == answer.WordId);
                 if (dayWord != null)
                 {
-                    dayWord.IsCorrectInQuiz = answer.IsCorrect;
                     if (answer.IsCorrect)
                         correctCount++;
                     else
@@ -293,12 +318,28 @@ namespace WordStation.BLL.Concrete
             int totalQuestions = day.Words.Count > 0 ? day.Words.Count : (correctCount + wrongCount);
             int percentageScore = totalQuestions > 0 ? (int)Math.Round((double)correctCount / totalQuestions * 100) : 0;
 
+            // Tekrar çözme sonucu eğer daha iyi ise (veya ilk kez çözülüyorsa) skoru yansıt
+            bool isBetter = !day.IsCompleted || !day.QuizScore.HasValue || percentageScore > day.QuizScore.Value;
+
+            if (isBetter)
+            {
+                day.CorrectCount = correctCount;
+                day.WrongCount = wrongCount;
+                day.QuizScore = percentageScore;
+                day.QuizMaxScore = 100;
+
+                foreach (var answer in dto.Answers)
+                {
+                    var dayWord = day.Words.FirstOrDefault(w => w.WordId == answer.WordId);
+                    if (dayWord != null)
+                    {
+                        dayWord.IsCorrectInQuiz = answer.IsCorrect;
+                    }
+                }
+            }
+
             day.IsCompleted = true;
             day.CompletedAt = DateTime.UtcNow;
-            day.CorrectCount = correctCount;
-            day.WrongCount = wrongCount;
-            day.QuizScore = percentageScore;
-            day.QuizMaxScore = 100;
 
             // Tüm günler tamamlandıysa planı pasif yap
             if (plan.Days.All(d => d.IsCompleted))
@@ -346,7 +387,7 @@ namespace WordStation.BLL.Concrete
                 Id = day.Id,
                 DayNumber = day.DayNumber,
                 IsCompleted = day.IsCompleted,
-                QuizScore = day.QuizScore,
+                QuizScore = day.QuizScore.HasValue ? (day.QuizScore.Value > 100 ? (int)Math.Round(day.QuizScore.Value / 2.0) : day.QuizScore.Value) : null,
                 QuizMaxScore = day.QuizMaxScore,
                 CorrectCount = day.CorrectCount,
                 WrongCount = day.WrongCount,

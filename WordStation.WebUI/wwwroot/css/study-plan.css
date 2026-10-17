@@ -32,7 +32,23 @@
 }
 
 .sp-card-completed {
-    border-left: 4px solid #10b981 !important;
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.sp-card-clickable {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sp-card-clickable:hover {
+    transform: translateY(-4px);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 16px 36px -8px rgba(16, 185, 129, 0.25);
+}
+
+.sp-card-clickable:active {
+    transform: translateY(-1px);
 }
 
 /* Boş Durum (Empty State) */
@@ -274,4 +290,34 @@
     background: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     padding: 1rem 0;
+}
+
+/* Modal İçi Ultra-Slim Koyu Scrollbar */
+.sp-modal-content .modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(16, 185, 129, 0.35) transparent;
+}
+
+.sp-modal-content .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sp-modal-content .modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+
+.sp-modal-content .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.35);
+    border-radius: 10px;
+}
+
+.sp-modal-content .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
+}
+
+.sp-modal-content .modal-body::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
 }

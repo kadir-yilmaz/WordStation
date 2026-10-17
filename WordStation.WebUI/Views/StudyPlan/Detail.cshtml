@@ -77,11 +77,6 @@
         </div>
     </div>
 
-    <!-- Günler Listesi -->
-    <h4 class="fw-bold mb-3 text-white">
-        <i class="bi bi-list-check text-success me-2"></i>Günlük Quiz Programı
-    </h4>
-
     <div class="row g-3">
         @if (Model != null && Model.Any())
         {
@@ -89,18 +84,12 @@
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="sp-card p-4 h-100 d-flex flex-column @(day.IsCompleted ? "sp-card-completed" : "")">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-weight: bold; background: @(day.IsCompleted ? "#10b981" : "rgba(255,255,255,0.06)"); color: @(day.IsCompleted ? "#ffffff" : "#94a3b8");">
-                                    @if (day.IsCompleted)
-                                    {
-                                        <i class="bi bi-check-lg fs-5"></i>
-                                    }
-                                    else
-                                    {
-                                        <span>G@(day.DayNumber)</span>
-                                    }
-                                </div>
+                                @if (day.IsCompleted)
+                                {
+                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+                                }
                                 <h5 class="fw-bold mb-0 text-white">Gün @day.DayNumber</h5>
                             </div>
                             <button type="button" class="btn btn-sm sp-btn-outline btn-view-words" data-plan-id="@plan?.Id" data-day-number="@day.DayNumber" title="Kelimeleri Önizle">
@@ -108,21 +97,33 @@
                             </button>
                         </div>
 
-                        <div class="my-3">
-                            <div class="text-secondary small">@day.Words.Count eşsiz kelime</div>
+                        <div class="mt-auto pt-2">
                             @if (day.IsCompleted && day.QuizScore.HasValue)
                             {
-                                <div class="mt-2 p-2 rounded-3 small fw-semibold" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">
-                                    <i class="bi bi-trophy-fill me-1"></i>Skor: %@day.QuizScore (@day.CorrectCount Doğru, @day.WrongCount Yanlış)
+                                <div class="d-flex justify-content-between align-items-center gap-2 p-2 px-3 rounded-4" style="background: rgba(255, 255, 255, 0.035);">
+                                    <!-- Sol: Quiz Sonucu -->
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-3 px-2 py-1 fw-bold text-center" style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.95rem;">
+                                            %@(day.QuizScore > 100 ? (int)Math.Round(day.QuizScore.Value / 2.0) : day.QuizScore)
+                                        </div>
+                                        <div class="small lh-sm text-secondary">
+                                            <div><span class="text-success fw-bold">@day.CorrectCount</span> D <span class="text-secondary opacity-50">/</span> <span class="text-danger fw-bold">@day.WrongCount</span> Y</div>
+                                            <div style="font-size: 0.7rem; color: #94a3b8;">En İyi Skor</div>
+                                        </div>
+                                    </div>
+                                    <!-- Sağ: Tekrar Çöz Butonu -->
+                                    <a asp-action="Quiz" asp-route-id="@plan?.Id" asp-route-dayNumber="@day.DayNumber" class="btn btn-sm sp-btn-outline d-inline-flex align-items-center gap-1 px-3 py-2 text-nowrap" style="border-radius: 12px;">
+                                        <i class="bi bi-arrow-clockwise"></i> Tekrar Çöz
+                                    </a>
                                 </div>
                             }
-                        </div>
-
-                        <div class="mt-auto pt-2">
-                            <a asp-action="Quiz" asp-route-id="@plan?.Id" asp-route-dayNumber="@day.DayNumber" class="btn w-100 @(day.IsCompleted ? "sp-btn-outline" : "sp-btn-primary justify-content-center")">
-                                <i class="bi @(day.IsCompleted ? "bi-arrow-clockwise" : "bi-play-fill") me-1"></i>
-                                @(day.IsCompleted ? "Tekrar Çöz" : "Günün Quizini Çöz")
-                            </a>
+                            else
+                            {
+                                <a asp-action="Quiz" asp-route-id="@plan?.Id" asp-route-dayNumber="@day.DayNumber" class="btn w-100 sp-btn-primary justify-content-center">
+                                    <i class="bi bi-play-fill me-1"></i>
+                                    Günün Quizini Çöz
+                                </a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -137,15 +138,20 @@
     </div>
 </div>
 
-<!-- Kelimeleri İnceleme Modalı (Dark Mode) -->
+<!-- Kelimeleri İnceleme Modalı (Dark Mode - Genişletilmiş ve Yatay) -->
 <div class="modal fade" id="wordsModal" tabindex="-1" aria-labelledby="wordsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content sp-modal-content shadow-lg">
-            <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
-                <h5 class="modal-title fw-bold text-white" id="wordsModalLabel">Günün Kelimeleri</h5>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" style="max-width: 900px;">
+        <div class="modal-content sp-modal-content shadow-lg" style="max-height: 85vh;">
+            <div class="modal-header border-0 px-4 py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="wordsModalLabel">Günün Kelimeleri</h5>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4" id="modalWordsContent">
+            <div class="modal-body p-4" id="modalWordsContent" style="max-height: 72vh; overflow-y: auto;">
                 <div class="text-center py-4">
                     <div class="spinner-border text-success" role="status">
                         <span class="visually-hidden">Yükleniyor...</span>
@@ -158,19 +164,98 @@
 
 @section Scripts {
     <script>
+        const preloadedDays = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<WordStation.EL.Dtos.StudyPlanDayDto>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        function renderDayWords(day) {
+            if (!day || !day.words || day.words.length === 0) {
+                return '<div class="text-secondary py-4 text-center">Bu gün için kayıtlı kelime bulunamadı.</div>';
+            }
+
+            let html = '<div class="row g-3">';
+            for (const word of day.words) {
+                const en = word.en || '';
+                const tr = word.tr || '';
+                const example = (word.example || '').trim();
+                const isCorrect = word.isCorrectInQuiz;
+
+                let badgeHtml = '';
+                if (day.isCompleted) {
+                    if (isCorrect) {
+                        badgeHtml = '<span class="badge rounded-pill px-2.5 py-1" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: none; font-size: 0.75rem;"><i class="bi bi-check-circle-fill me-1"></i>Doğru</span>';
+                    } else {
+                        badgeHtml = '<span class="badge rounded-pill px-2.5 py-1" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: none; font-size: 0.75rem;"><i class="bi bi-x-circle-fill me-1"></i>Yanlış</span>';
+                    }
+                }
+
+                let exampleHtml = '';
+                if (example) {
+                    const safeExample = example
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+
+                    exampleHtml = `
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center p-3 rounded-3 mt-1" style="background: rgba(0, 0, 0, 0.25); color: #cbd5e1; white-space: pre-line; word-break: break-word; line-height: 1.55; font-size: 0.85rem;">
+                            ${safeExample}
+                        </div>`;
+                }
+
+                html += `
+                    <div class="col-md-6">
+                        <div class="p-3 rounded-4 h-100 d-flex flex-column" style="background: rgba(255, 255, 255, 0.035); transition: background 0.2s ease;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold text-white fs-5">${en}</span>
+                                    <button type="button" class="btn btn-sm rounded-circle p-0 d-inline-flex align-items-center justify-content-center" 
+                                            style="width: 28px; height: 28px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: none;"
+                                            onclick="if(window.speakWord) window.speakWord('${en}', this);"
+                                            title="Telaffuzu Dinle">
+                                        <i class="bi bi-volume-up-fill" style="font-size: 0.85rem;"></i>
+                                    </button>
+                                </div>
+                                ${badgeHtml}
+                            </div>
+                            <div class="fw-semibold mb-2" style="color: #38bdf8; font-size: 0.95rem;">
+                                ${tr}
+                            </div>
+                            ${exampleHtml}
+                        </div>
+                    </div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const modalEl = document.getElementById('wordsModal');
             const modal = new bootstrap.Modal(modalEl);
             const content = document.getElementById('modalWordsContent');
+            const titleEl = document.getElementById('wordsModalLabel');
+
+            const daysMap = new Map();
+            if (Array.isArray(preloadedDays)) {
+                preloadedDays.forEach(d => daysMap.set(Number(d.dayNumber), d));
+            }
 
             document.querySelectorAll('.btn-view-words').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const planId = this.getAttribute('data-plan-id');
-                    const dayNumber = this.getAttribute('data-day-number');
+                    const dayNumber = Number(this.getAttribute('data-day-number'));
+
+                    if (titleEl) {
+                        titleEl.innerText = `Gün ${dayNumber} Kelimeleri`;
+                    }
 
                     modal.show();
-                    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>';
 
+                    // Anında yerel bellekten aç (0ms gecikme)
+                    if (daysMap.has(dayNumber)) {
+                        content.innerHTML = renderDayWords(daysMap.get(dayNumber));
+                        return;
+                    }
+
+                    // Yedek AJAX (önbellekte bulunamazsa)
+                    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>';
                     fetch(`/StudyPlan/DayWords?planId=${planId}&dayNumber=${dayNumber}`)
                         .then(res => res.text())
                         .then(html => {

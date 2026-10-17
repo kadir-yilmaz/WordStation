@@ -63,6 +63,14 @@ namespace WordStation.EL.Dtos
     }
 
     /// <summary>
+    /// Plan detay ve tüm günleri içeren DTO.
+    /// </summary>
+    public class StudyPlanDetailDto : StudyPlanSummaryDto
+    {
+        public List<StudyPlanDayDto> Days { get; set; } = new();
+    }
+
+    /// <summary>
     /// Belirli bir günün detay DTO'su.
     /// </summary>
     public class StudyPlanDayDto
