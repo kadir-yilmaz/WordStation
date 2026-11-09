@@ -51,6 +51,11 @@ builder.Services.AddCustomJwtAuthentication(builder.Configuration);
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
+// Client Session Policies (SOLID: Open/Closed & Strategy Pattern)
+builder.Services.AddSingleton<IClientSessionPolicy, WordStation.BLL.Concrete.Policies.WebSessionPolicy>();
+builder.Services.AddSingleton<IClientSessionPolicy, WordStation.BLL.Concrete.Policies.MobileSessionPolicy>();
+builder.Services.AddSingleton<IClientSessionPolicyResolver, WordStation.BLL.Concrete.Policies.ClientSessionPolicyResolver>();
+
 builder.Services.AddScoped<IQuizHistoryRepository, QuizHistoryRepository>();
 builder.Services.AddScoped<IStudyPlanRepository, StudyPlanRepository>();
 builder.Services.AddScoped<IWordService, WordService>();

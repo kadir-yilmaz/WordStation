@@ -10,5 +10,6 @@ namespace WordStation.EL.Dtos
 
         public string? GoogleId { get; init; }
         public string? Name { get; init; }
+        public string? ClientType { get; init; }
     }
 }

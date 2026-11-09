@@ -17,12 +17,18 @@ namespace WordStation.BLL.Concrete
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IClientSessionPolicyResolver _sessionPolicyResolver;
 
-        public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository)
+        public AuthService(
+            UserManager<IdentityUser> userManager, 
+            IConfiguration configuration, 
+            IRefreshTokenRepository refreshTokenRepository,
+            IClientSessionPolicyResolver sessionPolicyResolver)
         {
             _userManager = userManager;
             _configuration = configuration;
             _refreshTokenRepository = refreshTokenRepository;
+            _sessionPolicyResolver = sessionPolicyResolver;
         }
 
         public async Task<(bool Success, string Message, IEnumerable<string> Errors)> RegisterUserAsync(RegisterDto model)
@@ -56,7 +62,7 @@ namespace WordStation.BLL.Concrete
                 return (false, "Geçersiz email veya şifre.", null);
             }
 
-            var tokenData = await GenerateTokenResponseAsync(user);
+            var tokenData = await GenerateTokenResponseAsync(user, model.ClientType);
             return (true, "Giriş başarılı", tokenData);
         }
 
@@ -98,13 +104,13 @@ namespace WordStation.BLL.Concrete
             }
 
             // Hem email/şifre ile daha önce kayıt olmuş kullanıcı hem de yeni oluşturulan kullanıcı için JWT üretilir
-            var tokenData = await GenerateTokenResponseAsync(user);
+            var tokenData = await GenerateTokenResponseAsync(user, model.ClientType);
             return (true, "Google ile giriş başarılı.", tokenData);
         }
 
         public async Task<(bool Success, string Message, object TokenData)> RefreshTokenAsync(TokenRequestDto model)
         {
-            var storedRefreshToken = _refreshTokenRepository.GetByCondition(x => x.Token == model.RefreshToken, trackChanges: false)
+            var storedRefreshToken = _refreshTokenRepository.GetByCondition(x => x.Token == model.RefreshToken, trackChanges: true)
                 .FirstOrDefault();
 
             if (storedRefreshToken == null)
@@ -120,8 +126,17 @@ namespace WordStation.BLL.Concrete
             if (user == null)
                 return (false, "User not found", null);
 
-            // Fixed Refresh Token Model: Sadece Access Token yenilenir
-            // Refresh Token aynı kalır, revoke edilmez, yenisi oluşturulmaz
+            var policy = _sessionPolicyResolver.Resolve(model.ClientType);
+            var newRefreshTokenExpiry = policy.CalculateRefreshedTokenExpiry(storedRefreshToken);
+
+            // Eğer policy süre uzatmayı gerektiriyorsa (Mobile Sliding Expiration) güncelle
+            if (newRefreshTokenExpiry != storedRefreshToken.Expires)
+            {
+                storedRefreshToken.Expires = newRefreshTokenExpiry;
+                _refreshTokenRepository.Update(storedRefreshToken);
+                _refreshTokenRepository.Save();
+            }
+
             var newAccessToken = GenerateJwtToken(user);
             var accessTokenExpiration = DateTime.UtcNow.AddMinutes(
                 double.Parse(_configuration["JwtSettings:ExpiryMinutes"]!));
@@ -133,20 +148,23 @@ namespace WordStation.BLL.Concrete
                 expiration = accessTokenExpiration,
                 userId = user.Id,
                 email = user.Email,
-                refreshTokenExpiration = storedRefreshToken.Expires // Orijinal süre korunuyor
+                refreshTokenExpiration = storedRefreshToken.Expires // Güncel/korunan süre
             });
         }
 
-        private async Task<object> GenerateTokenResponseAsync(IdentityUser user)
+        private async Task<object> GenerateTokenResponseAsync(IdentityUser user, string? clientType = null)
         {
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
+
+            var policy = _sessionPolicyResolver.Resolve(clientType);
+            var refreshTokenExpiry = policy.CalculateInitialRefreshTokenExpiry();
 
             var refreshTokenEntity = new RefreshToken
             {
                 UserId = user.Id,
                 Token = refreshToken,
-                Expires = DateTime.UtcNow.AddDays(7), // Same as Cookie/Token life
+                Expires = refreshTokenExpiry,
                 Created = DateTime.UtcNow
             };
 

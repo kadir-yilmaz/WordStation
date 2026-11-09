@@ -11,5 +11,7 @@ namespace WordStation.EL.Dtos
         [Required(ErrorMessage = "Şifre zorunludur.")]
         [DataType(DataType.Password)]
         public string? Password { get; init; }
+
+        public string? ClientType { get; init; }
     }
 }

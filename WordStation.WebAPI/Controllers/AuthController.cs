@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using WordStation.BLL.Abstract;
 using WordStation.EL.Dtos;
 
@@ -38,7 +38,11 @@ namespace WordStation.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var (success, message, tokenData) = await _authService.LoginUserAsync(model);
+            var effectiveModel = string.IsNullOrEmpty(model.ClientType) && Request.Headers.TryGetValue("X-Client-Type", out var clientHeader)
+                ? model with { ClientType = clientHeader.ToString() }
+                : model;
+
+            var (success, message, tokenData) = await _authService.LoginUserAsync(effectiveModel);
             if (!success)
                 return Unauthorized(new { message });
 
@@ -54,7 +58,11 @@ namespace WordStation.WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var (success, message, tokenData) = await _authService.GoogleLoginUserAsync(model);
+            var effectiveModel = string.IsNullOrEmpty(model.ClientType) && Request.Headers.TryGetValue("X-Client-Type", out var clientHeader)
+                ? model with { ClientType = clientHeader.ToString() }
+                : model;
+
+            var (success, message, tokenData) = await _authService.GoogleLoginUserAsync(effectiveModel);
             if (!success)
                 return BadRequest(new { message });
 
@@ -68,6 +76,11 @@ namespace WordStation.WebAPI.Controllers
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequestDto? model)
         {
             model ??= new TokenRequestDto();
+
+            if (string.IsNullOrEmpty(model.ClientType) && Request.Headers.TryGetValue("X-Client-Type", out var clientHeader))
+            {
+                model.ClientType = clientHeader.ToString();
+            }
 
             // 🍪 Eğer body'de RefreshToken boşsa (Web SPA / Silent Refresh), Cookie'den oku
             if (string.IsNullOrEmpty(model.RefreshToken))
