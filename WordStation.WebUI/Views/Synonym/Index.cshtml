@@ -89,27 +89,37 @@
             <div class="syn-list" id="singlesList">
                 @foreach (var group in Model.SingleWords)
                 {
-                    var firstExample = group.Words.Select(w => w.Example).FirstOrDefault(e => !string.IsNullOrWhiteSpace(e));
                     <div class="syn-card syn-card-single" data-tr="@group.Tr" data-count="@group.Words.Count" data-search="@SearchText(group)" hidden>
-                        <div class="syn-card-head">
-                            <span class="syn-card-icon syn-turquoise"><i class="bi bi-translate"></i></span>
-                            <span class="syn-card-title">@group.Tr</span>
-                            <span class="syn-single-badge">Single Word</span>
-                        </div>
-                        <div class="synonym-badges">
-                            @foreach (var word in group.Words)
-                            {
-                                <span class="synonym-badge single"
-                                      data-en="@word.En" data-tr="@word.Tr" data-example="@word.Example"
-                                      title="@word.ListName"
-                                      onclick="showWordDetailFromElement(this)">
-                                    @word.En <i class="bi bi-chevron-right"></i>
-                                </span>
-                            }
-                        </div>
-                        @if (!string.IsNullOrWhiteSpace(firstExample))
+                        @for (int i = 0; i < group.Words.Count; i++)
                         {
-                            <div class="syn-example">“@firstExample.Trim()”</div>
+                            var word = group.Words[i];
+                            if (i > 0)
+                            {
+                                <hr class="syn-single-divider" />
+                            }
+                            <div class="syn-single-item">
+                                <div class="syn-single-top">
+                                    <div class="syn-single-word-wrap">
+                                        <h3 class="syn-single-en">@word.En</h3>
+                                        <button type="button" class="syn-tts-btn"
+                                                onclick="window.speakWord('@word.En', this)"
+                                                title="Pronounce (@word.En)">
+                                            <i class="bi bi-volume-up-fill"></i>
+                                        </button>
+                                    </div>
+                                    <span class="syn-single-badge">
+                                        @(string.IsNullOrWhiteSpace(word.ListName) ? "Single Word" : word.ListName)
+                                    </span>
+                                </div>
+                                <div class="syn-single-tr">@word.Tr</div>
+                                @if (!string.IsNullOrWhiteSpace(word.Example))
+                                {
+                                    <div class="syn-example-box">
+                                        <span class="syn-example-label">EXAMPLE SENTENCE</span>
+                                        <p class="syn-example-text">“@word.Example.Trim()”</p>
+                                    </div>
+                                }
+                            </div>
                         }
                     </div>
                 }

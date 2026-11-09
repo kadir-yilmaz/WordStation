@@ -390,15 +390,90 @@
     font-size: 0.7rem;
 }
 
-.syn-example {
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-style: italic;
+/* Single Word Rich Card Styles */
+.syn-single-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.syn-single-divider {
+    border-color: rgba(255, 255, 255, 0.08);
+    margin: 14px 0;
+}
+
+.syn-single-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.syn-single-word-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.syn-single-en {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.syn-tts-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.syn-tts-btn:hover {
+    background: rgba(45, 212, 191, 0.2);
+    color: var(--syn-turquoise);
+    transform: scale(1.08);
+}
+
+.syn-single-tr {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--syn-turquoise);
+    margin-top: 4px;
+}
+
+.syn-example-box {
+    margin-top: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.syn-example-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
     color: rgba(255, 255, 255, 0.4);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.syn-example-text {
+    font-size: 0.88rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
+    margin: 0;
 }
 
 /* Empty states */
