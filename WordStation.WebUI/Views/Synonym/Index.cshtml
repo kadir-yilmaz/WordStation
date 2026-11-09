@@ -1,106 +1,144 @@
-@model IEnumerable<WordGroupDto>
+@model SynonymViewModel
 
 @{
     ViewData["Title"] = "Synonyms";
+
+    // Kelime kartı içindeki arama metni: grubun anlamı + tüm kelimelerin EN ve TR karşılıkları
+    string SearchText(WordGroupDto g) =>
+        string.Join("|", new[] { g.Tr }.Concat(g.Words.SelectMany(w => new[] { w.En, w.Tr })));
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/synonym.css" asp-append-version="true" />
 }
 
-<div class="container premium-container">
+<div class="container premium-container syn-page">
     <div class="header-section animate-fade-up">
         <h1 class="page-title">Synonyms</h1>
-        <p class="page-subtitle">
-            Words with the same meaning are automatically grouped together. 
-            Click on the words to see details.
+        <p class="page-subtitle" id="synSubtitle" data-default="@Model.Groups.Count synonym groups">
+            @Model.Groups.Count synonym groups
         </p>
     </div>
 
-    <div class="search-wrap animate-fade-up stagger-1">
-        <i class="bi bi-search search-icon"></i>
-        <input type="text" id="synonymsSearchInput" class="search-input" placeholder="Search by English or Turkish word..." autocomplete="off">
+    <div class="syn-toolbar animate-fade-up stagger-1">
+        <div class="search-wrap">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="synonymsSearchInput" class="search-input"
+                   placeholder="Search word or meaning (e.g. eğilimli, ça, tend)..." autocomplete="off">
+            <button type="button" class="search-clear" id="synSearchClear" title="Clear" hidden>
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="dropdown">
+            <button class="syn-sort-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Sort groups">
+                <i class="bi bi-arrow-down-up"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end syn-sort-menu">
+                <li><h6 class="dropdown-header">SORT SYNONYM GROUPS</h6></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button class="dropdown-item active" data-sort="countDesc"><i class="bi bi-sort-numeric-down-alt"></i> Word Count (High → Low)<i class="bi bi-check2 check"></i></button></li>
+                <li><button class="dropdown-item" data-sort="countAsc"><i class="bi bi-sort-numeric-down"></i> Word Count (Low → High)<i class="bi bi-check2 check"></i></button></li>
+                <li><button class="dropdown-item" data-sort="alphaAsc"><i class="bi bi-sort-alpha-down"></i> A → Z<i class="bi bi-check2 check"></i></button></li>
+                <li><button class="dropdown-item" data-sort="alphaDesc"><i class="bi bi-sort-alpha-down-alt"></i> Z → A<i class="bi bi-check2 check"></i></button></li>
+            </ul>
+        </div>
     </div>
 
-    @if (Model != null && Model.Any())
-    {
-        <div class="table-glass-card animate-fade-up stagger-2">
-            <table class="premium-table" id="synonymsTable">
-                <thead>
-                    <tr>
-                        <th style="width: 30%">Meaning</th>
-                        <th style="width: 70%">Synonyms</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var group in Model)
-                    {
-                        <tr class="synonyms-row" data-tr="@group.Tr.ToLower()" data-en="@string.Join(" ", group.Words.Select(w => w.En.ToLower()))">
-                            <td>
-                                <div class="tr-word">@group.Tr</div>
-                                <div class="text-white-50 small mt-1">@group.Words.Count words found</div>
-                            </td>
-                            <td>
-                                <div class="synonym-badges">
-                                    @foreach (var word in group.Words)
-                                    {
-                                        <div class="synonym-badge-wrapper">
-                                            <span class="synonym-badge" 
-                                                  data-en="@word.En" 
-                                                  data-tr="@word.Tr" 
-                                                  data-example="@word.Example"
-                                                  onclick="showWordDetailFromElement(this)">
-                                                @word.En
-                                                <i class="bi bi-eye-fill"></i>
-                                            </span>
-                                            <span class="badge-list-name">@word.ListName</span>
-                                        </div>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <div class="syn-content animate-fade-up stagger-2">
+        <!-- Eş Anlamlı Gruplar -->
+        <div class="syn-section-header syn-pink" id="groupsHeader" hidden>
+            <div class="syn-section-title"><span class="syn-section-icon"><i class="bi bi-arrow-left-right"></i></span>SYNONYM GROUPS</div>
+            <span class="syn-section-badge" id="groupsHeaderBadge"></span>
         </div>
-    }
-    else
-    {
-        <div class="table-glass-card animate-fade-up stagger-2">
-            <div class="empty-state">
-                <i class="bi bi-diagram-3"></i>
-                <h3>No synonyms found yet</h3>
-                <p>Words with the same meaning will appear here once you add at least 2 of them.</p>
+
+        <div class="syn-list" id="groupsList">
+            @foreach (var group in Model.Groups)
+            {
+                <div class="syn-card" data-tr="@group.Tr" data-count="@group.Words.Count" data-search="@SearchText(group)">
+                    <div class="syn-card-head">
+                        <span class="syn-card-icon syn-pink"><i class="bi bi-arrow-left-right"></i></span>
+                        <span class="syn-card-title">@group.Tr</span>
+                        <span class="syn-count-badge">@group.Words.Count words</span>
+                    </div>
+                    <div class="synonym-badges">
+                        @foreach (var word in group.Words)
+                        {
+                            <span class="synonym-badge"
+                                  data-en="@word.En" data-tr="@word.Tr" data-example="@word.Example"
+                                  title="@word.ListName"
+                                  onclick="showWordDetailFromElement(this)">
+                                @word.En
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Tekil Kelimeler (sadece arama yapılırken) -->
+        <div id="singlesSection" hidden>
+            <div class="syn-section-header syn-turquoise">
+                <div>
+                    <div class="syn-section-title"><span class="syn-section-icon"><i class="bi bi-translate"></i></span>SINGLE WORDS</div>
+                    <div class="syn-section-subtitle" id="singlesSubtitle"></div>
+                </div>
+                <span class="syn-section-badge" id="singlesHeaderBadge"></span>
+            </div>
+
+            <div class="syn-list" id="singlesList">
+                @foreach (var group in Model.SingleWords)
+                {
+                    var firstExample = group.Words.Select(w => w.Example).FirstOrDefault(e => !string.IsNullOrWhiteSpace(e));
+                    <div class="syn-card syn-card-single" data-tr="@group.Tr" data-count="@group.Words.Count" data-search="@SearchText(group)" hidden>
+                        <div class="syn-card-head">
+                            <span class="syn-card-icon syn-turquoise"><i class="bi bi-translate"></i></span>
+                            <span class="syn-card-title">@group.Tr</span>
+                            <span class="syn-single-badge">Single Word</span>
+                        </div>
+                        <div class="synonym-badges">
+                            @foreach (var word in group.Words)
+                            {
+                                <span class="synonym-badge single"
+                                      data-en="@word.En" data-tr="@word.Tr" data-example="@word.Example"
+                                      title="@word.ListName"
+                                      onclick="showWordDetailFromElement(this)">
+                                    @word.En <i class="bi bi-chevron-right"></i>
+                                </span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(firstExample))
+                        {
+                            <div class="syn-example">“@firstExample.Trim()”</div>
+                        }
+                    </div>
+                }
             </div>
         </div>
-    }
+
+        <!-- Boş durumlar -->
+        <div class="table-glass-card" id="emptyNoGroups" @(Model.Groups.Any() ? "hidden" : "")>
+            <div class="empty-state">
+                <i class="bi bi-diagram-3"></i>
+                <h3>No synonym groups yet</h3>
+                <p>Words with the same Turkish meaning will be grouped here once you add at least 2 of them.</p>
+            </div>
+        </div>
+
+        <div class="table-glass-card" id="emptyNoResults" hidden>
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h3>No results found</h3>
+                <p>No word or meaning matches your search.</p>
+                <button type="button" class="syn-clear-btn" id="synEmptyClear">Clear search</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <partial name="_WordDetailModal" />
 
 @section Scripts {
     <script src="~/js/word-detail.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('synonymsSearchInput');
-            const rows = document.querySelectorAll('.synonyms-row');
-
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const term = this.value.toLowerCase().trim();
-                    
-                    rows.forEach(row => {
-                        const tr = row.dataset.tr;
-                        const en = row.dataset.en;
-                        
-                        if (tr.includes(term) || en.includes(term)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
-            }
-        });
-    </script>
+    <script src="~/js/synonym.js" asp-append-version="true"></script>
 }
