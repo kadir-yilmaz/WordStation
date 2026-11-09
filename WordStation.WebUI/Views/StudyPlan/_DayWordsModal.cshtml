@@ -1,4 +1,9 @@
+@using WordStation.WebUI.Models
 @model WordStation.EL.Dtos.StudyPlanDayDto
+
+@{
+    var synonymsLookup = ViewBag.SynonymsLookup as Dictionary<string, List<Word>>;
+}
 
 @if (Model?.Words != null && Model.Words.Any())
 {
@@ -37,6 +42,35 @@
                     <div class="fw-semibold mb-2" style="color: #38bdf8; font-size: 0.95rem;">
                         @word.Tr
                     </div>
+
+                    @{
+                        List<Word>? synList = null;
+                        if (synonymsLookup != null && !string.IsNullOrWhiteSpace(word.Tr))
+                        {
+                            var trKey = word.Tr.Trim().ToLowerInvariant();
+                            if (synonymsLookup.TryGetValue(trKey, out var matchedGroup))
+                            {
+                                synList = matchedGroup.Where(w => !string.Equals(w.En?.Trim(), word.En?.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+                            }
+                        }
+                    }
+
+                    @if (synList != null && synList.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-1.5 mb-2">
+                            @foreach (var syn in synList)
+                            {
+                                <span class="synonym-badge-sm" 
+                                      data-en="@syn.En" 
+                                      data-tr="@syn.Tr" 
+                                      data-example="@syn.Example"
+                                      onclick="if(window.showWordDetailFromElement) window.showWordDetailFromElement(this);"
+                                      title="@syn.ListName">
+                                    @syn.En
+                                </span>
+                            }
+                        </div>
+                    }
 
                     @if (!string.IsNullOrWhiteSpace(word.Example))
                     {

@@ -321,3 +321,35 @@
     width: 0;
     height: 0;
 }
+
+/* Eş Anlamlı Rozetleri (Study Plan Modal İçi) */
+.synonym-badge-sm {
+    background: rgba(244, 114, 182, 0.08);
+    border: 1px solid rgba(244, 114, 182, 0.35);
+    color: #f472b6;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+.synonym-badge-sm:hover {
+    background: rgba(244, 114, 182, 0.22);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 114, 182, 0.25);
+    border-color: rgba(244, 114, 182, 0.6);
+}
+
+/* Üst üste açılan Word Detail Modal z-index */
+#wordDetailModal {
+    z-index: 1070 !important;
+}
+.modal-backdrop.show:nth-of-type(even) {
+    z-index: 1065 !important;
+}

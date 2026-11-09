@@ -158,9 +158,13 @@
     </div>
 </div>
 
+<partial name="_WordDetailModal" />
+
 @section Scripts {
+    <script src="~/js/word-detail.js" asp-append-version="true"></script>
     <script>
         const preloadedDays = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<WordStation.EL.Dtos.StudyPlanDayDto>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        const preloadedSynonyms = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.SynonymsLookup ?? new Dictionary<string, List<WordStation.WebUI.Models.Word>>(), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
 
         function renderDayWords(day) {
             if (!day || !day.words || day.words.length === 0) {
@@ -180,6 +184,35 @@
                         badgeHtml = '<span class="badge rounded-pill px-2.5 py-1" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: none; font-size: 0.75rem;"><i class="bi bi-check-circle-fill me-1"></i>Doğru</span>';
                     } else {
                         badgeHtml = '<span class="badge rounded-pill px-2.5 py-1" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: none; font-size: 0.75rem;"><i class="bi bi-x-circle-fill me-1"></i>Yanlış</span>';
+                    }
+                }
+
+                // Eş anlamlı kelimeler (aynı Türkçe anlama sahip diğer kelimeler)
+                let synsHtml = '';
+                if (tr) {
+                    const trKey = tr.trim().toLowerCase();
+                    const groupWords = preloadedSynonyms[trKey] || [];
+                    const currentEn = en.trim().toLowerCase();
+                    const syns = groupWords.filter(w => (w.en || '').trim().toLowerCase() !== currentEn);
+
+                    if (syns.length > 0) {
+                        synsHtml = '<div class="d-flex flex-wrap gap-1 mb-2">';
+                        for (const s of syns) {
+                            const sEn = (s.en || '').replace(/"/g, '&quot;');
+                            const sTr = (s.tr || '').replace(/"/g, '&quot;');
+                            const sEx = (s.example || '').replace(/"/g, '&quot;');
+                            const sList = (s.listName || '').replace(/"/g, '&quot;');
+                            synsHtml += `
+                                <span class="synonym-badge-sm" 
+                                      data-en="${sEn}" 
+                                      data-tr="${sTr}" 
+                                      data-example="${sEx}" 
+                                      title="${sList}"
+                                      onclick="if(window.showWordDetailFromElement) window.showWordDetailFromElement(this);">
+                                    ${s.en}
+                                </span>`;
+                        }
+                        synsHtml += '</div>';
                     }
                 }
 
@@ -214,10 +247,14 @@
                             <div class="fw-semibold mb-2" style="color: #38bdf8; font-size: 0.95rem;">
                                 ${tr}
                             </div>
+                            ${synsHtml}
                             ${exampleHtml}
                         </div>
                     </div>`;
             }
+            html += '</div>';
+            return html;
+        }
             html += '</div>';
             return html;
         }

@@ -92,6 +92,31 @@ namespace WordStation.WebUI.Controllers
             return RedirectToAction(nameof(Detail), new { id = created.Id });
         }
 
+        private async Task<Dictionary<string, List<WordStation.WebUI.Models.Word>>> GetSynonymsLookupAsync()
+        {
+            try
+            {
+                var synonymGroups = await _wordService.GetSynonymGroupsAsync(CurrentUserId!, AccessToken!);
+                var lookup = new Dictionary<string, List<WordStation.WebUI.Models.Word>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var group in synonymGroups)
+                {
+                    if (!string.IsNullOrWhiteSpace(group.Tr) && group.Words != null && group.Words.Count > 0)
+                    {
+                        var key = group.Tr.Trim().ToLowerInvariant();
+                        if (!lookup.ContainsKey(key))
+                        {
+                            lookup[key] = group.Words;
+                        }
+                    }
+                }
+                return lookup;
+            }
+            catch
+            {
+                return new Dictionary<string, List<WordStation.WebUI.Models.Word>>();
+            }
+        }
+
         // GET: /StudyPlan/Detail/{id}
         public async Task<IActionResult> Detail(int id)
         {
@@ -101,10 +126,13 @@ namespace WordStation.WebUI.Controllers
             var plan = plans.FirstOrDefault(p => p.Id == id);
             if (plan == null) return NotFound("Plan bulunamadı.");
 
-            var days = await _studyPlanService.GetAllDaysAsync(id, CurrentUserId!, AccessToken!);
+            var daysTask = _studyPlanService.GetAllDaysAsync(id, CurrentUserId!, AccessToken!);
+            var synonymsTask = GetSynonymsLookupAsync();
+            await Task.WhenAll(daysTask, synonymsTask);
 
             ViewBag.Plan = plan;
-            return View(days);
+            ViewBag.SynonymsLookup = synonymsTask.Result;
+            return View(daysTask.Result);
         }
 
         // POST: /StudyPlan/Delete/{id}
@@ -133,9 +161,14 @@ namespace WordStation.WebUI.Controllers
         {
             if (!IsAuthenticated) return Unauthorized();
 
-            var day = await _studyPlanService.GetDayAsync(planId, dayNumber, CurrentUserId!, AccessToken!);
+            var dayTask = _studyPlanService.GetDayAsync(planId, dayNumber, CurrentUserId!, AccessToken!);
+            var synonymsTask = GetSynonymsLookupAsync();
+            await Task.WhenAll(dayTask, synonymsTask);
+
+            var day = dayTask.Result;
             if (day == null) return NotFound();
 
+            ViewBag.SynonymsLookup = synonymsTask.Result;
             return PartialView("_DayWordsModal", day);
         }
 
