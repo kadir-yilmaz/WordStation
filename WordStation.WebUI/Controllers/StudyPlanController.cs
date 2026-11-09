@@ -100,12 +100,25 @@ namespace WordStation.WebUI.Controllers
                 var lookup = new Dictionary<string, List<WordStation.WebUI.Models.Word>>(StringComparer.OrdinalIgnoreCase);
                 foreach (var group in synonymGroups)
                 {
-                    if (!string.IsNullOrWhiteSpace(group.Tr) && group.Words != null && group.Words.Count > 0)
+                    if (string.IsNullOrWhiteSpace(group.Tr) || group.Words == null || group.Words.Count == 0)
+                        continue;
+
+                    // Grubun Türkçe anlamı virgülle birden fazla anlam barındırıyorsa her birini kaydet
+                    var subKeys = group.Tr.Split(new[] { ',', ';', '/' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    foreach (var sub in subKeys)
                     {
-                        var key = group.Tr.Trim().ToLowerInvariant();
+                        var key = sub.Trim().ToLowerInvariant();
                         if (!lookup.ContainsKey(key))
                         {
-                            lookup[key] = group.Words;
+                            lookup[key] = new List<WordStation.WebUI.Models.Word>(group.Words);
+                        }
+                        else
+                        {
+                            lookup[key].AddRange(group.Words);
+                            lookup[key] = lookup[key]
+                                .GroupBy(w => (w.En ?? string.Empty).Trim().ToLowerInvariant())
+                                .Select(g => g.First())
+                                .ToList();
                         }
                     }
                 }

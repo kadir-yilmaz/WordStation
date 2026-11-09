@@ -92,7 +92,10 @@
                                 }
                                 <h5 class="fw-bold mb-0 text-white">Gün @day.DayNumber</h5>
                             </div>
-                            <button type="button" class="btn btn-sm sp-btn-outline btn-view-words" data-plan-id="@plan?.Id" data-day-number="@day.DayNumber" title="Kelimeleri Önizle">
+                            <button type="button" class="btn btn-sm sp-btn-outline btn-view-words" 
+                                    data-plan-id="@plan?.Id" data-day-number="@day.DayNumber" 
+                                    onclick="openDayWordsModal(@day.DayNumber, @plan?.Id)"
+                                    title="Kelimeleri Önizle">
                                 <i class="bi bi-eye"></i> Kelimeler
                             </button>
                         </div>
@@ -187,14 +190,29 @@
                     }
                 }
 
-                // Eş anlamlı kelimeler (aynı Türkçe anlama sahip diğer kelimeler)
+                // Eş anlamlı kelimeler (virgülle ayrılmış anlamları da destekler)
                 let synsHtml = '';
                 if (tr) {
-                    const trKey = tr.trim().toLowerCase();
-                    const groupWords = preloadedSynonyms[trKey] || [];
-                    const currentEn = en.trim().toLowerCase();
-                    const syns = groupWords.filter(w => (w.en || '').trim().toLowerCase() !== currentEn);
+                    const meanings = tr
+                        .split(/[,;\/]/)
+                        .map(m => m.trim().toLowerCase())
+                        .filter(m => m.length > 0);
 
+                    const currentEn = en.trim().toLowerCase();
+                    const synsMap = new Map();
+
+                    meanings.forEach(m => {
+                        const list = preloadedSynonyms[m] || [];
+                        list.forEach(w => {
+                            const wEn = (w.en || '').trim();
+                            const wEnLower = wEn.toLowerCase();
+                            if (wEnLower && wEnLower !== currentEn && !synsMap.has(wEnLower)) {
+                                synsMap.set(wEnLower, w);
+                            }
+                        });
+                    });
+
+                    const syns = Array.from(synsMap.values());
                     if (syns.length > 0) {
                         synsHtml = '<div class="d-flex flex-wrap gap-1 mb-2">';
                         for (const s of syns) {
@@ -255,48 +273,50 @@
             html += '</div>';
             return html;
         }
-            html += '</div>';
-            return html;
+
+        const daysMap = new Map();
+        if (Array.isArray(preloadedDays)) {
+            preloadedDays.forEach(d => daysMap.set(Number(d.dayNumber), d));
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        function openDayWordsModal(dayNumber, planId) {
             const modalEl = document.getElementById('wordsModal');
-            const modal = new bootstrap.Modal(modalEl);
+            if (!modalEl) return;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
             const content = document.getElementById('modalWordsContent');
             const titleEl = document.getElementById('wordsModalLabel');
 
-            const daysMap = new Map();
-            if (Array.isArray(preloadedDays)) {
-                preloadedDays.forEach(d => daysMap.set(Number(d.dayNumber), d));
+            if (titleEl) {
+                titleEl.innerText = `Gün ${dayNumber} Kelimeleri`;
             }
 
+            modal.show();
+
+            // Anında yerel bellekten aç (0ms gecikme)
+            if (daysMap.has(Number(dayNumber))) {
+                content.innerHTML = renderDayWords(daysMap.get(Number(dayNumber)));
+                return;
+            }
+
+            // Yedek AJAX (önbellekte bulunamazsa)
+            content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>';
+            fetch(`/StudyPlan/DayWords?planId=${planId}&dayNumber=${dayNumber}`)
+                .then(res => res.text())
+                .then(html => {
+                    content.innerHTML = html;
+                })
+                .catch(err => {
+                    content.innerHTML = '<div class="alert alert-danger bg-opacity-25 border-0 text-danger">Kelimeler yüklenemedi.</div>';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.btn-view-words').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
                     const planId = this.getAttribute('data-plan-id');
                     const dayNumber = Number(this.getAttribute('data-day-number'));
-
-                    if (titleEl) {
-                        titleEl.innerText = `Gün ${dayNumber} Kelimeleri`;
-                    }
-
-                    modal.show();
-
-                    // Anında yerel bellekten aç (0ms gecikme)
-                    if (daysMap.has(dayNumber)) {
-                        content.innerHTML = renderDayWords(daysMap.get(dayNumber));
-                        return;
-                    }
-
-                    // Yedek AJAX (önbellekte bulunamazsa)
-                    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>';
-                    fetch(`/StudyPlan/DayWords?planId=${planId}&dayNumber=${dayNumber}`)
-                        .then(res => res.text())
-                        .then(html => {
-                            content.innerHTML = html;
-                        })
-                        .catch(err => {
-                            content.innerHTML = '<div class="alert alert-danger bg-opacity-25 border-0 text-danger">Kelimeler yüklenemedi.</div>';
-                        });
+                    openDayWordsModal(dayNumber, planId);
                 });
             });
         });

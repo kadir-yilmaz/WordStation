@@ -47,11 +47,18 @@
                         List<Word>? synList = null;
                         if (synonymsLookup != null && !string.IsNullOrWhiteSpace(word.Tr))
                         {
-                            var trKey = word.Tr.Trim().ToLowerInvariant();
-                            if (synonymsLookup.TryGetValue(trKey, out var matchedGroup))
-                            {
-                                synList = matchedGroup.Where(w => !string.Equals(w.En?.Trim(), word.En?.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
-                            }
+                            var meanings = word.Tr
+                                .Split(new[] { ',', ';', '/' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                .Select(m => m.ToLowerInvariant())
+                                .ToList();
+
+                            synList = meanings
+                                .Where(m => synonymsLookup.ContainsKey(m))
+                                .SelectMany(m => synonymsLookup[m])
+                                .Where(w => !string.Equals(w.En?.Trim(), word.En?.Trim(), StringComparison.OrdinalIgnoreCase))
+                                .GroupBy(w => (w.En ?? string.Empty).Trim().ToLowerInvariant())
+                                .Select(g => g.First())
+                                .ToList();
                         }
                     }
 
